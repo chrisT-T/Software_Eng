@@ -27,7 +27,8 @@
                 'optimize', 
                 'style', 
                 'docs', 
-                'chore'
+                'chore',
+                'ci'
              ]
         ],
         'type-case': [0],

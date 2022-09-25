@@ -1,0 +1,13 @@
+name: GitHub Actions Demo
+on: 
+  push:
+    branch:
+      - main
+  pull_request:
+
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v3
