@@ -1,13 +1,24 @@
-name: GitHub Actions Demo
+name: CI
 on: 
   push:
     branch:
       - main
+      - ci/frontend
   pull_request:
 
 jobs:
-  Explore-GitHub-Actions:
+  Frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Code checkout
         uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Frontend Docker
+        uses: docker/build-push-action@v3
+        with:
+          push: False
+          tags: adfwer/web_ide_frontend:latest
+          context: ./frontend
