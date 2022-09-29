@@ -20,5 +20,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: False
-          tags: adfwer/Web_IDE_frontend:latest
+          tags: adfwer/web_ide_frontend:latest
           context: ./frontend
