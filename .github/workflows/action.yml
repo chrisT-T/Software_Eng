@@ -3,6 +3,7 @@ on:
   push:
     branch:
       - main
+      - ci/frontend
   pull_request:
 
 jobs:
