@@ -1,0 +1,12 @@
+FROM python:3.9-buster
+
+COPY ./requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+WORKDIR /app
+
+CMD [ "/bin/bash", "start.sh"]
+EXPOSE 5000
