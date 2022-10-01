@@ -3,7 +3,6 @@ on:
   push:
     branch:
       - main
-      - init/backend
   pull_request:
 
 jobs:
