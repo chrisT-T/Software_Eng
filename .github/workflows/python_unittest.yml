@@ -12,6 +12,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      with:
+        context: ./backend
       - uses: actions/checkout@v2
       - name: Install Python 3
         uses: actions/setup-python@v1
