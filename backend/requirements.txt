@@ -1,5 +1,5 @@
 Flask==2.2.2
 autopep8
 pytest
-python-lsp-server[all]
+python-lsp-server[websockets]
 debugpy

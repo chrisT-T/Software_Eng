@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "monaco-editor": "^0.34.0",
     "monaco-editor-vue3": "^0.1.6",
+    "monaco-languageclient": "^4.0.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
