@@ -1,18 +1,19 @@
 <template>
-  <div class="home">
+  <!-- <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
     <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-  </div>
+  </div> -->
+  <simple-editor></simple-editor>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import SimpleEditor from "@/components/MonacoEditorPanel/SimpleEditor.vue";
 
 export default defineComponent({
   name: "HomeView",
   components: {
-    HelloWorld,
+    SimpleEditor,
   },
 });
 </script>
