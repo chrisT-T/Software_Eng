@@ -3,3 +3,8 @@ autopep8
 pytest
 python-lsp-server[all]
 debugpy
+flask_sqlalchemy
+flask_script
+flask_migrate
+flask_restful
+flasgger
