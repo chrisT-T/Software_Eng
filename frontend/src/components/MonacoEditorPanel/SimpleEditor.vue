@@ -7,7 +7,19 @@
 <script lang="ts" setup>
 import { onMounted, ref, shallowRef } from "vue";
 import * as monaco from "monaco-editor";
-import { MonacoServices } from "monaco-languageclient";
+import {
+  MonacoLanguageClient,
+  CloseAction,
+  ErrorAction,
+  MonacoServices,
+  MessageTransports,
+} from "monaco-languageclient";
+
+import {
+  toSocket,
+  WebSocketMessageReader,
+  WebSocketMessageWriter,
+} from "vscode-ws-jsonrpc";
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditor = ref<HTMLElement | null>(null);
@@ -26,9 +38,28 @@ onMounted(() => {
 
   MonacoServices.install();
 
-  const webSocket = new WebSocket("ws://localhost:30000");
+  const webSocket = new WebSocket("ws://localhost:30005");
   // define the connection(websocket) to the language server
   webSocket.onopen = () => {
+    const socket = toSocket(webSocket);
+    const reader = WebSocketMessageReader(socket);
+    const writer = WebSocketMessageWriter(socket);
+    const languageClient = new MonacoLanguageClient({
+      clientOptions: {
+        documentSelector: ["python"],
+        errorHandler: {
+          error: () => ({ action: ErrorAction.Continue }),
+          closed: () => ({ action: CloseAction.DoNotRestart }),
+        },
+      },
+      connectionProvider: {
+        get: () => {
+          return Promise.resolve(MessageTransports({ reader, writer }));
+        },
+      },
+    });
+    languageClient.start();
+    reader.onClose(() => languageClient.stop());
     console.log("websocket on open");
   };
 });
