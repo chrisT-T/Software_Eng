@@ -26,5 +26,9 @@
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "dependencies": {
+    "monaco-editor-webpack-plugin": "^7.0.1",
+    "vscode-languageclient": "^8.0.2"
   }
 }
