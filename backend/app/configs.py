@@ -6,6 +6,7 @@ class Config():
     SQLALCHEMY_DATABASE_URI = config.get_yaml('db.URI', '')
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SECRET_KEY = config.get_yaml('app.SECRET_KEY', '')
 
 
 class DevConfig(Config):
