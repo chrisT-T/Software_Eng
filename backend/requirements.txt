@@ -8,3 +8,5 @@ flask_script
 flask_migrate
 flask_restful
 flasgger
+flask_login
+flask_wtf
