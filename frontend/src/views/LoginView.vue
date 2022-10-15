@@ -3,7 +3,7 @@
     <el-container>
       <el-header></el-header>
       <el-main>
-        <div class="rollbox"></div>
+        <div class="rollbox">ROLLING</div>
         <div class="loginbox">
           <el-tabs
             v-model="activeName"
@@ -51,7 +51,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 .el-header {
   height: 50px;
-  background-color: var(--el-color-primary-light-3);
+  background-color: var(--el-color-primary-dark-2);
 }
 
 .el-main {
@@ -65,13 +65,13 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 .rollbox {
   height: 300px;
   width: 200px;
-  background-color: var(--el-color-warning-light-5);
+  /*background-color: var(--el-color-warning-light-5);*/
 }
 
 .loginbox {
   height: 350px;
   width: 270px;
-  background-color: var(--el-color-warning-light-7);
+  background-color: var(--el-color-primary-light-7);
   border-radius: 10px;
   padding: 15px;
   overflow: hidden;
