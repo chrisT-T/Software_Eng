@@ -1,5 +1,6 @@
 app:
   HOST: 127.0.0.1
   PORT: 5000
+  SECRET_KEY: 5974670705028e6efc33d95d35a0ce264d7f4283cee7106b48188b4bcea96d13
 db:
   URI: sqlite:///dev.db

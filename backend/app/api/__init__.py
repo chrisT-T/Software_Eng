@@ -1,4 +1,4 @@
-from app.api import hello
-blueprints = [
-    hello.bp
+from . import hello
+api_bp = [
+    hello.bp,
 ]
