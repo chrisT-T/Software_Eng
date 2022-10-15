@@ -19,7 +19,7 @@ def login():
             if user.validate_password(password):
                 login_user()
                 flash('You are logged in now.')
-                return redirect(request.args.get('next') 
+                return redirect(request.args.get('next')
                                 or url_for('/index.html'))
         else:
             flash('Failed to log in. Wrong username or password.')
