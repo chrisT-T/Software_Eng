@@ -7,7 +7,7 @@ import "element-plus/dist/index.css";
 import ArcoVue from "@arco-design/web-vue";
 import "@arco-design/web-vue/dist/arco.css";
 
-const app = createApp(App)
+createApp(App)
   .use(store)
   .use(router)
   .use(ElementPlus)
