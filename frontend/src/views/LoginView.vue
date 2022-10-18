@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-container>
-      <el-header></el-header>
+      <el-header> <div class="header">TO-CODE</div> </el-header>
       <el-main>
         <div class="rollbox">ROLLING</div>
         <div class="loginbox">
@@ -40,7 +40,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 .login {
   height: 100%;
   width: 100%;
-  background-color: var(--el-color-primary-light-9);
+  background-image: linear-gradient(170deg, rgb(var(--arcoblue-1)), #fff 33%);
 }
 
 .el-container {
@@ -51,7 +51,11 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 .el-header {
   height: 50px;
-  background-color: var(--el-color-primary-dark-2);
+  background-color: #fff;
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .el-main {
@@ -71,7 +75,8 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 .loginbox {
   height: 350px;
   width: 270px;
-  background-color: var(--el-color-primary-light-7);
+  background-color: var(--el-color-primary-light-9);
+  box-shadow: 3px 4px 5px 0px rgb(8 89 170 / 24%);
   border-radius: 10px;
   padding: 15px;
   overflow: hidden;
