@@ -1,5 +1,6 @@
-from . import hello, project
+from . import hello, project, user
 api_bp = [
     hello.bp,
-    project.bp
+    project.bp,
+    user.bp
 ]

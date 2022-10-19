@@ -11,6 +11,7 @@ bp = Blueprint(
 
 api = Api(bp)
 
+
 class Project(Resource):
     def get(self):
 
@@ -18,5 +19,5 @@ class Project(Resource):
 
         return "test"
 
-api.add_resource(Project, '/project')
 
+api.add_resource(Project, '/project')

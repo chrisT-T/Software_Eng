@@ -7,6 +7,7 @@ class Config():
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SECRET_KEY = config.get_yaml('app.SECRET_KEY', '')
+    WTF_CSRF_CHECK_DEFAULT = False
 
 
 class DevConfig(Config):
