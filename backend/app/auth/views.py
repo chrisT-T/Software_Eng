@@ -17,10 +17,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user:
             if user.validate_password(password):
-                login_user()
+                login_user(user)
                 flash('You are logged in now.')
-                return redirect(request.args.get('next')
-                                or url_for('/index.html'))
+                return 'test'
         else:
             flash('Failed to log in. Wrong username or password.')
     if form.errors:
