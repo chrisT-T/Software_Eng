@@ -8,3 +8,4 @@ class Project(db.Model):
     project_name = db.Column(db.String(32))
     create_time = db.Column(db.DateTime)
     project_language = db.Column(db.Enum('python', 'cpp', 'typescript'))
+    docker_id = db.Column(db.Text)

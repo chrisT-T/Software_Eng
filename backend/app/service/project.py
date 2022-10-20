@@ -21,13 +21,6 @@ class ProjectService():
                 max_id = 0
             else:
                 max_id = select_res.first().id
-            new_project = Project(id=max_id + 1,
-                                  creator_id=creator_id,
-                                  create_time=datetime.date.fromtimestamp(time.time()),
-                                  project_name=project_name,
-                                  project_language=project_language)
-            db.session.add(new_project)
-            db.session.commit()
 
             # create project root_dir
             project_root_dir = (f'{max_id+1}-{project_name}-{project_language}')
@@ -46,12 +39,21 @@ class ProjectService():
             if project_language == 'python':
                 container = docker_client.containers.run(
                     image='python:3.9',
-                    command='sh -c ls',
+                    command='sh -c "while true;do echo hello docker;sleep 1;done"',
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
                 )
-                print(container.id)
 
+                docker_id = container.id
+
+            new_project = Project(id=max_id + 1,
+                                  creator_id=creator_id,
+                                  create_time=datetime.date.fromtimestamp(time.time()),
+                                  project_name=project_name,
+                                  project_language=project_language,
+                                  docker_id=docker_id)
+            db.session.add(new_project)
+            db.session.commit()
             return 'ok'
         except Exception as e: # noqa
             print(e)
