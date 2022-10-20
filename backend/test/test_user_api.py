@@ -55,4 +55,12 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_create_project(self):
-        pass
+        data = {"creator_id": 0, "project_name": "testProj", 'project_language': "python"}
+        response = current_app.test_client().post(
+            "/project",
+            json=data
+        )
+
+        json_data = json.loads(response.data)
+        self.assertEqual(json_data['message'], "ok")
+        self.assertEqual(response.status_code, 200)
