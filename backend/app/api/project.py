@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 from flask_restful import Api, Resource
 
-from app.model import project
 from app.extensions import db
+from app.model import project
 
 bp = Blueprint(
     'project',
@@ -15,7 +15,7 @@ api = Api(bp)
 class Project(Resource):
     def get(self):
 
-        tmp = project.Project.query.all()
+        project.Project.query.all()
 
         return "test"
 

@@ -1,10 +1,11 @@
-from flask import current_app, url_for
-from app import create_app, db
-
-from app.model.login import User
-from werkzeug.security import generate_password_hash
-import unittest
 import json
+import unittest
+
+from flask import current_app, url_for
+from werkzeug.security import generate_password_hash
+
+from app import create_app, db
+from app.model.login import User
 
 
 class APITestCase(unittest.TestCase):
@@ -30,6 +31,9 @@ class APITestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_create_user(self):
+        '''
+        Test create_user api
+        '''
         data = {"username": "adfwer", "password": "adfwer"}
         response = current_app.test_client().post(
             "/user",
@@ -39,3 +43,16 @@ class APITestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "ok")
         self.assertEqual(response.status_code, 200)
+
+        data = {"username": "abcd", "password": "abcd"}
+        response = current_app.test_client().post(
+            "/user",
+            json=data
+        )
+
+        json_data = json.loads(response.data)
+        self.assertEqual(json_data['message'], "ok")
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_project(self):
+        pass

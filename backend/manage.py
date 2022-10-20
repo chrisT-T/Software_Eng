@@ -1,10 +1,11 @@
 import os
+
 from flask_migrate import Migrate
-from app import create_app
-from app.utils import config
-from app import db
-from app.model.login import User
 from werkzeug.security import generate_password_hash
+
+from app import create_app, db
+from app.model.login import User
+from app.utils import config
 
 app = create_app(os.getenv('TYPE', 'default'))
 host = config.get_yaml('app.HOST')
