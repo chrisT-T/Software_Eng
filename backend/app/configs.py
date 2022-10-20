@@ -23,6 +23,7 @@ class ProdConfig(Config):
 class TestConfig(Config):
     TYPE = 'test'
     DEBUG = True
+    ROOT_DIR = './TestFileSystem'
     SQLALCHEMY_DATABASE_URI = "sqlite:///test.db"
 
 
