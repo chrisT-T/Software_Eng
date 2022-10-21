@@ -62,14 +62,47 @@ const handleTabsEdit = (targetName: string, action: "remove" | "add") => {
 <style>
 .demo-tabs > .el-tabs__content {
   margin: 0px;
-  background-color: #000000;
+  background-color: #000000e6;
   font-size: 32px;
   font-weight: 600;
 }
 
-.el-tabs__header {
+.demo-tabs > .el-tabs__header {
   padding: 0;
   position: relative;
   margin: 0 0 0px;
+}
+
+.el-tabs__header > .el-tabs__nav-wrap {
+  margin-bottom: 0px;
+}
+
+.el-tabs--card.el-tabs > .el-tabs__header {
+  border-bottom: 0px solid var(--el-border-color-light);
+}
+
+.el-tabs--card.el-tabs > .el-tabs__header .el-tabs__nav {
+  border-bottom: 0px solid var(--el-border-color-light);
+  border: 0px solid var(--el-border-color-light);
+}
+
+.el-tabs__nav {
+  background-color: #000000e6;
+}
+
+.el-tabs__nav > .el-tabs__item {
+  color: #6c6e73;
+}
+
+.el-tabs__nav > .el-tabs__item.is-active {
+  color: #ffffff;
+}
+
+.el-tabs__nav > .el-tabs__item:hover {
+  color: #ffffff;
+}
+
+.el-tabs--card.el-tabs > .el-tabs__header .el-tabs__item {
+  border-left: 0px;
 }
 </style>
