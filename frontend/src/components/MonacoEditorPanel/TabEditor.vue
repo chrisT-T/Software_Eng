@@ -25,7 +25,7 @@ let tabIndex = 1;
 const editableTabsValue = ref("1");
 const editableTabs = ref([
   {
-    title: "Tab 1",
+    title: "Get Started",
     name: "1",
     content: "Tab 1 content",
   },
@@ -35,7 +35,7 @@ const handleTabsEdit = (targetName: string, action: "remove" | "add") => {
   if (action === "add") {
     const newTabName = `${++tabIndex}`;
     editableTabs.value.push({
-      title: "New Tab",
+      title: "New Tab", // there is for the file name
       name: newTabName,
       content: "New Tab content",
     });
