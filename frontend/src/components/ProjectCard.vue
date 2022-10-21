@@ -11,29 +11,41 @@
         <template #columns>
           <a-table-column title="项目名称">
             <template #cell="{ record }">
-              <div class="type-box">
-                <img
-                  v-if="record.language === 'Python'"
-                  alt="avater"
-                  src="https://api.iconify.design/logos:python.svg"
-                />
-                <img
-                  v-if="record.language === 'Java'"
-                  alt="avater"
-                  src="https://api.iconify.design/logos:java.svg"
-                />
-                <img
-                  v-if="record.language === 'C'"
-                  alt="avater"
-                  src="https://api.iconify.design/logos:c.svg"
-                />
-                <img
-                  v-if="record.language === 'Cpp'"
-                  alt="avater"
-                  src="https://api.iconify.design/logos:c-plusplus.svg"
-                />
-                <span>{{ record.projectName }}</span>
-              </div>
+              <router-link
+                replace
+                :to="{
+                  name: 'coding',
+                  params: { username: name, projectid: record.projectID },
+                }"
+              >
+                <div class="type-box">
+                  <img
+                    v-if="record.language === 'Python'"
+                    alt="avater"
+                    src="https://api.iconify.design/logos:python.svg"
+                  />
+                  <img
+                    v-if="record.language === 'Java'"
+                    alt="avater"
+                    src="https://api.iconify.design/logos:java.svg"
+                  />
+                  <img
+                    v-if="record.language === 'C'"
+                    alt="avater"
+                    src="https://api.iconify.design/logos:c.svg"
+                  />
+                  <img
+                    v-if="record.language === 'Cpp'"
+                    alt="avater"
+                    src="https://api.iconify.design/logos:c-plusplus.svg"
+                  />
+                  <!-- <span>{{ record.projectName }}</span> -->
+
+                  <span :style="{ margin: '10px' }">
+                    {{ record.projectName }}
+                  </span>
+                </div>
+              </router-link>
             </template>
           </a-table-column>
           <a-table-column title="创建人">
@@ -87,9 +99,13 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from "vue";
+import { reactive, getCurrentInstance } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
+import router from "@/router";
+import { useRouter } from "vue-router";
+
+const name = useRouter().currentRoute.value.params.username;
 
 const basePagination: PaginationProps = {
   current: 1,
@@ -166,6 +182,14 @@ const data: ProjectData[] = [
 .type-box span {
   margin: 0 10px;
   white-space: nowrap;
+}
+.router-link-active {
+  text-decoration: none;
+  color: black;
+}
+a {
+  text-decoration: none;
+  color: black;
 }
 </style>
 

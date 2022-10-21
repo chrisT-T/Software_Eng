@@ -3,7 +3,32 @@
     <el-header>
       <div class="header">TO-CODE</div>
       <div class="user-part">
-        <a-avatar :size="34">Arco</a-avatar>
+        <!-- <a-dropdown trigger="hover">
+          <a-avatar :size="36">{{ name }}</a-avatar>
+          <template #content>
+            <a-doption>Option 1</a-doption>
+            <a-doption>Option 2</a-doption>
+          </template>
+        </a-dropdown> -->
+        <a-dropdown position="br" trigger="hover">
+          <a-avatar
+            :trigger-icon-style="{ color: '#3491FA' }"
+            :auto-fix-font-size="false"
+            :style="{ backgroundColor: '#168CFF' }"
+            :size="34"
+          >
+            {{ name }}
+          </a-avatar>
+          <template #content>
+            <a-doption>个人详情</a-doption>
+            <a-doption @click="logout">
+              <template #icon>
+                <icon-export />
+              </template>
+              <template #default>登出</template>
+            </a-doption>
+          </template>
+        </a-dropdown>
       </div>
     </el-header>
     <el-container>
@@ -16,6 +41,16 @@
 <script lang="ts" setup>
 import MenuBox from "@/components/MenuBox.vue";
 import ProjectCard from "@/components/ProjectCard.vue";
+import router from "@/router";
+import { useRouter } from "vue-router";
+import { IconExport } from "@arco-design/web-vue/es/icon";
+
+const name = useRouter().currentRoute.value.params.username;
+
+const logout = () => {
+  console.log("logout");
+  router.replace("/login");
+};
 </script>
 
 <style scoped>

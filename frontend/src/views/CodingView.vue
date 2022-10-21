@@ -3,13 +3,24 @@
     <el-container>
       <el-header>
         <div class="header">
-          <icon-home :style="{ fontSize: '18px' }" :stroke-width="3" />
-          <icon-save :style="{ fontSize: '18px' }" :stroke-width="3" />
+          <a-button @click="backmain">
+            <template #icon
+              ><icon-home
+                :style="{ fontSize: '20px', margin: '3px' }"
+                :stroke-width="3"
+                @click="backmain"
+            /></template>
+          </a-button>
+
+          <icon-save
+            :style="{ fontSize: '20px', margin: '3px' }"
+            :stroke-width="3"
+          />
           <span class="header-span">TO-CODE</span>
           <a-avatar :size="20">Arco</a-avatar>
         </div>
         <div class="user-part">
-          <a-button-group type="primary" size="mini">
+          <a-button-group type="primary" size="small">
             <a-button>
               <template #icon><icon-play-arrow-fill /></template>
             </a-button>
@@ -21,7 +32,10 @@
             </a-button>
           </a-button-group>
           <a-divider direction="vertical" />
-          <icon-user-add :stroke-width="3" />
+          <icon-user-add
+            :style="{ fontSize: '20px', margin: '0 5px' }"
+            :stroke-width="3"
+          />
         </div>
       </el-header>
       <el-container class="el2">
@@ -62,6 +76,14 @@ import {
   IconPause,
 } from "@arco-design/web-vue/es/icon";
 import FileTreeBox from "@/components/FileTreeBox.vue";
+import router from "@/router";
+import { useRouter } from "vue-router";
+const name = useRouter().currentRoute.value.params.username;
+
+const backmain = () => {
+  console.log(name);
+  router.replace({ name: "main", params: { username: name } });
+};
 </script>
 
 <style scoped>
@@ -73,7 +95,7 @@ import FileTreeBox from "@/components/FileTreeBox.vue";
   margin: 0 10px;
 }
 .el-header {
-  height: 30px;
+  height: 40px;
   background-color: #fff;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
   display: flex;

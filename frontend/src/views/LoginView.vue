@@ -40,7 +40,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 .login {
   height: 100%;
   width: 100%;
-  background-image: linear-gradient(170deg, rgb(var(--arcoblue-1)), #fff 33%);
+  background-image: linear-gradient(170deg, rgb(var(--arcoblue-2)), #fff 33%);
 }
 
 .el-container {
