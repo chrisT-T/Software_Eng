@@ -12,6 +12,7 @@
     "element-plus": "^2.2.18",
     "monaco-editor": "^0.34.0",
     "monaco-editor-vue3": "^0.1.6",
+    "monaco-editor-webpack-plugin": "^7.0.1",
     "monaco-languageclient": "^4.0.0",
     "unplugin-auto-import": "^0.11.2",
     "vscode-json-languageservice": "^5.1.1",
