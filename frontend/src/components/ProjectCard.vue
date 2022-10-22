@@ -165,15 +165,8 @@
       <el-table-column property="user" label="用户名" width="150" />
       <el-table-column property="permission" label="权限组" />
       <el-table-column fixed="right" label="操作" width="100">
-        <template #default="scope">
-          <el-button
-            link
-            type="primary"
-            size="small"
-            @click.prevent="deleteRow(scope.$index)"
-          >
-            Remove
-          </el-button>
+        <template #default>
+          <el-button link type="primary" size="small"> Remove </el-button>
         </template>
       </el-table-column>
     </el-table>
