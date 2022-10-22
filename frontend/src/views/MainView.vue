@@ -2,14 +2,25 @@
   <div class="main">
     <el-header>
       <div class="header">TO-CODE</div>
-      <div class="user-part">
-        <!-- <a-dropdown trigger="hover">
-          <a-avatar :size="36">{{ name }}</a-avatar>
-          <template #content>
-            <a-doption>Option 1</a-doption>
-            <a-doption>Option 2</a-doption>
+      <div class="mt-4">
+        <el-input
+          v-model="input3"
+          placeholder=" "
+          class="input-with-select"
+          style="width: 440px"
+        >
+          <template #prepend>
+            <el-button :icon="Search" style="width: 40px" />
           </template>
-        </a-dropdown> -->
+          <template #append>
+            <el-select v-model="select" placeholder=" " style="width: 100px">
+              <el-option label="项目名称" value="1" />
+              <el-option label="创建人" value="2" />
+            </el-select>
+          </template>
+        </el-input>
+      </div>
+      <div class="user-part">
         <a-dropdown position="br" trigger="hover">
           <a-avatar
             :trigger-icon-style="{ color: '#3491FA' }"
@@ -39,13 +50,18 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import MenuBox from "@/components/MenuBox.vue";
 import ProjectCard from "@/components/ProjectCard.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
+import { Search } from "@element-plus/icons-vue";
 
 const name = useRouter().currentRoute.value.params.username;
+
+const input3 = ref("");
+const select = ref("");
 
 const logout = () => {
   console.log("logout");
@@ -69,5 +85,11 @@ const logout = () => {
 }
 .el-container {
   height: 90%;
+}
+</style>
+
+<style>
+.input-with-select .el-input-group__prepend {
+  background-color: var(--el-fill-color-blank);
 }
 </style>
