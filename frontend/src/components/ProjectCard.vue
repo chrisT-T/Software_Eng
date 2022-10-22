@@ -115,11 +115,7 @@
     </a-card>
   </div>
 
-  <el-dialog
-    v-model="dialogFormVisible"
-    title="新建项目"
-    :before-close="handleClose"
-  >
+  <el-dialog v-model="dialogFormVisible" title="新建项目">
     <el-form :model="form" red="addForm">
       <el-form-item label="项目名称" :label-width="formLabelWidth">
         <el-input v-model="form.name" autocomplete="off" />
