@@ -79,7 +79,9 @@
                   </a-avatar-group>
                 </div>
                 <template #content>
-                  <a-doption>修改权限组</a-doption>
+                  <a-doption @click="dialogTableVisible = true"
+                    >修改权限组</a-doption
+                  >
                 </template>
               </a-dropdown>
             </template>
@@ -101,7 +103,9 @@
                   <template #content>
                     <a-doption>修改名称</a-doption>
                     <a-doption>删除项目</a-doption>
-                    <a-doption>修改权限组</a-doption>
+                    <a-doption @click="dialogTableVisible = true"
+                      >修改权限组</a-doption
+                    >
                   </template>
                 </a-dropdown>
                 <a-button type="text" shape="circle"
@@ -156,6 +160,51 @@
       </template> -->
     </el-upload>
   </el-dialog>
+  <el-dialog v-model="dialogTableVisible" title="权限组">
+    <el-table :data="changepr">
+      <el-table-column property="user" label="用户名" width="150" />
+      <el-table-column property="permission" label="权限组" />
+      <el-table-column fixed="right" label="操作" width="100">
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click.prevent="deleteRow(scope.$index)"
+          >
+            Remove
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button
+      class="mt-4"
+      style="width: 100%"
+      @click="dialogShareVisible = true"
+      >Add Item</el-button
+    >
+  </el-dialog>
+  <el-dialog v-model="dialogShareVisible" title="共享项目">
+    <el-form :model="form" ref="addForm">
+      <el-form-item label="用户ID" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="共享权限" :label-width="formLabelWidth">
+        <el-select v-model="form.region" placeholder="选择项目语言">
+          <el-option label="只可读" value="readonly" />
+          <el-option label="可编辑" value="edit" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -171,6 +220,8 @@ const name = useRouter().currentRoute.value.params.username;
 
 const dialogFormVisible = ref(false);
 const dialogUploadVisible = ref(false);
+const dialogTableVisible = ref(false);
+const dialogShareVisible = ref(false);
 
 const formLabelWidth = "140px";
 const form = reactive({
@@ -238,6 +289,21 @@ interface PermissionTest {
   user: string;
   permission: "readonly" | "edit";
 }
+
+const changepr: PermissionTest[] = [
+  {
+    user: "A",
+    permission: "readonly",
+  },
+  {
+    user: "B",
+    permission: "readonly",
+  },
+  {
+    user: "C",
+    permission: "edit",
+  },
+];
 
 const data: ProjectData[] = [
   {
