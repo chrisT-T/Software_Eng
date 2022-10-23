@@ -57,6 +57,7 @@ const addTab = (targetName: string) => {
   });
   editableTabsValue.value = newTabName;
 };
+
 const removeTab = (targetName: string) => {
   const tabs = editableTabs.value;
   let activeName = editableTabsValue.value;

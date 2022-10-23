@@ -157,7 +157,6 @@ onMounted(() => {
 
   editor.value?.onMouseDown((e) => {
     const { target } = e;
-    console.log(target.type);
     if (
       target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
       target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS
