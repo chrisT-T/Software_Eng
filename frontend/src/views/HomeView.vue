@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import TabEditor from "@/components/MonacoEditorPanel/TabEditor.vue";
+import TabEditor from "@/components/MonacoEditorPanel/EditorPanel.vue";
 
 export default defineComponent({
   name: "HomeView",

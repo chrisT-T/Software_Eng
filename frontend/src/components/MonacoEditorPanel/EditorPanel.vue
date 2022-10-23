@@ -12,13 +12,13 @@
       :label="item.title"
       :name="item.name"
     >
-      <simple-editor></simple-editor>
+      <MonacoEditor></MonacoEditor>
     </el-tab-pane>
   </el-tabs>
 </template>
 
 <script lang="ts" setup>
-import SimpleEditor from "@/components/MonacoEditorPanel/SimpleEditor.vue";
+import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import { ref } from "vue";
 
 let tabIndex = 1;
