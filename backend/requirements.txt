@@ -1,5 +1,13 @@
 Flask==2.2.2
 autopep8
 pytest
-python-lsp-server[websockets]
+python-lsp-server[all]
 debugpy
+flask_sqlalchemy
+flask_script
+flask_migrate
+flask_restful
+flasgger
+flask_login
+flask_wtf
+requests
