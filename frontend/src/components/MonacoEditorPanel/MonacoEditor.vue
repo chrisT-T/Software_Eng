@@ -1,11 +1,18 @@
 <template>
   <div>
-    <div class="monaco-editor" ref="monacoEditor"></div>
+    <div class="monaco-editor" ref="monacoEditorContainer"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, shallowRef, defineProps } from "vue";
+import {
+  onMounted,
+  ref,
+  shallowRef,
+  defineProps,
+  onUnmounted,
+  watch,
+} from "vue";
 import * as monaco from "monaco-editor";
 import {
   MonacoLanguageClient,
@@ -24,7 +31,20 @@ const props = defineProps<{
 }>();
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-const monacoEditor = ref<HTMLElement | null>(null);
+const monacoEditorContainer = ref<HTMLElement | null>(null);
+
+const breakPointClassName = "monaco-editor-breakpoint";
+const shadowBreakpointClassName = "monaco-editor-breakpoint-shadow";
+const focusLineClassName = "monaco-editor-focus-line";
+
+watch(
+  () => props.editorOption,
+  (val: monaco.editor.IStandaloneEditorConstructionOptions) => {
+    console.log(val);
+    editor.value?.updateOptions(val);
+  },
+  { deep: true }
+);
 
 function setModel(model: monaco.editor.ITextModel) {
   editor.value?.setModel(model);
@@ -101,55 +121,65 @@ function removeDecoration(className: string, lineNumber: number) {
   }
 }
 
-const options = {
-  theme: "vs-dark",
-  glyphMargin: true,
-  language: "python",
-  automaticLayout: true,
-  bracketPairColorization: true,
-  model: monaco.editor.createModel("import os", "python"),
-};
-
-function createLanguageClient(
-  transports: MessageTransports
-): MonacoLanguageClient {
-  return new MonacoLanguageClient({
-    name: "Python Language Client",
-    clientOptions: {
-      documentSelector: ["python"],
-    },
-    connectionProvider: {
-      get: () => {
-        return Promise.resolve(transports);
-      },
-    },
-  });
-}
-
 onMounted(() => {
-  editor.value = monaco.editor.create(monacoEditor.value, options);
+  console.log("Monaco Editor Mounted");
+  if (monacoEditorContainer.value !== null && props.editorOption !== null) {
+    editor.value = monaco.editor.create(
+      monacoEditorContainer.value,
+      props.editorOption
+    );
+  } else {
+    console.log("monacEeditorContainner is null or editorOption is null");
+  }
 
-  MonacoServices.install();
+  editor.value?.onMouseMove((e) => {
+    const { target } = e;
+    if (
+      target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
+      target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS
+    ) {
+      if (!existDecoration(breakPointClassName, target.position.lineNumber)) {
+        clearAllDecorationByClass(shadowBreakpointClassName);
+        addDecoration(
+          shadowBreakpointClassName,
+          target.position.lineNumber,
+          ""
+        );
+      }
+    } else {
+      clearAllDecorationByClass(shadowBreakpointClassName);
+    }
+  });
 
-  const webSocket = new WebSocket("ws://localhost:30000");
-  // define the connection(websocket) to the language server
-  webSocket.onopen = () => {
-    const socket = toSocket(webSocket);
-    const reader = new WebSocketMessageReader(socket);
-    const writer = new WebSocketMessageWriter(socket);
-    const languageClient = createLanguageClient({ reader, writer });
-    languageClient.start();
-    reader.onClose(() => languageClient.stop());
-    console.log("websocket on open");
-  };
+  editor.value?.onMouseLeave(() => {
+    clearAllDecorationByClass(shadowBreakpointClassName);
+  });
+
+  editor.value?.onMouseDown((e) => {
+    const { target } = e;
+    console.log(target.type);
+    if (
+      target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
+      target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS
+    ) {
+      clearAllDecorationByClass(shadowBreakpointClassName);
+      if (!existDecoration(breakPointClassName, target.position.lineNumber)) {
+        addDecoration(breakPointClassName, target.position.lineNumber, "");
+      } else {
+        removeDecoration(
+          shadowBreakpointClassName,
+          target.range.startLineNumber
+        );
+        removeDecoration(breakPointClassName, target.position.lineNumber);
+      }
+    }
+  });
+});
+
+onUnmounted(() => {
+  console.log("Monaco Editor Destroyed");
+  editor.value?.dispose();
 });
 </script>
 
-<style>
-.monaco-editor {
-  height: 100%;
-  width: 100%;
-  min-height: 800px;
-  text-align: left;
-}
-</style>
+<style src="./MonacoEditor.css" />
