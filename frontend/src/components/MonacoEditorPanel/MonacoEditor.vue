@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="monaco-editor" ref="monacoEditorContainer"></div>
+    <div class="monaco-editor-container" ref="monacoEditorContainer"></div>
   </div>
 </template>
 
@@ -182,4 +182,35 @@ onUnmounted(() => {
 });
 </script>
 
-<style src="./MonacoEditor.css" />
+<style>
+.monaco-editor-container {
+  height: 100%;
+  width: 100%;
+  min-height: 800px;
+  text-align: left;
+}
+
+.monaco-editor-breakpoint {
+  margin-left: 10%;
+  border-radius: 100%;
+  background: radial-gradient(
+    circle at center,
+    #ff0000 0%,
+    #ff0000 30%,
+    transparent 31%,
+    transparent 100%
+  );
+}
+
+.monaco-editor-breakpoint-shadow {
+  margin-left: 10%;
+  border-radius: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 0, 0, 0.5) 0%,
+    rgba(255, 0, 0, 0.5) 30%,
+    transparent 31%,
+    transparent 100%
+  );
+}
+</style>
