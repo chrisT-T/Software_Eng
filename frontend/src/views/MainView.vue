@@ -31,7 +31,7 @@
             {{ name }}
           </a-avatar>
           <template #content>
-            <a-doption>个人详情</a-doption>
+            <a-doption @click="dialogPDVisible = true">个人详情</a-doption>
             <a-doption @click="logout">
               <template #icon>
                 <icon-export />
@@ -47,18 +47,24 @@
       <ProjectCard></ProjectCard>
     </el-container>
   </div>
+  <el-dialog v-model="dialogPDVisible" width="405px">
+    <PersonalDetail></PersonalDetail>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue";
 import MenuBox from "@/components/MenuBox.vue";
 import ProjectCard from "@/components/ProjectCard.vue";
+import PersonalDetail from "@/components/PersonalDetail.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
 import { Search } from "@element-plus/icons-vue";
 
 const name = useRouter().currentRoute.value.params.username;
+
+const dialogPDVisible = ref(false);
 
 const input3 = ref("");
 const select = ref("");
