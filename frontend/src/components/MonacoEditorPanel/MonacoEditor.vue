@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <div class="monaco-editor-container" ref="monacoEditorContainer"></div>
-  </div>
+  <div class="monaco-editor-container" ref="monacoEditorContainer"></div>
 </template>
 
 <script lang="ts" setup>
@@ -185,7 +183,7 @@ onUnmounted(() => {
 .monaco-editor-container {
   height: 100%;
   width: 100%;
-  min-height: 800px;
+  min-height: 100px;
   text-align: left;
 }
 

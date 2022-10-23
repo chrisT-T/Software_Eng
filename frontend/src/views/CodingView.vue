@@ -59,6 +59,7 @@
               min-height: 0;
             "
           >
+            <EditorPanel> </EditorPanel>
           </a-resize-box>
         </div>
       </el-container>
@@ -76,6 +77,7 @@ import {
   IconPause,
 } from "@arco-design/web-vue/es/icon";
 import FileTreeBox from "@/components/FileTreeBox.vue";
+import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 const name = useRouter().currentRoute.value.params.username;

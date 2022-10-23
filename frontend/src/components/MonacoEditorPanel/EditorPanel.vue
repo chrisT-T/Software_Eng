@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="editor-panel-container">
     <!-- <div style="margin-bottom: 20px">
       <el-button size="small" @click="addTab(editableTabsValue)">
         add tab
@@ -76,11 +76,29 @@ const removeTab = (targetName: string) => {
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
 };
 </script>
+
 <style>
+.editor-panel-container {
+  height: 100%;
+  width: 100%;
+}
+
+.demo-tabs {
+  height: 100%;
+  width: 100%;
+}
+
 .demo-tabs > .el-tabs__content {
-  padding: 32px;
+  padding: 0px;
   color: #6b778c;
   font-size: 32px;
   font-weight: 600;
+  height: 100%;
+  width: 100%;
+}
+
+.demo-tabs > .el-tabs__content > .el-tab-pane {
+  height: 100%;
+  width: 100%;
 }
 </style>
