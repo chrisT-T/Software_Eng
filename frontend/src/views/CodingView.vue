@@ -19,9 +19,6 @@
           <span class="header-span">TO-CODE</span>
           <a-avatar :size="20">Arco</a-avatar>
         </div>
-        <div>
-          <span>{{ project_name }}</span>
-        </div>
         <div class="user-part">
           <a-button-group type="primary" size="small">
             <a-button>
@@ -38,7 +35,6 @@
           <icon-user-add
             :style="{ fontSize: '20px', margin: '0 5px' }"
             :stroke-width="3"
-            @click="dialogFormVisible = true"
           />
         </div>
       </el-header>
@@ -63,32 +59,12 @@
               min-height: 0;
             "
           >
+            <EditorPanel> </EditorPanel>
           </a-resize-box>
         </div>
       </el-container>
     </el-container>
   </div>
-  <el-dialog v-model="dialogFormVisible" title="共享项目">
-    <el-form :model="form" red="addForm">
-      <el-form-item label="用户ID" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="共享权限" :label-width="formLabelWidth">
-        <el-select v-model="form.region" placeholder="选择项目语言">
-          <el-option label="只可读" value="readonly" />
-          <el-option label="可编辑" value="edit" />
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -101,51 +77,10 @@ import {
   IconPause,
 } from "@arco-design/web-vue/es/icon";
 import FileTreeBox from "@/components/FileTreeBox.vue";
+import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
-import { reactive, getCurrentInstance, ref } from "vue";
-
 const name = useRouter().currentRoute.value.params.username;
-const project_name = "Project Name";
-
-const dialogFormVisible = ref(false);
-
-const formLabelWidth = "140px";
-const form = reactive({
-  name: "",
-  region: "",
-  date1: "",
-  date2: "",
-  delivery: false,
-  type: [],
-  resource: "",
-  desc: "",
-});
-
-interface lang_opt {
-  value: "C" | "Python" | "Java" | "Cpp";
-  label: string;
-}
-
-const options: lang_opt[] = [
-  {
-    value: "Python",
-    label: "python",
-    // 根据拓展语言添加
-  },
-  {
-    value: "C",
-    label: "C",
-  },
-  {
-    value: "Cpp",
-    label: "C++",
-  },
-  {
-    value: "Java",
-    label: "Java",
-  },
-];
 
 const backmain = () => {
   console.log(name);
