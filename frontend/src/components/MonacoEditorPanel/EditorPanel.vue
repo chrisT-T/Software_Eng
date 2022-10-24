@@ -88,12 +88,16 @@ const removeTab = (targetName: string) => {
   width: 100%;
 }
 
+.demo-tabs > .el-tabs__header {
+  margin: 0px;
+}
+
 .demo-tabs > .el-tabs__content {
   padding: 0px;
   color: #6b778c;
   font-size: 32px;
   font-weight: 600;
-  height: 100%;
+  height: calc(100% - 41px);
   width: 100%;
 }
 
