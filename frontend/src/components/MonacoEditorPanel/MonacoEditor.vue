@@ -53,7 +53,7 @@ function getAllDecorationByClass(className: string) {
     ?.getModel()
     ?.getAllDecorations()
     .filter(
-      (decoration) => decoration.options.glyphMarginClassName == className
+      (decoration) => decoration.options.glyphMarginClassName === className
     );
 }
 
