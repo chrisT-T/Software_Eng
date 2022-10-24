@@ -49,19 +49,17 @@
           "
           ><FileTreeBox />
         </a-resize-box>
-        <div style="width: 100%">
-          <a-resize-box
-            :directions="['bottom']"
-            style="
-              width: 100%;
-              text-align: center;
-              max-height: 90%;
-              min-height: 0;
-            "
-          >
-            <EditorPanel> </EditorPanel>
-          </a-resize-box>
-        </div>
+        <a-resize-box
+          :directions="['bottom']"
+          style="
+            width: 100%;
+            text-align: center;
+            max-height: 90%;
+            min-height: 0;
+          "
+        >
+          <EditorPanel> </EditorPanel>
+        </a-resize-box>
       </el-container>
     </el-container>
   </div>
