@@ -9,11 +9,22 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "element-plus": "^2.2.18",
+    "monaco-editor": "^0.34.0",
+    "monaco-editor-vue3": "^0.1.6",
+    "monaco-editor-webpack-plugin": "^7.0.1",
+    "monaco-languageclient": "^4.0.0",
+    "unplugin-auto-import": "^0.11.2",
+    "vscode-json-languageservice": "^5.1.1",
+    "vscode-jsonrpc": "^8.0.2",
+    "vscode-languageserver-protocol": "^3.17.2",
+    "vscode-ws-jsonrpc": "^2.0.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
+    "@arco-design/web-vue": "^2.37.4",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-babel": "~5.0.0",
