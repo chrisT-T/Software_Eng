@@ -1,9 +1,11 @@
 import os
+
 from flask import Flask
+
 from app.api import api_bp
-from app.extensions import db, swagger, api, login_manager, csrf
-from app.configs import configs
 from app.auth import auth_bp
+from app.configs import configs
+from app.extensions import api, csrf, db, login_manager, swagger
 
 
 def init_extensions(app):

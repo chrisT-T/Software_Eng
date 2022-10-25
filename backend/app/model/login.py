@@ -1,13 +1,16 @@
 from app.extensions import db, login_manager
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class User(db.Model, UserMixin):
     __tablename__ = 'tbl_user'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), primary_key=True)
+    username = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
+
+    project_creator = db.relationship(
+        'Project', backref=db.backref('created_projects'))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
