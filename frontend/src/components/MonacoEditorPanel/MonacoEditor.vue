@@ -53,14 +53,13 @@ function getAllDecorationByClass(className: string) {
     ?.getModel()
     ?.getAllDecorations()
     .filter(
-      (decoration: { options: { glyphMarginClassName: string } }) =>
-        decoration.options.glyphMarginClassName === className
+      (decoration) => decoration.options.glyphMarginClassName === className
     );
 }
 
 function clearAllDecorationByClass(className: string) {
   const decorationsId = getAllDecorationByClass(className)?.map(
-    (decoration: { id: any }) => decoration.id
+    (decoration) => decoration.id
   );
   if (decorationsId) {
     editor.value?.getModel()?.deltaDecorations(decorationsId, []);
@@ -69,8 +68,7 @@ function clearAllDecorationByClass(className: string) {
 
 function existDecoration(className: string, lineNumber: number) {
   return getAllDecorationByClass(className)?.some(
-    (decoration: { range: { startLineNumber: number } }) =>
-      decoration.range.startLineNumber === lineNumber
+    (decoration) => decoration.range.startLineNumber === lineNumber
   );
 }
 
@@ -132,7 +130,7 @@ onMounted(() => {
     console.log("monacEeditorContainner is null or editorOption is null");
   }
 
-  editor.value?.onMouseMove((e: { target: any }) => {
+  editor.value?.onMouseMove((e) => {
     const { target } = e;
     if (
       target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
@@ -155,7 +153,7 @@ onMounted(() => {
     clearAllDecorationByClass(shadowBreakpointClassName);
   });
 
-  editor.value?.onMouseDown((e: { target: any }) => {
+  editor.value?.onMouseDown((e) => {
     const { target } = e;
     if (
       target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
