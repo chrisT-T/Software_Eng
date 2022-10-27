@@ -21,7 +21,10 @@
     "vscode-ws-jsonrpc": "^2.0.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "xterm": "^5.0.0",
+    "xterm-addon-attach": "^0.7.0",
+    "xterm-addon-fit": "^0.6.0"
   },
   "devDependencies": {
     "@arco-design/web-vue": "^2.37.4",

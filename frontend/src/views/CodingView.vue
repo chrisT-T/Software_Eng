@@ -60,6 +60,8 @@
         >
           <EditorPanel> </EditorPanel>
         </a-resize-box>
+        <h1>Test</h1>
+        <SimpleTerminal></SimpleTerminal>
       </el-container>
     </el-container>
   </div>
@@ -78,6 +80,8 @@ import FileTreeBox from "@/components/FileTreeBox.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
+import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
+
 const name = useRouter().currentRoute.value.params.username;
 
 const backmain = () => {
