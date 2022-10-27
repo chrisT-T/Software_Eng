@@ -1,10 +1,5 @@
 <template>
   <div class="editor-panel-container">
-    <!-- <div style="margin-bottom: 20px">
-      <el-button size="small" @click="addTab(editableTabsValue)">
-        add tab
-      </el-button>
-    </div> -->
     <el-tabs
       v-model="editableTabsValue"
       type="card"
@@ -19,7 +14,7 @@
         :name="item.name"
       >
         <MonacoEditor
-          :editor-option="options"
+          :editor-option="getOption(item.name)"
           @modified="fileModified"
           @saveFile="saveFile"
         ></MonacoEditor>
@@ -33,11 +28,12 @@ import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import * as monaco from "monaco-editor";
 import { ref, defineEmits, defineExpose } from "vue";
 
-export interface FileStatus {
+export interface FileInfo {
   path: string;
   modified: boolean;
   index: number;
   show: boolean;
+  options: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
 export interface TabInfo {
@@ -57,20 +53,18 @@ defineExpose({
   clearFocusLine,
 });
 
-const fileStatus = ref<Array<FileStatus>>(new Array<FileStatus>());
-
-const options = {
-  theme: "vs",
-  glyphMargin: true,
-  language: "python",
-  automaticLayout: true,
-  bracketPairColorization: true,
-  model: monaco.editor.createModel("import os", "python"),
-} as monaco.editor.IStandaloneEditorConstructionOptions;
+const fileInfos = ref<Array<FileInfo>>(new Array<FileInfo>());
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
 const editableTabs = ref<Array<TabInfo>>(new Array<TabInfo>());
+
+const getOption = (index: string) => {
+  let fileIndex = fileInfos.value.findIndex(
+    (fileInfo) => fileInfo.index.toString() === index
+  );
+  return fileInfos.value[fileIndex].options;
+};
 
 const addTab = (title: string, name: string) => {
   editableTabs.value.push({
@@ -98,31 +92,43 @@ const removeTab = (targetName: string) => {
 
   editableTabsValue.value = activeName;
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
-  let fileIndex = fileStatus.value.findIndex(
-    (fileStatu) => fileStatu.index.toString() === targetName
+  let fileIndex = fileInfos.value.findIndex(
+    (fileInfo) => fileInfo.index.toString() === targetName
   );
-  fileStatus.value[fileIndex].show = false;
+  fileInfos.value[fileIndex].show = false;
 };
 
 function addFile(path: string, value: string) {
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
-  let fileIndex = fileStatus.value.findIndex(
-    (fileStatu) => fileStatu.path === path
+  let fileIndex = fileInfos.value.findIndex(
+    (fileInfo) => fileInfo.path === path
   );
   if (fileIndex === -1) {
-    fileStatus.value.push({
+    fileInfos.value.push({
       path: path,
       modified: false,
       index: ++tabIndex,
       show: true,
+      options: {
+        theme: "vs",
+        glyphMargin: true,
+        language: "python",
+        automaticLayout: true,
+        bracketPairColorization: true,
+        model: monaco.editor.createModel(
+          value,
+          undefined,
+          monaco.Uri.file(path)
+        ),
+      },
     });
     addTab(fileName, tabIndex.toString());
-  } else if (fileStatus.value[fileIndex].show === false) {
-    fileStatus.value[fileIndex].show = true;
-    addTab(fileName, fileStatus.value[fileIndex].index.toString());
+  } else if (fileInfos.value[fileIndex].show === false) {
+    fileInfos.value[fileIndex].show = true;
+    addTab(fileName, fileInfos.value[fileIndex].index.toString());
   } else {
-    editableTabsValue.value = fileStatus.value[fileIndex].index.toString();
+    editableTabsValue.value = fileInfos.value[fileIndex].index.toString();
   }
 }
 
