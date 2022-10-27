@@ -104,7 +104,7 @@
                     <a-doption>修改名称</a-doption>
                     <a-doption>删除项目</a-doption>
                     <a-doption @click="dialogTableVisible = true"
-                      >修改权限组</a-doption
+                      >查看权限组</a-doption
                     >
                   </template>
                 </a-dropdown>
@@ -155,18 +155,32 @@
       <div class="el-upload__text">
         Drop file here or <em>click to upload</em>
       </div>
-      <!-- <template #tip>
-        <div class="el-upload__tip">上传新项目</div>
-      </template> -->
     </el-upload>
+    <el-select v-model="form.region" placeholder="选择项目语言">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
   </el-dialog>
-  <el-dialog v-model="dialogTableVisible" title="权限组">
-    <el-table :data="changepr">
-      <el-table-column property="user" label="用户名" width="150" />
-      <el-table-column property="permission" label="权限组" />
-      <el-table-column fixed="right" label="操作" width="100">
+  <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
+    <el-table :data="changepr" style="width: 100%" max-height="250">
+      <el-table-column prop="user" label="用户名" />
+      <el-table-column label="权限">
+        <template #default="scope">
+          <span v-if="scope.row.permission === 'administrator'">
+            项目管理员
+          </span>
+          <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
+          <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
+        </template>
+      </el-table-column>
+      <el-table-column fixed="right" width="180">
         <template #default>
-          <el-button link type="primary" size="small"> Remove </el-button>
+          <el-button link type="primary" size="small"> 移除成员 </el-button>
+          <el-button link type="primary" size="small"> 修改权限 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -174,16 +188,21 @@
       class="mt-4"
       style="width: 100%"
       @click="dialogShareVisible = true"
-      >Add Item</el-button
+      >新增权限组</el-button
     >
   </el-dialog>
-  <el-dialog v-model="dialogShareVisible" title="共享项目">
+  <el-dialog
+    v-model="dialogShareVisible"
+    title="共享项目"
+    class="share-dialog"
+    align-center
+  >
     <el-form :model="form" ref="addForm">
       <el-form-item label="用户ID" :label-width="formLabelWidth">
         <el-input v-model="form.name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="共享权限" :label-width="formLabelWidth">
-        <el-select v-model="form.region" placeholder="选择项目语言">
+        <el-select v-model="form.region" placeholder="选择用户权限">
           <el-option label="只可读" value="readonly" />
           <el-option label="可编辑" value="edit" />
         </el-select>
@@ -191,8 +210,8 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">
+        <el-button @click="dialogShareVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogShareVisible = false">
           Confirm
         </el-button>
       </span>
@@ -280,7 +299,7 @@ interface ProjectData {
 
 interface PermissionTest {
   user: string;
-  permission: "readonly" | "edit";
+  permission: "administrator" | "readonly" | "edit";
 }
 
 const changepr: PermissionTest[] = [
@@ -295,6 +314,10 @@ const changepr: PermissionTest[] = [
   {
     user: "C",
     permission: "edit",
+  },
+  {
+    user: "D",
+    permission: "administrator",
   },
 ];
 
