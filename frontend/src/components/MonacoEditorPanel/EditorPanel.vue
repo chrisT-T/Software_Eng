@@ -26,7 +26,7 @@
 <script lang="ts" setup>
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import * as monaco from "monaco-editor";
-import { ref, defineEmits, defineExpose } from "vue";
+import { ref, defineEmits, defineExpose, toRaw } from "vue";
 
 export interface FileInfo {
   path: string;
@@ -63,7 +63,7 @@ const getOption = (index: string) => {
   let fileIndex = fileInfos.value.findIndex(
     (fileInfo) => fileInfo.index.toString() === index
   );
-  return fileInfos.value[fileIndex].options;
+  return toRaw(fileInfos.value[fileIndex].options);
 };
 
 const addTab = (title: string, name: string) => {
@@ -115,7 +115,10 @@ function addFile(path: string, value: string) {
         glyphMargin: true,
         language: "python",
         automaticLayout: true,
-        bracketPairColorization: true,
+        bracketPairColorization: {
+          enabled: true,
+          independentColorPoolPerBracketType: true,
+        },
         model: monaco.editor.createModel(
           value,
           undefined,
