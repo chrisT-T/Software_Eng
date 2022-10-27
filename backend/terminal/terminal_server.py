@@ -1,8 +1,10 @@
+import asyncio
+import threading
+
 import docker
 import tornado
 import tornado.websocket
-import threading
-import asyncio
+
 
 def create_docker_pty(container_id='ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3'):
 
@@ -17,7 +19,9 @@ def create_docker_pty(container_id='ee44d43ade04376eb44e9db9c028ed8e857474d4a4c5
     print(execid)
     print(output)
 
+
 loop = asyncio.get_event_loop()
+
 
 class TerminalForwardingThread(threading.Thread):
     def __init__(self, websocket_handler, terminal_stream):
@@ -30,6 +34,9 @@ class TerminalForwardingThread(threading.Thread):
         while True:
             try:
                 docker_stream_stdout = self.terminal_stream.recv(2048)
+                if len(docker_stream_stdout) == 0:
+                    self.ws.close()
+                    break
                 if docker_stream_stdout is not None:
                     print(docker_stream_stdout)
                     self.ws.write_message(docker_stream_stdout, binary=True)
@@ -40,12 +47,14 @@ class TerminalForwardingThread(threading.Thread):
                 print("docker daemon socket err: %s" % e)
                 self.ws.close()
                 break
+
+
 class TerminalSocketHandler(tornado.websocket.WebSocketHandler):
-    def open(self, container_id='ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3'):
+    def open(self, container_id):
         exec_cmd = [
             "/bin/sh",
             "-c",
-            'TERM=xterm-256color; export TERM; [ -x /bin/bash ] && ([ -x /usr/bin/script ] && /usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) || exec /bin/sh']
+            '/bin/bash']
         docker_apiclient = docker.APIClient()
         execid = docker_apiclient.exec_create(container_id, exec_cmd, tty=True, stdin=True)
         output = docker_apiclient.exec_start(execid, socket=True, tty=True)._sock
@@ -64,8 +73,9 @@ class TerminalSocketHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
+
 app = tornado.web.Application([
-    (r"/websocket", TerminalSocketHandler)
+    (r"/websocket/(.*)", TerminalSocketHandler)
 ])
 
 if __name__ == '__main__':

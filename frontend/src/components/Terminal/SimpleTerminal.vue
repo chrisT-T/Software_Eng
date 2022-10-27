@@ -17,7 +17,9 @@ const term = new Terminal({
   macOptionIsMeta: true,
 });
 const fitAddon = new FitAddon();
-const terminalWs = new WebSocket("ws://localhost:5005/websocket");
+const terminalWs = new WebSocket(
+  "ws://localhost:5005/websocket/ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3"
+);
 const attachAddon = new AttachAddon(terminalWs);
 
 onMounted(() => {
