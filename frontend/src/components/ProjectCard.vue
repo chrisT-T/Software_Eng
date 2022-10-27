@@ -101,8 +101,12 @@
                 <a-dropdown position="bottom">
                   <a-button type="text" shape="circle"><icon-edit /></a-button>
                   <template #content>
-                    <a-doption>修改名称</a-doption>
-                    <a-doption>删除项目</a-doption>
+                    <a-doption @click="dialogEditNameVisible = true">
+                      修改名称
+                    </a-doption>
+                    <a-doption @click="dialogDeleteVisible = true">
+                      删除项目
+                    </a-doption>
                     <a-doption @click="dialogTableVisible = true"
                       >查看权限组</a-doption
                     >
@@ -120,7 +124,7 @@
   </div>
 
   <el-dialog v-model="dialogFormVisible" title="新建项目">
-    <el-form :model="form" red="addForm">
+    <el-form :model="form" ref="addProjectForm">
       <el-form-item label="项目名称" :label-width="formLabelWidth">
         <el-input v-model="form.name" autocomplete="off" />
       </el-form-item>
@@ -144,6 +148,7 @@
       </span>
     </template>
   </el-dialog>
+
   <el-dialog v-model="dialogUploadVisible" title="上传项目">
     <el-upload
       class="upload-demo"
@@ -165,6 +170,7 @@
       />
     </el-select>
   </el-dialog>
+
   <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
     <el-table :data="changepr" style="width: 100%" max-height="250">
       <el-table-column prop="user" label="用户名" />
@@ -191,6 +197,7 @@
       >新增权限组</el-button
     >
   </el-dialog>
+
   <el-dialog
     v-model="dialogShareVisible"
     title="共享项目"
@@ -205,6 +212,7 @@
         <el-select v-model="form.region" placeholder="选择用户权限">
           <el-option label="只可读" value="readonly" />
           <el-option label="可编辑" value="edit" />
+          <el-option label="项目管理员" value="administrator" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -212,6 +220,58 @@
       <span class="dialog-footer">
         <el-button @click="dialogShareVisible = false">Cancel</el-button>
         <el-button type="primary" @click="dialogShareVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+    v-model="dialogEditNameVisible"
+    title="共享项目"
+    class="share-dialog"
+    align-center
+    width="350px"
+  >
+    <el-form :model="form" ref="addForm" label-position="top">
+      <el-form-item label="原名称" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="新名称" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密码" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogEditNameVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogEditNameVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+    v-model="dialogDeleteVisible"
+    title="删除项目"
+    align-center
+    width="350px"
+  >
+    <el-form :model="form" ref="addForm" label-position="top">
+      <el-form-item label="项目名称" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密码" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogDeleteVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogDeleteVisible = false">
           Confirm
         </el-button>
       </span>
@@ -234,6 +294,8 @@ const dialogFormVisible = ref(false);
 const dialogUploadVisible = ref(false);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
+const dialogEditNameVisible = ref(false);
+const dialogDeleteVisible = ref(false);
 
 const formLabelWidth = "140px";
 const form = reactive({

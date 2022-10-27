@@ -104,6 +104,7 @@
         <el-select v-model="form.region" placeholder="选择用户权限">
           <el-option label="只可读" value="readonly" />
           <el-option label="可编辑" value="edit" />
+          <el-option label="项目管理员" value="administrator" />
         </el-select>
       </el-form-item>
     </el-form>

@@ -43,7 +43,7 @@
       </div>
     </el-header>
     <el-container>
-      <MenuBox></MenuBox>
+      <!-- <MenuBox></MenuBox> -->
       <ProjectCard></ProjectCard>
     </el-container>
   </div>
