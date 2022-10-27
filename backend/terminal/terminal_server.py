@@ -5,21 +5,7 @@ import docker
 import tornado
 import tornado.websocket
 
-
-def create_docker_pty(container_id='ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3'):
-
-    exec_cmd = [
-        '/bin/bash'
-    ]
-
-    docker_apiclient = docker.APIClient()
-
-    execid = docker_apiclient.exec_create(container_id, exec_cmd, tty=True, stdin=True)
-    output = docker_apiclient.exec_start(execid, socket=True, tty=True)
-    print(execid)
-    print(output)
-
-
+# for RuntimeError: There is no current event loop in thread 'Thread-1'.
 loop = asyncio.get_event_loop()
 
 
