@@ -17,13 +17,13 @@ const term = new Terminal({
   macOptionIsMeta: true,
 });
 const fitAddon = new FitAddon();
-const terminalWs = new WebSocket("ws://localhost:5005");
+const terminalWs = new WebSocket("ws://localhost:5005/websocket");
 const attachAddon = new AttachAddon(terminalWs);
 
 onMounted(() => {
   term.open(termDiv?.value as HTMLElement);
   term.loadAddon(fitAddon);
-  // term.loadAddon(attachAddon);
+  term.loadAddon(attachAddon);
 
   term.writeln("welcome to use docker web terminal!");
 });

@@ -60,7 +60,6 @@
         >
           <EditorPanel> </EditorPanel>
         </a-resize-box>
-        <h1>Test</h1>
         <SimpleTerminal></SimpleTerminal>
       </el-container>
     </el-container>
