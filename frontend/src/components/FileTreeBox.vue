@@ -6,12 +6,39 @@
       show-line
       size="mini"
       :animation="false"
-    />
+    >
+      <template #extra="nodeData">
+        <IconPlus
+          style="
+            position: absolute;
+            right: 8px;
+            font-size: 12px;
+            top: 10px;
+            color: #3370ff;
+          "
+          @click="() => onIconClick(nodeData)"
+        />
+        <IconMinus
+          style="
+            position: absolute;
+            right: 8px;
+            font-size: 12px;
+            top: 10px;
+            color: #3370ff;
+          "
+          @click="() => onIconClick(nodeData)"
+        />
+      </template>
+    </a-tree>
   </div>
 </template>
 
 <script lang="ts" setup>
-const treeData = [
+import { reactive, getCurrentInstance, ref } from "vue";
+import { IconPlus, IconMinus } from "@arco-design/web-vue/es/icon";
+import { TreeNodeData } from "@arco-design/web-vue/es/tree";
+
+const treeData = ref([
   {
     title: "Trunk 1",
     key: "0-0",
@@ -64,7 +91,18 @@ const treeData = [
       },
     ],
   },
-];
+]);
+
+const onIconClick = (nodeData: TreeNodeData) => {
+  const children = nodeData.children;
+  children?.push({
+    title: "new tree node",
+    key: nodeData.key + "-" + (children.length + 1),
+  });
+  nodeData.children = children;
+
+  treeData.value = [...treeData.value];
+};
 </script>
 
 <style scoped>
