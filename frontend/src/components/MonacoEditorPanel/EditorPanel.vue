@@ -18,7 +18,11 @@
         :label="item.title"
         :name="item.name"
       >
-        <MonacoEditor :editor-option="options"></MonacoEditor>
+        <MonacoEditor
+          :editor-option="options"
+          @modified="fileModified"
+          @saveFile="saveFile"
+        ></MonacoEditor>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -27,7 +31,33 @@
 <script lang="ts" setup>
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import * as monaco from "monaco-editor";
-import { ref } from "vue";
+import { ref, defineEmits, defineExpose } from "vue";
+
+export interface FileStatus {
+  path: string;
+  modified: boolean;
+  index: number;
+  show: boolean;
+}
+
+export interface TabInfo {
+  title: string;
+  name: string;
+}
+
+const emit = defineEmits<{
+  (e: "saveFile", path: string, value: string): void;
+  (e: "startDebug", path: string): void;
+}>();
+
+defineExpose({
+  addFile,
+  getBreakpoints,
+  focusLine,
+  clearFocusLine,
+});
+
+const fileStatus = ref<Array<FileStatus>>(new Array<FileStatus>());
 
 const options = {
   theme: "vs",
@@ -38,24 +68,16 @@ const options = {
   model: monaco.editor.createModel("import os", "python"),
 } as monaco.editor.IStandaloneEditorConstructionOptions;
 
-let tabIndex = 1;
-const editableTabsValue = ref("1");
-const editableTabs = ref([
-  {
-    title: "Get Started",
-    name: "1",
-    content: "Tab 1 content",
-  },
-]);
+let tabIndex = 0;
+const editableTabsValue = ref("0");
+const editableTabs = ref<Array<TabInfo>>(new Array<TabInfo>());
 
-const addTab = (targetName: string) => {
-  const newTabName = `${++tabIndex}`;
+const addTab = (title: string, name: string) => {
   editableTabs.value.push({
-    title: "New Tab",
-    name: newTabName,
-    content: "New Tab content",
+    title: title,
+    name: name,
   });
-  editableTabsValue.value = newTabName;
+  editableTabsValue.value = name;
 };
 
 const removeTab = (targetName: string) => {
@@ -67,6 +89,8 @@ const removeTab = (targetName: string) => {
         const nextTab = tabs[index + 1] || tabs[index - 1];
         if (nextTab) {
           activeName = nextTab.name;
+        } else {
+          activeName = "0";
         }
       }
     });
@@ -74,7 +98,53 @@ const removeTab = (targetName: string) => {
 
   editableTabsValue.value = activeName;
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
+  let fileIndex = fileStatus.value.findIndex(
+    (fileStatu) => fileStatu.index.toString() === targetName
+  );
+  fileStatus.value[fileIndex].show = false;
 };
+
+function addFile(path: string, value: string) {
+  console.log("addFile", path);
+  let fileName = path.split("/").pop() as string;
+  let fileIndex = fileStatus.value.findIndex(
+    (fileStatu) => fileStatu.path === path
+  );
+  if (fileIndex === -1) {
+    fileStatus.value.push({
+      path: path,
+      modified: false,
+      index: ++tabIndex,
+      show: true,
+    });
+    addTab(fileName, tabIndex.toString());
+  } else if (fileStatus.value[fileIndex].show === false) {
+    fileStatus.value[fileIndex].show = true;
+    addTab(fileName, fileStatus.value[fileIndex].index.toString());
+  } else {
+    editableTabsValue.value = fileStatus.value[fileIndex].index.toString();
+  }
+}
+
+function getBreakpoints() {
+  return;
+}
+
+function focusLine() {
+  return;
+}
+
+function clearFocusLine() {
+  return;
+}
+
+function fileModified() {
+  return;
+}
+
+function saveFile() {
+  return;
+}
 </script>
 
 <style>

@@ -58,7 +58,13 @@
             min-height: 0;
           "
         >
-          <EditorPanel> </EditorPanel>
+          <el-button size="small" @click="openFile"> open file </el-button>
+          <EditorPanel
+            ref="editorPanel"
+            @save-file="saveFile"
+            @start-debug="(path) => runDebugger(name + '/' + path)"
+          >
+          </EditorPanel>
         </a-resize-box>
       </el-container>
     </el-container>
@@ -74,16 +80,32 @@ import {
   IconBug,
   IconPause,
 } from "@arco-design/web-vue/es/icon";
+import { ref } from "vue";
 import FileTreeBox from "@/components/FileTreeBox.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 const name = useRouter().currentRoute.value.params.username;
 
+const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
+
 const backmain = () => {
   console.log(name);
   router.replace({ name: "main", params: { username: name } });
 };
+
+function openFile(path: string) {
+  console.log("open File");
+  editorPanel.value?.addFile("adfa/df", "alkdsfjlasdjflad");
+}
+
+function saveFile(path: string, value: string) {
+  return;
+}
+
+function runDebugger(filePath: string) {
+  return;
+}
 </script>
 
 <style scoped>

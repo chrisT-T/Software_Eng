@@ -10,6 +10,8 @@ import {
   defineProps,
   onUnmounted,
   watch,
+  defineEmits,
+  defineExpose,
 } from "vue";
 import * as monaco from "monaco-editor";
 import {
@@ -27,6 +29,16 @@ import {
 const props = defineProps<{
   editorOption: monaco.editor.IStandaloneEditorConstructionOptions;
 }>();
+
+const emit = defineEmits<{
+  (e: "saveFile"): void;
+  (e: "modified"): void;
+}>();
+
+defineExpose({
+  setModel,
+  locateLine,
+});
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
@@ -119,6 +131,15 @@ function removeDecoration(className: string, lineNumber: number) {
   }
 }
 
+function locateLine(lineNumber: number) {
+  const lineCount = editor.value?.getModel()?.getLineCount() as number;
+  if (lineCount < 1 || lineNumber > lineCount) {
+    console.error("line number is not valid");
+  }
+  editor.value?.revealLineInCenter(lineNumber);
+  editor.value?.setPosition({ lineNumber, column: 1 });
+}
+
 onMounted(() => {
   console.log("Monaco Editor Mounted");
   if (monacoEditorContainer.value !== null && props.editorOption !== null) {
@@ -127,7 +148,7 @@ onMounted(() => {
       props.editorOption
     );
   } else {
-    console.log("monacEeditorContainner is null or editorOption is null");
+    console.error("monacEeditorContainner is null or editorOption is null");
   }
 
   editor.value?.onMouseMove((e) => {
