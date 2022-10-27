@@ -124,12 +124,12 @@
   </div>
 
   <el-dialog v-model="dialogFormVisible" title="新建项目">
-    <el-form :model="form" ref="addProjectForm">
+    <el-form :model="NewProjform" ref="addProjectForm">
       <el-form-item label="项目名称" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="NewProjform.name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="项目模板" :label-width="formLabelWidth">
-        <el-select v-model="form.region" placeholder="选择项目语言">
+        <el-select v-model="NewProjform.language" placeholder="选择项目语言">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -161,7 +161,7 @@
         Drop file here or <em>click to upload</em>
       </div>
     </el-upload>
-    <el-select v-model="form.region" placeholder="选择项目语言">
+    <el-select v-model="NewProjform.language" placeholder="选择项目语言">
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -204,12 +204,12 @@
     class="share-dialog"
     align-center
   >
-    <el-form :model="form" ref="addForm">
+    <el-form :model="Userform" ref="addForm">
       <el-form-item label="用户ID" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="Userform.id" autocomplete="off" />
       </el-form-item>
       <el-form-item label="共享权限" :label-width="formLabelWidth">
-        <el-select v-model="form.region" placeholder="选择用户权限">
+        <el-select v-model="Userform.permission" placeholder="选择用户权限">
           <el-option label="只可读" value="readonly" />
           <el-option label="可编辑" value="edit" />
           <el-option label="项目管理员" value="administrator" />
@@ -228,26 +228,39 @@
 
   <el-dialog
     v-model="dialogEditNameVisible"
-    title="共享项目"
+    title="修改项目名称"
     class="share-dialog"
     align-center
     width="350px"
   >
-    <el-form :model="form" ref="addForm" label-position="top">
+    <el-form
+      ref="NameEditRef"
+      :model="NameEditform"
+      label-position="top"
+      :rules="NameEditrules"
+      status-icon
+    >
       <el-form-item label="原名称" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="NameEditform.originalName" autocomplete="off" />
       </el-form-item>
       <el-form-item label="新名称" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="NameEditform.newName" autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input
+          v-model="NameEditform.password"
+          autocomplete="off"
+          type="password"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogEditNameVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogEditNameVisible = false">
+        <el-button
+          type="primary"
+          @click="(dialogEditNameVisible = false), submitForm(NameEditRef)"
+        >
           Confirm
         </el-button>
       </span>
@@ -260,12 +273,16 @@
     align-center
     width="350px"
   >
-    <el-form :model="form" ref="addForm" label-position="top">
+    <el-form :model="Deleteform" ref="ProjDeleteRef" label-position="top">
       <el-form-item label="项目名称" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input v-model="Deleteform.name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+        <el-input
+          v-model="Deleteform.password"
+          autocomplete="off"
+          type="password"
+        />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -284,9 +301,10 @@ import { reactive, getCurrentInstance, ref } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
 import { UploadFilled } from "@element-plus/icons-vue";
-import router from "@/router";
 import { useRouter } from "vue-router";
-import { ElMessageBox } from "element-plus";
+import type { FormInstance } from "element-plus";
+
+const NameEditRef = ref<FormInstance>();
 
 const name = useRouter().currentRoute.value.params.username;
 
@@ -298,15 +316,51 @@ const dialogEditNameVisible = ref(false);
 const dialogDeleteVisible = ref(false);
 
 const formLabelWidth = "140px";
-const form = reactive({
+const NewProjform = reactive({
   name: "",
-  region: "",
-  date1: "",
-  date2: "",
-  delivery: false,
-  type: [],
-  resource: "",
-  desc: "",
+  language: "",
+});
+
+const Userform = reactive({
+  id: "",
+  permission: "",
+});
+
+const NameEditform = reactive({
+  originalName: "",
+  newName: "",
+  password: "",
+});
+
+const Deleteform = reactive({
+  name: "",
+  password: "",
+});
+
+const validateNewName = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("Please input the password again"));
+  } else if (value !== NameEditform.originalName) {
+    callback(new Error("New name should not be same!"));
+  } else {
+    callback();
+  }
+};
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
+};
+
+const NameEditrules = reactive({
+  newName: [{ validator: validateNewName, trigger: "blur" }],
 });
 
 interface lang_opt {
@@ -333,16 +387,6 @@ const options: lang_opt[] = [
     label: "Java",
   },
 ];
-
-const handleClose = (done: () => void) => {
-  ElMessageBox.confirm("确定关闭新建项目表单")
-    .then(() => {
-      done();
-    })
-    .catch(() => {
-      // catch error
-    });
-};
 
 const basePagination: PaginationProps = {
   current: 1,
