@@ -27,6 +27,7 @@
 
 <script lang="ts" setup>
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
+import { ta } from "element-plus/es/locale";
 import * as monaco from "monaco-editor";
 import {
   ref,
@@ -65,12 +66,12 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
+  rename,
 });
 
 watch(
   () => props.theme,
   (val: string) => {
-    console.log(val);
     setTheme(val);
   }
 );
@@ -128,9 +129,7 @@ const removeTab = (targetName: string) => {
   fileInfos[fileIndex].show = false;
 };
 
-function addFile(path: string, value: string) {
-  console.log("addFile", path);
-  let fileName = path.split("/").pop() as string;
+function getLanguageByFileName(fileName: string) {
   let fileSplit = fileName.split(".");
   let fileSuffix = fileSplit[fileSplit.length - 1] as string;
   let language = "plaintext";
@@ -139,14 +138,19 @@ function addFile(path: string, value: string) {
       language = common.nameTypeDict.get(fileSplit[0]) as string;
     }
   } else {
-    console.log("enter");
-    console.log(fileSuffix);
     if (common.suffixTypeDict.has(fileSuffix)) {
       language = common.suffixTypeDict.get(fileSuffix) as string;
     }
   }
+  return language;
+}
+
+function addFile(path: string, value: string) {
+  console.log("addFile", path);
+  let fileName = path.split("/").pop() as string;
+  let language = getLanguageByFileName(fileName);
   let fileIndex = fileInfos.findIndex((fileInfo) => fileInfo.path === path);
-  console.log(language);
+
   if (fileIndex === -1) {
     fileInfos.push({
       path: path,
@@ -218,6 +222,36 @@ function setTheme(theme: string) {
     ) as monaco.editor.IStandaloneCodeEditor;
     curEditor.updateOptions(item.options);
   });
+}
+
+function setLanguage(language: string, index: string) {
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === index
+  );
+  fileInfos[fileIndex].options.language = language;
+  let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
+  monaco.editor.setModelLanguage(model, language);
+
+  let curEditor = getEditorByIndex(
+    index
+  ) as monaco.editor.IStandaloneCodeEditor;
+
+  curEditor.updateLanguage(fileInfos[fileIndex].options.language);
+}
+
+function rename(oldPath: string, newPath: string) {
+  let newTitle = newPath.split("/").pop() as string;
+  let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
+  fileInfos[fileIndex].path = newPath;
+  let newLanguage = getLanguageByFileName(newTitle);
+  if (fileInfos[fileIndex].options.language !== newLanguage) {
+    setLanguage(newLanguage, fileInfos[fileIndex].index.toString());
+  }
+
+  let tabIndex = editableTabs.value.findIndex(
+    (item) => item.title === oldPath.split("/").pop()
+  );
+  editableTabs.value[tabIndex].title = newTitle;
 }
 </script>
 

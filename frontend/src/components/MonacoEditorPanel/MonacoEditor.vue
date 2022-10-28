@@ -39,6 +39,7 @@ const emit = defineEmits<{
 defineExpose({
   locateLine,
   updateOptions,
+  updateLanguage,
 });
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -48,6 +49,11 @@ function updateOptions(
   options: monaco.editor.IStandaloneEditorConstructionOptions
 ) {
   editor.value?.updateOptions(options);
+}
+
+function updateLanguage(language: string) {
+  let model = editor.value?.getModel() as monaco.editor.ITextModel;
+  monaco.editor.setModelLanguage(model, language);
 }
 
 function getAllDecorationByClass(className: string) {

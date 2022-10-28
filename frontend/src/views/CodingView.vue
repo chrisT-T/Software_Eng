@@ -60,6 +60,7 @@
         >
           <el-button size="small" @click="openFile"> open file </el-button>
           <el-button size="small" @click="changeTheme">change theme </el-button>
+          <el-button size="small" @click="changeName">change name </el-button>
           <EditorPanel
             ref="editorPanel"
             :theme="editorTheme"
@@ -104,6 +105,10 @@ function openFile(path: string) {
 
 function changeTheme() {
   editorTheme.value = "vs-dark";
+}
+
+function changeName() {
+  editorPanel.value?.rename("adfa/df.py", "asfs/adf.cpp");
 }
 function saveFile(path: string, value: string) {
   return;
