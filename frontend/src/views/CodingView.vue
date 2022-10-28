@@ -61,6 +61,10 @@
           <el-button size="small" @click="openFile"> open file </el-button>
           <el-button size="small" @click="changeTheme">change theme </el-button>
           <el-button size="small" @click="changeName">change name </el-button>
+          <el-button size="small" @click="deleteFile"> delete file </el-button>
+          <el-button size="small" @click="getBreakpoints">
+            getBreakpoints
+          </el-button>
           <EditorPanel
             ref="editorPanel"
             :theme="editorTheme"
@@ -108,7 +112,15 @@ function changeTheme() {
 }
 
 function changeName() {
-  editorPanel.value?.rename("adfa/df.py", "asfs/adf.cpp");
+  editorPanel.value?.renameFile("adfa/df.py", "asfs/adf.cpp");
+}
+
+function deleteFile() {
+  editorPanel.value?.deleteFile("adfa/df.py");
+}
+
+function getBreakpoints() {
+  console.log(editorPanel.value?.getBreakpoints());
 }
 function saveFile(path: string, value: string) {
   return;

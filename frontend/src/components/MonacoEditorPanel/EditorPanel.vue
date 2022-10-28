@@ -63,10 +63,11 @@ const emit = defineEmits<{
 
 defineExpose({
   addFile,
+  renameFile,
+  deleteFile,
   getBreakpoints,
   focusLine,
   clearFocusLine,
-  rename,
 });
 
 watch(
@@ -186,7 +187,6 @@ function getBreakpoints() {
   const breakpoints = new Map<string, Array<number>>();
   fileInfos.forEach((fileInfo) => {
     const model = fileInfo.options["model"] as monaco.editor.ITextModel;
-    console.log(model.getAllDecorations());
     const lines = model
       .getAllDecorations()
       .filter(
@@ -196,6 +196,7 @@ function getBreakpoints() {
       .map((item) => item.range.startLineNumber);
     breakpoints.set(fileInfo.path, lines);
   });
+  return breakpoints;
 }
 
 function focusLine() {
@@ -239,9 +240,13 @@ function setLanguage(language: string, index: string) {
   curEditor.updateLanguage(fileInfos[fileIndex].options.language);
 }
 
-function rename(oldPath: string, newPath: string) {
+function renameFile(oldPath: string, newPath: string) {
   let newTitle = newPath.split("/").pop() as string;
   let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
+  if (fileIndex === -1) {
+    return;
+  }
+
   fileInfos[fileIndex].path = newPath;
   let newLanguage = getLanguageByFileName(newTitle);
   if (fileInfos[fileIndex].options.language !== newLanguage) {
@@ -252,6 +257,15 @@ function rename(oldPath: string, newPath: string) {
     (item) => item.title === oldPath.split("/").pop()
   );
   editableTabs.value[tabIndex].title = newTitle;
+}
+
+function deleteFile(path: string) {
+  let fileIndex = fileInfos.findIndex((item) => item.path === path);
+  if (fileIndex === -1) {
+    return;
+  }
+  removeTab(fileInfos[fileIndex].index.toString());
+  fileInfos.splice(fileIndex, 1);
 }
 </script>
 

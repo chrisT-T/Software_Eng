@@ -202,6 +202,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   console.log("Monaco Editor Destroyed");
+  editor.value?.getModel()?.dispose();
   editor.value?.dispose();
 });
 </script>
