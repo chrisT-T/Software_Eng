@@ -147,7 +147,6 @@ onMounted(() => {
   } else {
     console.error("monacEeditorContainner is null or editorOption is null");
   }
-
   editor.value?.onMouseMove((e) => {
     const { target } = e;
     if (

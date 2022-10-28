@@ -102,11 +102,54 @@ const removeTab = (targetName: string) => {
 function addFile(path: string, value: string) {
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
-  let fileSuffix = fileName.split(".").pop() as string;
-  let typeDict = { c: "" };
+  let suffixTypeDict = new Map<string, string>([
+    ["cpp", "cpp"],
+    ["c", "c"],
+    ["h", "c"],
+    ["hpp", "cpp"],
+    ["py", "python"],
+    ["java", "java"],
+    ["cs", "csharp"],
+    ["css", "css"],
+    ["html", "html"],
+    ["js", "javascript"],
+    ["ts", "typescript"],
+    ["json", "json"],
+    ["lua", "lua"],
+    ["go", "go"],
+    ["pl", "perl"],
+    ["php", "php"],
+    ["txt", "plaintext"],
+    ["r", "r"],
+    ["rs", "rust"],
+    ["rb", "ruby"],
+    ["sh", "shell"],
+    ["swift", "swift"],
+    ["xml", "xml"],
+    ["yml", "yaml"],
+    ["yaml", "yaml"],
+    ["scss", "scss"],
+    ["v", "verilog"],
+  ]);
+  let nameTypeDict = new Map([["dockerfile", "dockerfile"]]);
+  let fileSplit = fileName.split(".");
+  let fileSuffix = fileSplit[fileSplit.length - 1] as string;
+  let language = "plaintext";
+  if (fileSplit.length === 1) {
+    if (nameTypeDict.has(fileSplit[0])) {
+      language = nameTypeDict.get(fileSplit[0]) as string;
+    }
+  } else {
+    console.log("enter");
+    console.log(fileSuffix);
+    if (suffixTypeDict.has(fileSuffix)) {
+      language = suffixTypeDict.get(fileSuffix) as string;
+    }
+  }
   let fileIndex = fileInfos.value.findIndex(
     (fileInfo) => fileInfo.path === path
   );
+  console.log(language);
   if (fileIndex === -1) {
     fileInfos.value.push({
       path: path,
@@ -114,9 +157,9 @@ function addFile(path: string, value: string) {
       index: ++tabIndex,
       show: true,
       options: {
-        theme: "vs",
+        theme: "vs", // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
-        language: "python",
+        language: language,
         automaticLayout: true,
         bracketPairColorization: {
           enabled: true,
@@ -124,7 +167,7 @@ function addFile(path: string, value: string) {
         },
         model: monaco.editor.createModel(
           value,
-          undefined,
+          language,
           monaco.Uri.file(path)
         ),
       },
