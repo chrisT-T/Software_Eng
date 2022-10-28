@@ -28,6 +28,10 @@ onMounted(() => {
   term.loadAddon(attachAddon);
 
   term.writeln("welcome to use docker web terminal!");
+
+  setTimeout(() => {
+    fitAddon.fit();
+  }, 6);
 });
 </script>
 
