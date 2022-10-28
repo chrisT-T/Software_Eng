@@ -62,7 +62,7 @@
           >
             <EditorPanel> </EditorPanel>
           </a-resize-box>
-          <SimpleTerminal></SimpleTerminal>
+          <TerminalPanel />
         </el-container>
       </el-container>
     </el-container>
@@ -137,7 +137,7 @@ import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
-
+import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
 const name = useRouter().currentRoute.value.params.username;
 
 const dialogTableVisible = ref(false);
