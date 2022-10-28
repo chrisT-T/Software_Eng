@@ -25,6 +25,7 @@ import {
   WebSocketMessageReader,
   WebSocketMessageWriter,
 } from "vscode-ws-jsonrpc";
+import * as common from "./common";
 
 const props = defineProps<{
   editorOption: monaco.editor.IStandaloneEditorConstructionOptions;
@@ -42,10 +43,6 @@ defineExpose({
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
-
-const breakPointClassName = "monaco-editor-breakpoint";
-const shadowBreakpointClassName = "monaco-editor-breakpoint-shadow";
-const focusLineClassName = "monaco-editor-focus-line";
 
 watch(
   () => props.editorOption,
@@ -157,21 +154,23 @@ onMounted(() => {
       target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
       target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS
     ) {
-      if (!existDecoration(breakPointClassName, target.position.lineNumber)) {
-        clearAllDecorationByClass(shadowBreakpointClassName);
+      if (
+        !existDecoration(common.breakPointClassName, target.position.lineNumber)
+      ) {
+        clearAllDecorationByClass(common.shadowBreakpointClassName);
         addDecoration(
-          shadowBreakpointClassName,
+          common.shadowBreakpointClassName,
           target.position.lineNumber,
           ""
         );
       }
     } else {
-      clearAllDecorationByClass(shadowBreakpointClassName);
+      clearAllDecorationByClass(common.shadowBreakpointClassName);
     }
   });
 
   editor.value?.onMouseLeave(() => {
-    clearAllDecorationByClass(shadowBreakpointClassName);
+    clearAllDecorationByClass(common.shadowBreakpointClassName);
   });
 
   editor.value?.onMouseDown((e) => {
@@ -180,15 +179,24 @@ onMounted(() => {
       target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN ||
       target.type === monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS
     ) {
-      clearAllDecorationByClass(shadowBreakpointClassName);
-      if (!existDecoration(breakPointClassName, target.position.lineNumber)) {
-        addDecoration(breakPointClassName, target.position.lineNumber, "");
+      clearAllDecorationByClass(common.shadowBreakpointClassName);
+      if (
+        !existDecoration(common.breakPointClassName, target.position.lineNumber)
+      ) {
+        addDecoration(
+          common.breakPointClassName,
+          target.position.lineNumber,
+          ""
+        );
       } else {
         removeDecoration(
-          shadowBreakpointClassName,
+          common.shadowBreakpointClassName,
           target.range.startLineNumber
         );
-        removeDecoration(breakPointClassName, target.position.lineNumber);
+        removeDecoration(
+          common.breakPointClassName,
+          target.position.lineNumber
+        );
       }
     }
   });

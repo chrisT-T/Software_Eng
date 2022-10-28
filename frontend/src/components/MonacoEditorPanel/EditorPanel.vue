@@ -27,6 +27,7 @@
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import * as monaco from "monaco-editor";
 import { ref, defineEmits, defineExpose, toRaw } from "vue";
+import * as common from "./common";
 
 export interface FileInfo {
   path: string;
@@ -101,6 +102,8 @@ const removeTab = (targetName: string) => {
 function addFile(path: string, value: string) {
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
+  let fileSuffix = fileName.split(".").pop() as string;
+  let typeDict = { c: "" };
   let fileIndex = fileInfos.value.findIndex(
     (fileInfo) => fileInfo.path === path
   );
@@ -136,7 +139,19 @@ function addFile(path: string, value: string) {
 }
 
 function getBreakpoints() {
-  return;
+  const breakpoints = new Map<string, Array<number>>();
+  fileInfos.value.forEach((fileInfo) => {
+    const model = fileInfo.options["model"] as monaco.editor.ITextModel;
+    console.log(model.getAllDecorations());
+    const lines = model
+      .getAllDecorations()
+      .filter(
+        (item) =>
+          item.options.glyphMarginClassName === common.breakPointClassName
+      )
+      .map((item) => item.range.startLineNumber);
+    breakpoints.set(fileInfo.path, lines);
+  });
 }
 
 function focusLine() {
