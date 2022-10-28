@@ -2,21 +2,15 @@
   <div class="menu-demo">
     <a-menu mode="pop" showCollapseButton>
       <a-menu-item key="1">
-        <template #icon><icon-apps></icon-apps></template>
-        项目管理
+        <template #icon><icon-apps /></template>
+        我的项目
       </a-menu-item>
     </a-menu>
   </div>
 </template>
 
-<script lang="ts">
-import { IconApps, IconFire, IconHome } from "@arco-design/web-vue/es/icon";
-
-export default {
-  components: {
-    IconApps,
-  },
-};
+<script lang="ts" setup>
+import { IconApps, IconBulb } from "@arco-design/web-vue/es/icon";
 </script>
 <style scoped>
 .menu-demo {
