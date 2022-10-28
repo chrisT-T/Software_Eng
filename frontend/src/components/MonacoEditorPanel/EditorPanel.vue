@@ -14,6 +14,8 @@
         :name="item.name"
       >
         <MonacoEditor
+          ref="monacoEditors"
+          :name="item.name"
           :editor-option="getOption(item.name)"
           @modified="fileModified"
           @saveFile="saveFile"
@@ -26,7 +28,14 @@
 <script lang="ts" setup>
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import * as monaco from "monaco-editor";
-import { ref, defineEmits, defineExpose, toRaw } from "vue";
+import {
+  ref,
+  defineEmits,
+  defineExpose,
+  defineProps,
+  shallowRef,
+  watch,
+} from "vue";
 import * as common from "./common";
 
 export interface FileInfo {
@@ -42,6 +51,10 @@ export interface TabInfo {
   name: string;
 }
 
+const props = defineProps<{
+  theme: string;
+}>();
+
 const emit = defineEmits<{
   (e: "saveFile", path: string, value: string): void;
   (e: "startDebug", path: string): void;
@@ -54,18 +67,34 @@ defineExpose({
   clearFocusLine,
 });
 
-const fileInfos = ref<Array<FileInfo>>(new Array<FileInfo>());
+watch(
+  () => props.theme,
+  (val: string) => {
+    console.log(val);
+    setTheme(val);
+  }
+);
+
+const fileInfos = new Array<FileInfo>();
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
 const editableTabs = ref<Array<TabInfo>>(new Array<TabInfo>());
+const monacoEditors = shallowRef([]);
 
 const getOption = (index: string) => {
-  let fileIndex = fileInfos.value.findIndex(
+  let fileIndex = fileInfos.findIndex(
     (fileInfo) => fileInfo.index.toString() === index
   );
-  return toRaw(fileInfos.value[fileIndex].options);
+  return fileInfos[fileIndex].options;
 };
+
+function getEditorByIndex(index: string) {
+  let editorIndex = monacoEditors.value.findIndex(
+    (item) => item.$attrs["name"] === index
+  );
+  return monacoEditors.value[editorIndex];
+}
 
 const addTab = (title: string, name: string) => {
   editableTabs.value.push({
@@ -93,71 +122,39 @@ const removeTab = (targetName: string) => {
 
   editableTabsValue.value = activeName;
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
-  let fileIndex = fileInfos.value.findIndex(
+  let fileIndex = fileInfos.findIndex(
     (fileInfo) => fileInfo.index.toString() === targetName
   );
-  fileInfos.value[fileIndex].show = false;
+  fileInfos[fileIndex].show = false;
 };
 
 function addFile(path: string, value: string) {
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
-  let suffixTypeDict = new Map<string, string>([
-    ["cpp", "cpp"],
-    ["c", "c"],
-    ["h", "c"],
-    ["hpp", "cpp"],
-    ["py", "python"],
-    ["java", "java"],
-    ["cs", "csharp"],
-    ["css", "css"],
-    ["html", "html"],
-    ["js", "javascript"],
-    ["ts", "typescript"],
-    ["json", "json"],
-    ["lua", "lua"],
-    ["go", "go"],
-    ["pl", "perl"],
-    ["php", "php"],
-    ["txt", "plaintext"],
-    ["r", "r"],
-    ["rs", "rust"],
-    ["rb", "ruby"],
-    ["sh", "shell"],
-    ["swift", "swift"],
-    ["xml", "xml"],
-    ["yml", "yaml"],
-    ["yaml", "yaml"],
-    ["scss", "scss"],
-    ["v", "verilog"],
-  ]);
-  let nameTypeDict = new Map([["dockerfile", "dockerfile"]]);
   let fileSplit = fileName.split(".");
   let fileSuffix = fileSplit[fileSplit.length - 1] as string;
   let language = "plaintext";
   if (fileSplit.length === 1) {
-    if (nameTypeDict.has(fileSplit[0])) {
-      language = nameTypeDict.get(fileSplit[0]) as string;
+    if (common.nameTypeDict.has(fileSplit[0])) {
+      language = common.nameTypeDict.get(fileSplit[0]) as string;
     }
   } else {
     console.log("enter");
     console.log(fileSuffix);
-    if (suffixTypeDict.has(fileSuffix)) {
-      language = suffixTypeDict.get(fileSuffix) as string;
+    if (common.suffixTypeDict.has(fileSuffix)) {
+      language = common.suffixTypeDict.get(fileSuffix) as string;
     }
   }
-  let fileIndex = fileInfos.value.findIndex(
-    (fileInfo) => fileInfo.path === path
-  );
+  let fileIndex = fileInfos.findIndex((fileInfo) => fileInfo.path === path);
   console.log(language);
   if (fileIndex === -1) {
-    fileInfos.value.push({
+    fileInfos.push({
       path: path,
       modified: false,
       index: ++tabIndex,
       show: true,
       options: {
-        theme: "vs", // 'vs', 'vs-dark', 'hc-black', 'hc-light'
+        theme: props.theme, // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
         language: language,
         automaticLayout: true,
@@ -173,17 +170,17 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, tabIndex.toString());
-  } else if (fileInfos.value[fileIndex].show === false) {
-    fileInfos.value[fileIndex].show = true;
-    addTab(fileName, fileInfos.value[fileIndex].index.toString());
+  } else if (fileInfos[fileIndex].show === false) {
+    fileInfos[fileIndex].show = true;
+    addTab(fileName, fileInfos[fileIndex].index.toString());
   } else {
-    editableTabsValue.value = fileInfos.value[fileIndex].index.toString();
+    editableTabsValue.value = fileInfos[fileIndex].index.toString();
   }
 }
 
 function getBreakpoints() {
   const breakpoints = new Map<string, Array<number>>();
-  fileInfos.value.forEach((fileInfo) => {
+  fileInfos.forEach((fileInfo) => {
     const model = fileInfo.options["model"] as monaco.editor.ITextModel;
     console.log(model.getAllDecorations());
     const lines = model
@@ -211,6 +208,16 @@ function fileModified() {
 
 function saveFile() {
   return;
+}
+
+function setTheme(theme: string) {
+  fileInfos.forEach((item) => {
+    item.options.theme = theme;
+    let curEditor = getEditorByIndex(
+      item.index.toString()
+    ) as monaco.editor.IStandaloneCodeEditor;
+    curEditor.updateOptions(item.options);
+  });
 }
 </script>
 

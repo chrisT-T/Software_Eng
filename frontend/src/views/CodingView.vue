@@ -59,8 +59,10 @@
           "
         >
           <el-button size="small" @click="openFile"> open file </el-button>
+          <el-button size="small" @click="changeTheme">change theme </el-button>
           <EditorPanel
             ref="editorPanel"
+            :theme="editorTheme"
             @save-file="saveFile"
             @start-debug="(path) => runDebugger(name + '/' + path)"
           >
@@ -87,6 +89,7 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 const name = useRouter().currentRoute.value.params.username;
 
+const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 
 const backmain = () => {
@@ -97,36 +100,11 @@ const backmain = () => {
 function openFile(path: string) {
   console.log("open File");
   editorPanel.value?.addFile("adfa/df.py", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.c", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.cpp", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.h", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.hpp", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.java", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.json", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.cs", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.html", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.css", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.js", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.ts", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.lua", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.go", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.pl", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.php", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.txt", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.r", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.rs", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.rb", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.sh", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.swift", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.xml", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.yml", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.yaml", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.scss", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df.v", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/df", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/dockerfile", "alkdsfjlasdjflad");
 }
 
+function changeTheme() {
+  editorTheme.value = "vs-dark";
+}
 function saveFile(path: string, value: string) {
   return;
 }

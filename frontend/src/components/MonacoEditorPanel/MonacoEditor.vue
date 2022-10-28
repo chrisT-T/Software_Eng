@@ -37,24 +37,17 @@ const emit = defineEmits<{
 }>();
 
 defineExpose({
-  setModel,
   locateLine,
+  updateOptions,
 });
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
 
-watch(
-  () => props.editorOption,
-  (val: monaco.editor.IStandaloneEditorConstructionOptions) => {
-    console.log(val);
-    editor.value?.updateOptions(val);
-  },
-  { deep: true }
-);
-
-function setModel(model: monaco.editor.ITextModel) {
-  editor.value?.setModel(model);
+function updateOptions(
+  options: monaco.editor.IStandaloneEditorConstructionOptions
+) {
+  editor.value?.updateOptions(options);
 }
 
 function getAllDecorationByClass(className: string) {
