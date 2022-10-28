@@ -6,10 +6,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps } from "vue";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { AttachAddon } from "xterm-addon-attach";
+
+const props = defineProps<{
+  containerId: string;
+}>();
 
 const termDiv = ref<HTMLDivElement>();
 const term = new Terminal({
@@ -18,7 +22,7 @@ const term = new Terminal({
 });
 const fitAddon = new FitAddon();
 const terminalWs = new WebSocket(
-  "ws://localhost:5005/websocket/ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3"
+  `ws://localhost:5005/websocket/${props.containerId}`
 );
 const attachAddon = new AttachAddon(terminalWs);
 

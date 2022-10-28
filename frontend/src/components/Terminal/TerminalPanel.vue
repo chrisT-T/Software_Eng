@@ -12,7 +12,7 @@
       :label="item.title"
       :name="item.name"
     >
-      <SimpleTerminal />
+      <SimpleTerminal :containerId="item.container" />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -20,13 +20,16 @@
 import { ref } from "vue";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 
+const containerId =
+  "ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3";
+
 let tabIndex = 2;
 const editableTabsValue = ref("2");
 const editableTabs = ref([
   {
-    title: "Tab 1",
+    title: "Terminal 1",
     name: "1",
-    content: "Tab 1 content",
+    container: containerId,
   },
 ]);
 
@@ -34,9 +37,9 @@ const handleTabsEdit = (targetName: string, action: "remove" | "add") => {
   if (action === "add") {
     const newTabName = `${++tabIndex}`;
     editableTabs.value.push({
-      title: "New Tab",
+      title: `Terminal ${tabIndex}`,
       name: newTabName,
-      content: "New Tab content",
+      container: containerId,
     });
     editableTabsValue.value = newTabName;
   } else if (action === "remove") {
