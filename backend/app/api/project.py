@@ -33,4 +33,4 @@ class Project(Resource):
             return {"message": key}
 
 
-api.add_resource(Project, '/project')
+api.add_resource(Project, '/api/project')

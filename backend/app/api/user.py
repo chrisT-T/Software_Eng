@@ -41,10 +41,12 @@ class User(Resource):
         password = content['password']
 
         try:
-            service.create_user(username, password)
-            return {'message': "ok"}
+            if (service.create_user(username, password)):
+                return {'message': "ok"}
+            else:
+                return {'message': "user exists"}
         except:  # noqa
             return {"message": "create new user failed"}
 
 
-user_api.add_resource(User, '/user')
+user_api.add_resource(User, '/api/user')

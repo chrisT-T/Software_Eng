@@ -49,6 +49,7 @@ const name = useRouter().currentRoute.value.params.username;
 
 const logout = () => {
   console.log("logout");
+  sessionStorage.removeItem("username");
   router.replace("/login");
 };
 </script>

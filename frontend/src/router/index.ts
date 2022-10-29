@@ -54,6 +54,11 @@ router.beforeEach((to, from, next) => {
         query: { redirected: to.fullPath },
       });
     }
+  } else if (to.name == "login") {
+    const username = sessionStorage.getItem("username");
+    if (username) {
+      router.replace({ name: "main", params: { username: username } });
+    } else next();
   } else next();
 });
 

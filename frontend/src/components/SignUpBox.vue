@@ -56,6 +56,7 @@ const checkUsername = (rule: any, value: any, callback: any) => {
     if (!uPattern.test(value)) {
       callback(new Error("用户名正则, 4到16位 (字母，数字，下划线，减号)"));
     } else {
+      axios.get("/api/user", qs.stringify(ruleForm));
       callback();
     }
   }, 1000);

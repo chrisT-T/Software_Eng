@@ -20,19 +20,6 @@ def login():
                 return jsonify({"code": 200, "msg": "Login Success"})
         else:
             return jsonify({"code":400, "msg":"Username Or Password Error"})
-    
-
-@bp.route('/auth/register', methods=['POST'])
-def register():
-    form = request.form.to_dict()
-    username = form['username']
-    password = form['password']
-    if username & password:
-        try:
-            UserService.create_user(username=username, password=password)
-            return jsonify({"code":200, "msg":"Register Success"})
-        except:
-            return jsonify({"code":400, "msg":"Register Failed"})
         
 @bp.route('/auth/logout', methods=['GET'])
 @login_required
