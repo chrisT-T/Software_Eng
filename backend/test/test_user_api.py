@@ -64,3 +64,7 @@ class APITestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "ok")
         self.assertEqual(response.status_code, 200)
+
+        response = current_app.test_client().get('/container/1')
+        print("containerid", response.data)
+        self.assertEqual(response.status_code, 200)
