@@ -16,18 +16,17 @@ module.exports = defineConfig({
         languages: ["python"],
       }),
     ],
-    
   },
-  devServer:{
+  devServer: {
     proxy: {
-      '/auth': {
-        target: 'http://localhost:5000',
+      "/auth": {
+        target: "http://localhost:5000",
         changeOrigin: true,
       },
-      '/api': {
-        target: 'http://localhost:5000',
+      "/api": {
+        target: "http://localhost:5000",
         changeOrigin: true,
-      }
+      },
     },
   },
 });

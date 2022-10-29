@@ -6,6 +6,7 @@ from app.model import login
 
 class UserService():
     def create_user(self, username, password):
+        pat = '^[a-zA-Z0-9_-]{4,16}$'
         user = login.User.query.filter_by(username=username).first()
         if user:
             return False

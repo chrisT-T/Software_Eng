@@ -44,12 +44,14 @@ import ProjectCard from "@/components/ProjectCard.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
+import axios from "axios";
 
 const name = useRouter().currentRoute.value.params.username;
 
 const logout = () => {
   console.log("logout");
   sessionStorage.removeItem("username");
+  axios.get("/auth/logout");
   router.replace("/login");
 };
 </script>

@@ -17,36 +17,35 @@ user_api = Api(bp)
 
 class User(Resource):
     def get(self):
-        content = request.get_json()
-        
-        if 'username' not in content.keys():
-            return {'message': 'bad arguments'}
+        username = request.args.get('username',None)
+        if not username:
+            return {'code': 1, 'message': 'bad arguments'}
         else:
             try:
-                exist = service.find_user(content["username"]) 
+                exist = service.find_user(username) 
                 if exist:
-                    return {'message': 'user exists'}
+                    return {'code': 1, 'message': 'user exists'}
                 else:
-                    return {'message': 'user not exist'}
+                    return {'code': 0, 'message': 'user not exist'}
             except:
-                return {'message': 'user not exist'}
+                return {'code': 0, 'message': 'user not exist'}
 
     def post(self):
-        content = request.get_json()
-
+        content = request.form.to_dict()
+        print(content)
         if 'username' not in content.keys() or 'password' not in content.keys():
-            return {'message': 'bad arguments'}
-
+            return {'code': 401, 'message': 'bad arguments'}
+        
         username = content['username']
         password = content['password']
 
         try:
             if (service.create_user(username, password)):
-                return {'message': "ok"}
+                return {'code': 200, 'message': "ok"}
             else:
-                return {'message': "user exists"}
+                return {'code': 400, 'message': "user exists"}
         except:  # noqa
-            return {"message": "create new user failed"}
+            return {'code': 401, "message": "create new user failed"}
 
 
 user_api.add_resource(User, '/api/user')

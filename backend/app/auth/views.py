@@ -19,11 +19,10 @@ def login():
                 login_user(user)
                 return jsonify({"code": 200, "msg": "Login Success"})
         else:
-            return jsonify({"code":400, "msg":"Username Or Password Error"})
+            return jsonify({"code": 400, "msg": "Username Or Password Error"})
         
 @bp.route('/auth/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()
-    flash('You are no longer logged in.')
     return redirect(url_for('/index.html'))
