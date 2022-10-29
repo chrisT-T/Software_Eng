@@ -16,5 +16,14 @@ module.exports = defineConfig({
         languages: ["python"],
       }),
     ],
+    
+  },
+  devServer:{
+    proxy: {
+      '/auth': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      }
+    },
   },
 });

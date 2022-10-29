@@ -41,6 +41,9 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import type { FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -103,6 +106,23 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
+      axios
+        .post("/auth/register", qs.stringify(ruleForm))
+        .then(function (response) {
+          const code = response.data["code"];
+          if (code == "200") {
+            axios
+              .post("/auth/login", qs.stringify(ruleForm))
+              .then(function (response) {
+                const code = response.data["code"];
+                if (code == "200") {
+                  sessionStorage.setItem("isLogin", true);
+                }
+              });
+          } else {
+            ElMessage("Register Failed");
+          }
+        });
     } else {
       console.log("error submit!");
       return false;

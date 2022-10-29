@@ -13,3 +13,10 @@ class UserService():
                               password_hash=generate_password_hash(password))
         db.session.add(new_user)
         db.session.commit()
+    
+    def find_user(self, username):
+        user = login.User.query.filter_by(username=username).first()
+        if user:
+            return True
+        else:
+            return False

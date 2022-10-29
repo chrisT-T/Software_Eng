@@ -1,34 +1,40 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, jsonify, url_for, request
 from flask_login import login_required, login_user, logout_user
-from requests import request
 
 from app.model.login import User
-
-from .forms import LoginForm
+from app.service.user import UserService
 
 bp = Blueprint('auth', __name__)
 
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/auth/login', methods=['POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
+    form = request.form.to_dict()
+    username = form['username']
+    password = form['password']
+    if username:
         user = User.query.filter_by(username=username).first()
         if user:
-            if user.validate_password(password):
+            if(user.validate_password(password)):
                 login_user(user)
-                flash('You are logged in now.')
-                return 'test'
+                return jsonify({"code": 200, "msg": "Login Success"})
         else:
-            flash('Failed to log in. Wrong username or password.')
-    if form.errors:
-        flash('Failed to log in.')
-    return render_template('login.html', form=form)
+            return jsonify({"code":400, "msg":"Username Or Password Error"})
+    
 
-
-@bp.route('/logout', methods=['GET'])
+@bp.route('/auth/register', methods=['POST'])
+def register():
+    form = request.form.to_dict()
+    username = form['username']
+    password = form['password']
+    if username & password:
+        try:
+            UserService.create_user(username=username, password=password)
+            return jsonify({"code":200, "msg":"Register Success"})
+        except:
+            return jsonify({"code":400, "msg":"Register Failed"})
+        
+@bp.route('/auth/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()

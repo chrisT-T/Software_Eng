@@ -12,9 +12,9 @@
     <el-form-item label="Username" prop="username">
       <el-input v-model.number="ruleForm.username" />
     </el-form-item>
-    <el-form-item label="Password" prop="pass">
+    <el-form-item label="Password" prop="password">
       <el-input
-        v-model="ruleForm.pass"
+        v-model="ruleForm.password"
         type="password"
         autocomplete="off"
         show-password
@@ -35,6 +35,9 @@
 import router from "@/router";
 import { reactive, ref } from "vue";
 import type { FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -55,12 +58,12 @@ const validatePass = (rule: any, value: any, callback: any) => {
 };
 
 const ruleForm = reactive({
-  pass: "",
+  password: "",
   username: "",
 });
 
 const rules = reactive({
-  pass: [{ validator: validatePass, trigger: "blur" }],
+  password: [{ validator: validatePass, trigger: "blur" }],
   username: [{ validator: checkUsername, trigger: "blur" }],
 });
 
@@ -69,9 +72,22 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
-      router.replace({ name: "main", params: { username: ruleForm.username } });
+      axios
+        .post("/auth/login", qs.stringify(ruleForm))
+        .then(function (response) {
+          const code = response.data["code"];
+          if (code == "200") {
+            sessionStorage.setItem("username", ruleForm.username);
+            router.replace({
+              name: "main",
+              params: { username: ruleForm.username },
+            });
+          } else {
+            ElMessage("Invalid Username or Password");
+          }
+        });
     } else {
-      console.log("error submit!");
+      ElMessage("Error Submit!");
       return false;
     }
   });

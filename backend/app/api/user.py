@@ -17,7 +17,19 @@ user_api = Api(bp)
 
 class User(Resource):
     def get(self):
-        return "user"
+        content = request.get_json()
+        
+        if 'username' not in content.keys():
+            return {'message': 'bad arguments'}
+        else:
+            try:
+                exist = service.find_user(content["username"]) 
+                if exist:
+                    return {'message': 'user exists'}
+                else:
+                    return {'message': 'user not exist'}
+            except:
+                return {'message': 'user not exist'}
 
     def post(self):
         content = request.get_json()
