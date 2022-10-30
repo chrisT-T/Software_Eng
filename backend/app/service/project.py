@@ -54,9 +54,24 @@ class ProjectService():
                                   project_name=project_name,
                                   project_language=project_language,
                                   docker_id=docker_id)
+            print(new_project.id)
             db.session.add(new_project)
             db.session.commit()
             return 'ok'
         except Exception as e:  # noqa
             print(e)
             return 'create project failed'
+
+    def get_container_id(self, project_id: int):
+        try:
+            select_res = Project.query.filter_by(id=project_id).all()
+            if len(select_res) == 0:
+                return {"flag": False, "result": 'no such project id'}
+            elif len(select_res) != 1:
+                return {"flag": False, "result": 'unknown project id error'}
+
+            target_project = select_res[0]
+            return {"flag": True, "result": target_project.docker_id}
+        except Exception as e:
+            print(e)
+            return {"flag": False, "result": 'Exception in get container id'}
