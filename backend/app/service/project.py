@@ -6,7 +6,6 @@ import docker
 from flask import current_app
 from werkzeug.security import generate_password_hash
 
-from app.api import project
 from app.extensions import db
 from app.model.project import Project
 

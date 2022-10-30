@@ -36,8 +36,8 @@ class APITestCase(unittest.TestCase):
         '''
         data = {"username": "adfwer", "password": "adfwer"}
         response = current_app.test_client().post(
-            "/user",
-            json=data
+            "/api/user",
+            data=data
         )
 
         json_data = json.loads(response.data)
@@ -46,17 +46,17 @@ class APITestCase(unittest.TestCase):
 
         data = {"username": "abcd", "password": "abcd"}
         response = current_app.test_client().post(
-            "/user",
-            json=data
+            "/api/user",
+            data=data
         )
 
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "ok")
         self.assertEqual(response.status_code, 200)
 
-        response = current_app.test_client().get(
-            "/user",
-            json=data
+        response = current_app.test_client().post(
+            "/api/user",
+            data=data
         )
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user exists")
@@ -65,10 +65,10 @@ class APITestCase(unittest.TestCase):
     def test_create_project(self):
         data = {"creator_id": 0, "project_name": "testProj", 'project_language': "python"}
         response = current_app.test_client().post(
-            "/project",
+            "/api/project",
             json=data
         )
-
+        print(response.data)
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "ok")
         self.assertEqual(response.status_code, 200)
@@ -79,18 +79,16 @@ class APITestCase(unittest.TestCase):
         '''
         data = {"username": "adfwer"}
         response = current_app.test_client().get(
-            "/user",
-            json=data
+            f"/api/user?username={data['username']}",
         )
+        print(response.data)
         json_data = json.loads(response.data)
-        print(json_data)
         self.assertEqual(json_data['message'], "user not exist")
         self.assertEqual(response.status_code, 200)
 
         data = {"username": "test"}
         response = current_app.test_client().get(
-            "/user",
-            json=data
+            f"/api/user?username={data['username']}",
         )
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user exists")
