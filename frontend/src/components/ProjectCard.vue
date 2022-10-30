@@ -22,14 +22,36 @@
       </template>
       <a-table
         class="table"
-        :pagination="basePagination"
         :data="data"
         ellipsis="true"
         noDataElement="创建你的新项目"
         hoverable
       >
         <template #columns>
-          <a-table-column title="项目名称">
+          <a-table-column
+            title="项目名称"
+            :filterable="{
+              filters: [
+                {
+                  text: 'Python',
+                  value: 'Python',
+                },
+                {
+                  text: 'Cpp',
+                  value: 'Cpp',
+                },
+                {
+                  text: 'C',
+                  value: 'C',
+                },
+                {
+                  text: 'Java',
+                  value: 'Java',
+                },
+              ],
+              filter: (value, row) => row.language.includes(value),
+            }"
+          >
             <template #cell="{ record }">
               <router-link
                 replace
@@ -459,7 +481,10 @@ interface PermissionTest {
 
 const changepr = ref<PermissionTest[]>();
 
-const printtable = (data: PermissionTest[]) => {
+const printtable = (data: PermissionTest[] | undefined) => {
+  if (!data) {
+    data = [];
+  }
   changepr.value = [...data];
   console.log(changepr);
 };
@@ -527,6 +552,86 @@ const data: ProjectData[] = [
       },
     ],
     lastUpdateTime: "2022/03/01 15:47",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
     createTime: "2022/10/01 12:33",
   },
   {
