@@ -1,34 +1,36 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="ruleForm"
-    status-icon
-    :rules="rules"
-    label-width="120px"
-    class="demo-ruleForm"
-    label-position="top"
-  >
-    <el-form-item label="Username" prop="username">
-      <el-input v-model.number="ruleForm.username" />
-    </el-form-item>
-    <el-form-item label="Password" prop="password">
-      <el-input
-        v-model="ruleForm.password"
-        type="password"
-        autocomplete="off"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item>
-      <div class="button_gp">
-        <el-button type="primary" @click="submitForm(ruleFormRef)"
-          >Sign In</el-button
-        >
-        <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-      </div>
-    </el-form-item>
-  </el-form>
+  <div class="login_">
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      status-icon
+      :rules="rules"
+      label-width="120px"
+      class="demo-ruleForm"
+      label-position="top"
+    >
+      <el-form-item label="Username" prop="username">
+        <el-input v-model.number="ruleForm.username" />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input
+          v-model="ruleForm.password"
+          type="password"
+          autocomplete="off"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item>
+        <div class="button_gp">
+          <el-button type="primary" @click="submitForm(ruleFormRef)"
+            >Sign In</el-button
+          >
+          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -100,6 +102,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+.login_ {
+  padding-top: 30px;
+}
 .button_gp {
   display: flex;
   justify-content: center;

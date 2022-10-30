@@ -73,8 +73,8 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 
 .loginbox {
-  height: 350px;
-  width: 270px;
+  height: 430px;
+  width: 300px;
   background-color: var(--el-color-primary-light-9);
   box-shadow: 3px 4px 5px 0px rgb(8 89 170 / 24%);
   border-radius: 10px;
