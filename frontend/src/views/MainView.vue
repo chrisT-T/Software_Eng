@@ -17,6 +17,7 @@
             >
               <el-option label="创建人" value="1" />
               <el-option label="项目名称" value="2" />
+              <el-option label="个人权限" value="3" />
             </el-select>
           </template>
           <template #append>
