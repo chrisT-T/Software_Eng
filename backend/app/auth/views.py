@@ -15,7 +15,7 @@ def login():
     if username:
         user = User.query.filter_by(username=username).first()
         if user:
-            if(user.validate_password(password)):
+            if user.validate_password(password):
                 login_user(user)
                 return jsonify({"code": 200, "msg": "Login Success"})
         else:
