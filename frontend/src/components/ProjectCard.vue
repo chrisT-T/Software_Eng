@@ -135,18 +135,32 @@
             }"
           ></a-table-column>
           <a-table-column :width="100">
-            <template #cell>
+            <template #cell="{ record }">
               <div class="btn-gp">
                 <a-dropdown position="bottom">
                   <a-button type="text" shape="circle"><icon-edit /></a-button>
                   <template #content>
-                    <a-doption @click="dialogEditNameVisible = true">
+                    <a-doption
+                      @click="
+                        (NameEditform.originalName = record.projectName),
+                          (dialogEditNameVisible = true)
+                      "
+                    >
                       修改名称
                     </a-doption>
-                    <a-doption @click="dialogDeleteVisible = true">
+                    <a-doption
+                      @click="
+                        (Deleteform.name = record.projectName),
+                          (dialogDeleteVisible = true)
+                      "
+                    >
                       删除项目
                     </a-doption>
-                    <a-doption @click="dialogTableVisible = true"
+                    <a-doption
+                      @click="
+                        printtable(record.permissionGp),
+                          (dialogTableVisible = true)
+                      "
                       >查看权限组</a-doption
                     >
                   </template>
@@ -211,7 +225,13 @@
   </el-dialog>
 
   <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
-    <el-table :data="changepr" style="width: 100%" max-height="250">
+    <el-button @click="clearFilter">reset all filters</el-button>
+    <el-table
+      :data="changepr"
+      style="width: 100%"
+      max-height="250"
+      ref="permissionGpRef"
+    >
       <el-table-column prop="user" label="用户名" />
       <el-table-column
         label="权限"
@@ -299,6 +319,7 @@
     class="share-dialog"
     align-center
     width="350px"
+    :close="resetForm(NameEditRef)"
   >
     <el-form
       ref="NameEditRef"
@@ -307,13 +328,10 @@
       :rules="NameEditrules"
       status-icon
     >
-      <el-form-item label="原名称" :label-width="formLabelWidth">
-        <el-input v-model="NameEditform.originalName" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="新名称" :label-width="formLabelWidth">
+      <el-form-item label="新名称" prop="newName">
         <el-input v-model="NameEditform.newName" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="密码" :label-width="formLabelWidth">
+      <el-form-item label="密码" prop="password">
         <el-input
           v-model="NameEditform.password"
           autocomplete="off"
@@ -323,10 +341,13 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogEditNameVisible = false">Cancel</el-button>
+        <el-button
+          @click="resetForm(NameEditRef), (dialogEditNameVisible = false)"
+          >Cancel</el-button
+        >
         <el-button
           type="primary"
-          @click="(dialogEditNameVisible = false), submitForm(NameEditRef)"
+          @click="submitForm(NameEditRef), (dialogEditNameVisible = false)"
         >
           Confirm
         </el-button>
@@ -339,12 +360,19 @@
     title="删除项目"
     align-center
     width="350px"
+    :close="resetForm(NameEditRef)"
   >
-    <el-form :model="Deleteform" ref="ProjDeleteRef" label-position="top">
-      <el-form-item label="项目名称" :label-width="formLabelWidth">
-        <el-input v-model="Deleteform.name" autocomplete="off" />
+    <el-form
+      :model="Deleteform"
+      ref="ProjDeleteRef"
+      label-position="top"
+      status-icon
+      :rules="Deleterules"
+    >
+      <el-form-item label="项目名称" prop="confirmname">
+        <el-input v-model="Deleteform.confirmname" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="密码" :label-width="formLabelWidth">
+      <el-form-item label="密码" prop="password">
         <el-input
           v-model="Deleteform.password"
           autocomplete="off"
@@ -354,8 +382,14 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogDeleteVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogDeleteVisible = false">
+        <el-button
+          @click="resetForm(NameEditRef), (dialogDeleteVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button
+          type="primary"
+          @click="submitForm(ProjDeleteRef), (dialogDeleteVisible = false)"
+        >
           Confirm
         </el-button>
       </span>
@@ -364,16 +398,25 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref } from "vue";
+import { reactive, ref } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
+import { ElTable } from "element-plus";
 
+const permissionGpRef = ref<InstanceType<typeof ElTable>>();
 const NameEditRef = ref<FormInstance>();
+const ProjDeleteRef = ref<FormInstance>();
 
 const name = useRouter().currentRoute.value.params.username;
+
+const clearFilter = () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  permissionGpRef.value!.clearFilter();
+};
 
 const dialogFormVisible = ref(false);
 const dialogUploadVisible = ref(false);
@@ -401,14 +444,32 @@ const NameEditform = reactive({
 
 const Deleteform = reactive({
   name: "",
+  confirmname: "",
   password: "",
 });
 
 const validateNewName = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    callback(new Error("Please input the password again"));
-  } else if (value !== NameEditform.originalName) {
-    callback(new Error("New name should not be same!"));
+    callback(new Error("请输入项目新名称"));
+  } else if (value === NameEditform.originalName) {
+    callback(new Error("新名称不应该与原名称相同"));
+  } else {
+    callback();
+  }
+};
+const validatepass = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("请输入密码"));
+  } else {
+    callback();
+  }
+};
+
+const validateconfirmName = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("请输入需要删除的项目名称"));
+  } else if (value !== Deleteform.name) {
+    callback(new Error("新名称不应该与原名称相同"));
   } else {
     callback();
   }
@@ -425,9 +486,19 @@ const submitForm = (formEl: FormInstance | undefined) => {
     }
   });
 };
+const resetForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.resetFields();
+};
 
 const NameEditrules = reactive({
   newName: [{ validator: validateNewName, trigger: "blur" }],
+  password: [{ validator: validatepass, trigger: "blur" }],
+});
+
+const Deleterules = reactive({
+  confirmname: [{ validator: validateconfirmName, trigger: "blur" }],
+  password: [{ validator: validatepass, trigger: "blur" }],
 });
 
 interface lang_opt {
@@ -550,62 +621,6 @@ const data: ProjectData[] = [
       },
     ],
     lastUpdateTime: "2022/03/01 15:47",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
     createTime: "2022/10/01 12:33",
   },
   {

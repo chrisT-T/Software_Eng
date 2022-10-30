@@ -42,3 +42,11 @@ const data = [
   },
 ];
 </script>
+
+<style scoped>
+.personal-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+</style>
