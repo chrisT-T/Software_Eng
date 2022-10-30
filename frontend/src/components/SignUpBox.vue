@@ -1,41 +1,46 @@
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="ruleForm"
-    status-icon
-    :rules="rules"
-    label-width="120px"
-    class="demo-ruleForm"
-    label-position="top"
-  >
-    <el-form-item label="Username" prop="username">
-      <el-input v-model.number="ruleForm.username" />
-    </el-form-item>
-    <el-form-item label="Password" prop="pass">
-      <el-input
-        v-model="ruleForm.pass"
-        type="password"
-        autocomplete="off"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item label="Confirm Password" prop="checkPass">
-      <el-input
-        v-model="ruleForm.checkPass"
-        type="password"
-        autocomplete="off"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item>
-      <div class="button_gp">
-        <el-button type="primary" @click="submitForm(ruleFormRef)"
-          >Sign Up</el-button
-        >
-        <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-      </div>
-    </el-form-item>
-  </el-form>
+  <div class="signup_">
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      status-icon
+      :rules="rules"
+      label-width="120px"
+      class="demo-ruleForm"
+      label-position="top"
+    >
+      <el-form-item label="Username" prop="username">
+        <el-input v-model.number="ruleForm.username" />
+      </el-form-item>
+      <el-form-item label="Email" prop="email">
+        <el-input v-model.number="ruleForm.email" />
+      </el-form-item>
+      <el-form-item label="Password" prop="pass">
+        <el-input
+          v-model="ruleForm.pass"
+          type="password"
+          autocomplete="off"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item label="Confirm Password" prop="checkPass">
+        <el-input
+          v-model="ruleForm.checkPass"
+          type="password"
+          autocomplete="off"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item>
+        <div class="button_gp">
+          <el-button type="primary" @click="submitForm(ruleFormRef)"
+            >Sign Up</el-button
+          >
+          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -51,7 +56,21 @@ const checkUsername = (rule: any, value: any, callback: any) => {
   setTimeout(() => {
     var uPattern = /^[a-zA-Z0-9_-]{4,16}$/;
     if (!uPattern.test(value)) {
-      callback(new Error("用户名正则, 4到16位 (字母，数字，下划线，减号)"));
+      callback(new Error("用户名规则, 4到16位 (字母，数字，下划线，减号)"));
+    } else {
+      callback();
+    }
+  }, 1000);
+};
+
+const checkEmail = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    return callback(new Error("Please input the email"));
+  }
+  setTimeout(() => {
+    var uPattern = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/;
+    if (!uPattern.test(value)) {
+      callback(new Error("请输入合法邮箱域名"));
     } else {
       callback();
     }
@@ -90,12 +109,14 @@ const ruleForm = reactive({
   pass: "",
   checkPass: "",
   username: "",
+  email: "",
 });
 
 const rules = reactive({
   pass: [{ validator: validatePass, trigger: "blur" }],
   checkPass: [{ validator: validatePass2, trigger: "blur" }],
   username: [{ validator: checkUsername, trigger: "blur" }],
+  email: [{ validator: checkEmail, trigger: "blur" }],
 });
 
 const submitForm = (formEl: FormInstance | undefined) => {
@@ -117,6 +138,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+.signup_ {
+  padding-top: 5px;
+}
 .button_gp {
   display: flex;
   justify-content: center;

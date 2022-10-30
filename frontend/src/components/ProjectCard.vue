@@ -20,7 +20,14 @@
           </a-button>
         </a-space>
       </template>
-      <a-table :pagination="basePagination" :data="data" ellipsis="true">
+      <a-table
+        class="table"
+        :pagination="basePagination"
+        :data="data"
+        ellipsis="true"
+        noDataElement="创建你的新项目"
+        hoverable
+      >
         <template #columns>
           <a-table-column title="项目名称">
             <template #cell="{ record }">
@@ -61,13 +68,13 @@
               </router-link>
             </template>
           </a-table-column>
-          <a-table-column title="创建人">
-            <template #cell="{ record }">
-              <div class="creater-box">
-                {{ record.creater }}
-              </div>
-            </template>
-          </a-table-column>
+          <a-table-column
+            title="创建人"
+            data-index="creator"
+            :sortable="{
+              sortDirections: ['ascend', 'descend'],
+            }"
+          ></a-table-column>
           <a-table-column title="权限组">
             <template #cell="{ record }">
               <a-dropdown position="bl">
@@ -79,8 +86,12 @@
                   </a-avatar-group>
                 </div>
                 <template #content>
-                  <a-doption @click="dialogTableVisible = true"
-                    >修改权限组</a-doption
+                  <a-doption
+                    @click="
+                      printtable(record.permissionGp),
+                        (dialogTableVisible = true)
+                    "
+                    >查看权限组</a-doption
                   >
                 </template>
               </a-dropdown>
@@ -90,6 +101,14 @@
           <a-table-column
             title="最后更新时间"
             data-index="lastUpdateTime"
+            :width="150"
+            :sortable="{
+              sortDirections: ['ascend', 'descend'],
+            }"
+          ></a-table-column>
+          <a-table-column
+            title="创建时间"
+            data-index="createTime"
             :width="150"
             :sortable="{
               sortDirections: ['ascend', 'descend'],
@@ -174,13 +193,41 @@
   <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
     <el-table :data="changepr" style="width: 100%" max-height="250">
       <el-table-column prop="user" label="用户名" />
-      <el-table-column label="权限">
+      <el-table-column
+        label="权限"
+        prop="permission"
+        :filters="[
+          { text: '只可读', value: 'readonly' },
+          { text: '可编辑', value: 'edit' },
+          { text: '管理员', value: 'administrator' },
+        ]"
+        filter-placement="bottom-end"
+        :filter-method="filterTag"
+      >
         <template #default="scope">
-          <span v-if="scope.row.permission === 'administrator'">
-            项目管理员
+          <el-tag
+            :type="
+              scope.row.permission === 'administrator' ? 'warning' : 'info'
+            "
+            disable-transitions
+            effect="plain"
+          >
+            <span v-if="scope.row.permission === 'administrator'">
+              管理员
+            </span>
+            <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
+            <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column>
+        <template #default="scope">
+          <span
+            v-if="scope.row.state === 'pending'"
+            :style="{ color: 'rgb(var(--red-5))' }"
+          >
+            pending
           </span>
-          <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
-          <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
         </template>
       </el-table-column>
       <el-table-column fixed="right" width="180">
@@ -398,112 +445,130 @@ interface ProjectData {
   projectID: string;
   projectName: string;
   language: "C" | "Python" | "Java" | "Cpp";
-  creater: string;
+  creator: string;
   permissionGp?: PermissionTest[];
   lastUpdateTime: string;
+  createTime: string;
 }
 
 interface PermissionTest {
   user: string;
   permission: "administrator" | "readonly" | "edit";
+  state: "pending" | "accept";
 }
 
-const changepr: PermissionTest[] = [
-  {
-    user: "A",
-    permission: "readonly",
-  },
-  {
-    user: "B",
-    permission: "readonly",
-  },
-  {
-    user: "C",
-    permission: "edit",
-  },
-  {
-    user: "D",
-    permission: "administrator",
-  },
-];
+const changepr = ref<PermissionTest[]>();
+
+const printtable = (data: PermissionTest[]) => {
+  changepr.value = [...data];
+  console.log(changepr);
+};
+
+const filterTag = (value: string, row: PermissionTest) => {
+  return row.permission === value;
+};
 
 const data: ProjectData[] = [
   {
     projectID: "A123",
     projectName: "Project1",
     language: "C",
-    creater: "sam",
+    creator: "sam",
     permissionGp: [
       {
         user: "A",
         permission: "readonly",
+        state: "accept",
       },
       {
         user: "B",
         permission: "readonly",
+        state: "accept",
       },
       {
         user: "C",
         permission: "edit",
+        state: "accept",
       },
     ],
     lastUpdateTime: "2022/10/01 12:33",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "A1U83",
     projectName: "Project2",
     language: "Cpp",
-    creater: "sam2",
+    creator: "sam2",
     permissionGp: [
       {
         user: "A",
         permission: "readonly",
+        state: "accept",
       },
       {
-        user: "B",
+        user: "D",
         permission: "readonly",
+        state: "accept",
       },
       {
         user: "C",
+        permission: "administrator",
+        state: "accept",
+      },
+      {
+        user: "C0c0",
         permission: "edit",
+        state: "accept",
+      },
+      {
+        user: "David",
+        permission: "edit",
+        state: "pending",
       },
     ],
     lastUpdateTime: "2022/03/01 15:47",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "A1po23",
     projectName: "Project3",
     language: "Python",
-    creater: "sam",
+    creator: "sam",
     lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "KJ1d3",
     projectName: "Project4",
     language: "Java",
-    creater: "sam",
+    creator: "sam",
     permissionGp: [
       {
         user: "A",
         permission: "readonly",
+        state: "accept",
       },
       {
         user: "Arco",
         permission: "edit",
+        state: "accept",
       },
       {
         user: "C",
         permission: "edit",
+        state: "accept",
       },
     ],
     lastUpdateTime: "2022/02/01 05:13",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "AJKpo0",
     projectName: "Project5",
     language: "Python",
-    creater: "sam2",
+    creator: "sam2",
     lastUpdateTime: "2020/10/01 21:00",
+    createTime: "2022/10/01 12:33",
   },
 ];
 </script>

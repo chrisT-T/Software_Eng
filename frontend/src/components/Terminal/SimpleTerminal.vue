@@ -1,6 +1,5 @@
 <template>
   <div class="terminal">
-    <h1>Terminal</h1>
     <div ref="termDiv"></div>
   </div>
 </template>

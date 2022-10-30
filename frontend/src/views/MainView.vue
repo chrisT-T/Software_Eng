@@ -5,18 +5,22 @@
       <div class="mt-4">
         <el-input
           v-model="input3"
-          placeholder=" "
+          placeholder="Please input"
           class="input-with-select"
-          style="width: 440px"
+          style="width: 500px"
         >
           <template #prepend>
-            <el-button :icon="Search" style="width: 40px" />
+            <el-select
+              v-model="select"
+              placeholder="Select"
+              style="width: 100px"
+            >
+              <el-option label="创建人" value="1" />
+              <el-option label="项目名称" value="2" />
+            </el-select>
           </template>
           <template #append>
-            <el-select v-model="select" placeholder=" " style="width: 100px">
-              <el-option label="项目名称" value="1" />
-              <el-option label="创建人" value="2" />
-            </el-select>
+            <el-button :icon="Search" />
           </template>
         </el-input>
       </div>
@@ -43,7 +47,6 @@
       </div>
     </el-header>
     <el-container>
-      <!-- <MenuBox></MenuBox> -->
       <ProjectCard></ProjectCard>
     </el-container>
   </div>
@@ -54,7 +57,6 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import MenuBox from "@/components/MenuBox.vue";
 import ProjectCard from "@/components/ProjectCard.vue";
 import PersonalDetail from "@/components/PersonalDetail.vue";
 import router from "@/router";
