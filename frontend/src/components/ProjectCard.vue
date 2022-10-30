@@ -81,8 +81,6 @@
                     alt="avater"
                     src="https://api.iconify.design/logos:c-plusplus.svg"
                   />
-                  <!-- <span>{{ record.projectName }}</span> -->
-
                   <span :style="{ margin: '10px' }">
                     {{ record.projectName }}
                   </span>
