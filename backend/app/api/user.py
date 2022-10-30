@@ -27,7 +27,7 @@ class User(Resource):
                     return {'code': 1, 'message': 'user exists'}
                 else:
                     return {'code': 0, 'message': 'user not exist'}
-            except:
+            except Exception:
                 return {'code': 0, 'message': 'user not exist'}
 
     def post(self):
