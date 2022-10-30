@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, jsonify, url_for, request
+from flask import Blueprint, flash, jsonify, redirect, request, url_for
 from flask_login import login_required, login_user, logout_user
 
 from app.model.login import User
@@ -20,7 +20,8 @@ def login():
                 return jsonify({"code": 200, "msg": "Login Success"})
         else:
             return jsonify({"code": 400, "msg": "Username Or Password Error"})
-        
+
+
 @bp.route('/auth/logout', methods=['GET'])
 @login_required
 def logout():

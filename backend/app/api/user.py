@@ -17,12 +17,12 @@ user_api = Api(bp)
 
 class User(Resource):
     def get(self):
-        username = request.args.get('username',None)
+        username = request.args.get('username', None)
         if not username:
             return {'code': 1, 'message': 'bad arguments'}
         else:
             try:
-                exist = service.find_user(username) 
+                exist = service.find_user(username)
                 if exist:
                     return {'code': 1, 'message': 'user exists'}
                 else:
@@ -35,7 +35,7 @@ class User(Resource):
         print(content)
         if 'username' not in content.keys() or 'password' not in content.keys():
             return {'code': 401, 'message': 'bad arguments'}
-        
+
         username = content['username']
         password = content['password']
 

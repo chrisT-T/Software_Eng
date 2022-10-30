@@ -1,9 +1,10 @@
-from app.extensions import db
-from app.model import project
-from app.checker import check_create_project_param
-from app.service import ProjectService
 from flask import Blueprint, jsonify, request
 from flask_restful import Api, Resource
+
+from app.checker import check_create_project_param
+from app.extensions import db
+from app.model import project
+from app.service import ProjectService
 
 bp = Blueprint(
     'project',

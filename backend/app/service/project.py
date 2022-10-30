@@ -1,12 +1,14 @@
 import datetime
+import os
 import time
+
+import docker
+from flask import current_app
+from werkzeug.security import generate_password_hash
+
 from app.api import project
 from app.extensions import db
 from app.model.project import Project
-from flask import current_app
-from werkzeug.security import generate_password_hash
-import os
-import docker
 
 
 class ProjectService():
@@ -29,7 +31,7 @@ class ProjectService():
             project_root_path = os.path.abspath(project_root_path)
             try:
                 os.makedirs(project_root_path)
-            except: # noqa
+            except:  # noqa
                 pass
             finally:
                 print(project_root_path)
@@ -55,6 +57,6 @@ class ProjectService():
             db.session.add(new_project)
             db.session.commit()
             return 'ok'
-        except Exception as e: # noqa
+        except Exception as e:  # noqa
             print(e)
             return 'create project failed'
