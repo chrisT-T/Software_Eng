@@ -183,38 +183,6 @@ function addFile(path: string, value: string) {
   }
 }
 
-function getBreakpoints() {
-  const breakpoints = new Map<string, Array<number>>();
-  fileInfos.forEach((fileInfo) => {
-    const model = fileInfo.options["model"] as monaco.editor.ITextModel;
-    const lines = model
-      .getAllDecorations()
-      .filter(
-        (item) =>
-          item.options.glyphMarginClassName === common.breakPointClassName
-      )
-      .map((item) => item.range.startLineNumber);
-    breakpoints.set(fileInfo.path, lines);
-  });
-  return breakpoints;
-}
-
-function focusLine() {
-  return;
-}
-
-function clearFocusLine() {
-  return;
-}
-
-function fileModified() {
-  return;
-}
-
-function saveFile() {
-  return;
-}
-
 function setTheme(theme: string) {
   fileInfos.forEach((item) => {
     item.options.theme = theme;
@@ -266,6 +234,46 @@ function deleteFile(path: string) {
   }
   removeTab(fileInfos[fileIndex].index.toString());
   fileInfos.splice(fileIndex, 1);
+}
+
+function moveFile(oldPath: string, newPath: string) {
+  let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
+  if (fileIndex === -1) {
+    return;
+  }
+  fileInfos[fileIndex].path = newPath;
+}
+
+function getBreakpoints() {
+  const breakpoints = new Map<string, Array<number>>();
+  fileInfos.forEach((fileInfo) => {
+    const model = fileInfo.options["model"] as monaco.editor.ITextModel;
+    const lines = model
+      .getAllDecorations()
+      .filter(
+        (item) =>
+          item.options.glyphMarginClassName === common.breakPointClassName
+      )
+      .map((item) => item.range.startLineNumber);
+    breakpoints.set(fileInfo.path, lines);
+  });
+  return breakpoints;
+}
+
+function focusLine() {
+  return;
+}
+
+function clearFocusLine() {
+  return;
+}
+
+function fileModified() {
+  return;
+}
+
+function saveFile() {
+  return;
 }
 </script>
 
