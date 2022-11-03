@@ -1,51 +1,50 @@
 <template>
-  <div class="signup_">
-    <el-form
-      ref="ruleFormRef"
-      :model="ruleForm"
-      status-icon
-      :rules="rules"
-      label-width="120px"
-      class="demo-ruleForm"
-      label-position="top"
-    >
-      <el-form-item label="Username" prop="username">
-        <el-input v-model.number="ruleForm.username" />
-      </el-form-item>
-      <el-form-item label="Email" prop="email">
-        <el-input v-model.number="ruleForm.email" />
-      </el-form-item>
-      <el-form-item label="Password" prop="pass">
-        <el-input
-          v-model="ruleForm.pass"
-          type="password"
-          autocomplete="off"
-          show-password
-        />
-      </el-form-item>
-      <el-form-item label="Confirm Password" prop="checkPass">
-        <el-input
-          v-model="ruleForm.checkPass"
-          type="password"
-          autocomplete="off"
-          show-password
-        />
-      </el-form-item>
-      <el-form-item>
-        <div class="button_gp">
-          <el-button type="primary" @click="submitForm(ruleFormRef)"
-            >Sign Up</el-button
-          >
-          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-        </div>
-      </el-form-item>
-    </el-form>
-  </div>
+  <el-form
+    ref="ruleFormRef"
+    :model="ruleForm"
+    status-icon
+    :rules="rules"
+    label-width="120px"
+    class="demo-ruleForm"
+    label-position="top"
+  >
+    <el-form-item label="Username" prop="username">
+      <el-input v-model.number="ruleForm.username" />
+    </el-form-item>
+    <el-form-item label="Password" prop="password">
+      <el-input
+        v-model="ruleForm.password"
+        type="password"
+        autocomplete="off"
+        show-password
+      />
+    </el-form-item>
+    <el-form-item label="Confirm Password" prop="checkPass">
+      <el-input
+        v-model="ruleForm.checkPass"
+        type="password"
+        autocomplete="off"
+        show-password
+      />
+    </el-form-item>
+    <el-form-item>
+      <div class="button_gp">
+        <el-button type="primary" @click="submitForm(ruleFormRef)"
+          >Sign Up</el-button
+        >
+        <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+      </div>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
+import router from "@/router";
 import type { FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -58,7 +57,16 @@ const checkUsername = (rule: any, value: any, callback: any) => {
     if (!uPattern.test(value)) {
       callback(new Error("用户名规则, 4到16位 (字母，数字，下划线，减号)"));
     } else {
-      callback();
+      axios
+        .get("/api/user?username=" + ruleForm.username)
+        .then(function (response) {
+          const code = response.data["code"];
+          if (code == 1) {
+            callback(new Error("用户名重复或无效"));
+          } else {
+            callback();
+          }
+        });
     }
   }, 1000);
 };
@@ -74,7 +82,7 @@ const checkEmail = (rule: any, value: any, callback: any) => {
     } else {
       callback();
     }
-  }, 1000);
+  }, 500);
 };
 
 const validatePass = (rule: any, value: any, callback: any) => {
@@ -98,7 +106,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("Please input the password again"));
-  } else if (value !== ruleForm.pass) {
+  } else if (value !== ruleForm.password) {
     callback(new Error("Two inputs don't match!"));
   } else {
     callback();
@@ -106,14 +114,14 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
 };
 
 const ruleForm = reactive({
-  pass: "",
+  password: "",
   checkPass: "",
   username: "",
   email: "",
 });
 
 const rules = reactive({
-  pass: [{ validator: validatePass, trigger: "blur" }],
+  password: [{ validator: validatePass, trigger: "blur" }],
   checkPass: [{ validator: validatePass2, trigger: "blur" }],
   username: [{ validator: checkUsername, trigger: "blur" }],
   email: [{ validator: checkEmail, trigger: "blur" }],
@@ -124,6 +132,26 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
+      axios.post("/api/user", qs.stringify(ruleForm)).then(function (response) {
+        const code = response.data["code"];
+        if (code === 200) {
+          axios
+            .post("/auth/login", qs.stringify(ruleForm))
+            .then(function (response) {
+              const code = response.data["code"];
+              console.log(code);
+              if (code === 200) {
+                sessionStorage.setItem("username", ruleForm.username);
+                router.replace({
+                  name: "main",
+                  params: { username: ruleForm.username },
+                });
+              }
+            });
+        } else {
+          ElMessage("Register Failed");
+        }
+      });
     } else {
       console.log("error submit!");
       return false;

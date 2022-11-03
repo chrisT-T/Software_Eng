@@ -63,6 +63,7 @@ import PersonalDetail from "@/components/PersonalDetail.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
+import axios from "axios";
 import { Search } from "@element-plus/icons-vue";
 
 const name = useRouter().currentRoute.value.params.username;
@@ -74,6 +75,8 @@ const select = ref("");
 
 const logout = () => {
   console.log("logout");
+  sessionStorage.removeItem("username");
+  axios.get("/auth/logout");
   router.replace("/login");
 };
 </script>
