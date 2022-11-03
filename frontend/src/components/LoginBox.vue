@@ -78,7 +78,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
         .post("/auth/login", qs.stringify(ruleForm))
         .then(function (response) {
           const code = response.data["code"];
-          if (code == "200") {
+          if (code === 200) {
             sessionStorage.setItem("username", ruleForm.username);
             router.replace({
               name: "main",
