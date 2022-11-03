@@ -11,9 +11,9 @@
     <el-form-item label="Username" prop="username">
       <el-input v-model.number="ruleForm.username" />
     </el-form-item>
-    <el-form-item label="Password" prop="pass">
+    <el-form-item label="Password" prop="password">
       <el-input
-        v-model="ruleForm.pass"
+        v-model="ruleForm.password"
         type="password"
         autocomplete="off"
         show-password
