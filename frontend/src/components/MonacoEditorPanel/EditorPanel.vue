@@ -5,7 +5,7 @@
       type="card"
       class="demo-tabs"
       closable
-      @tab-remove="removeTab"
+      @tab-remove="deleteFileByIndex"
     >
       <el-tab-pane
         v-for="item in editableTabs"
@@ -28,6 +28,7 @@
 <script lang="ts" setup>
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import { ta } from "element-plus/es/locale";
+import { ElMessage, ElMessageBox } from "element-plus";
 import * as monaco from "monaco-editor";
 import {
   ref,
@@ -196,12 +197,12 @@ function setLanguage(language: string, index: string) {
 }
 
 function renameFile(oldPath: string, newPath: string) {
-  let newTitle = newPath.split("/").pop() as string;
   let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
   if (fileIndex === -1) {
     return;
   }
 
+  let newTitle = newPath.split("/").pop() as string;
   fileInfos[fileIndex].path = newPath;
   let newLanguage = getLanguageByFileName(newTitle);
   if (fileInfos[fileIndex].options.language !== newLanguage) {
@@ -214,15 +215,52 @@ function renameFile(oldPath: string, newPath: string) {
   editableTabs.value[tabIndex].title = newTitle;
 }
 
+function deleteFileByFileIndex(fileIndex: number) {
+  if (fileInfos[fileIndex].modified === false) {
+    fileInfos[fileIndex].options.model?.dispose();
+    removeTab(fileInfos[fileIndex].index.toString());
+    fileInfos.splice(fileIndex, 1);
+    return;
+  }
+
+  ElMessageBox.confirm("该文件未保存，是否继续？", "Warning", {
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
+    type: "warning",
+  })
+    .then(() => {
+      fileInfos[fileIndex].options.model?.dispose();
+      removeTab(fileInfos[fileIndex].index.toString());
+      fileInfos.splice(fileIndex, 1);
+      ElMessage({
+        type: "success",
+        message: "Delete completed",
+      });
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "Delete canceled",
+      });
+    });
+}
+
 function deleteFile(path: string) {
   let fileIndex = fileInfos.findIndex((item) => item.path === path);
   if (fileIndex === -1) {
     return;
   }
+  deleteFileByFileIndex(fileIndex);
+}
 
-  fileInfos[fileIndex].options.model?.dispose();
-  removeTab(fileInfos[fileIndex].index.toString());
-  fileInfos.splice(fileIndex, 1);
+function deleteFileByIndex(index: string) {
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === index
+  );
+  if (fileIndex === -1) {
+    return;
+  }
+  deleteFileByFileIndex(fileIndex);
 }
 
 function moveFile(oldPath: string, newPath: string) {
@@ -260,7 +298,36 @@ function saveFile() {
   );
   let path = fileInfos[fileIndex].path as string;
   let value = fileInfos[fileIndex].options.model?.getValue() as string;
+  if (fileInfos[fileIndex].modified === true) {
+    let fileName = path.split("/").pop() as string;
+    let tabIndex = editableTabs.value.findIndex(
+      (item) => item.title === "* " + fileName
+    );
+    editableTabs.value[tabIndex].title = fileName;
+    fileInfos[fileIndex].modified = false;
+  }
+
   emit("saveFile", path, value);
+  return;
+}
+
+function fileModified() {
+  if (editableTabsValue.value === "0") {
+    console.log("no focus editor now");
+    return;
+  }
+
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === editableTabsValue.value
+  );
+  if (fileInfos[fileIndex].modified === false) {
+    let fileName = fileInfos[fileIndex].path.split("/").pop();
+    let tabIndex = editableTabs.value.findIndex(
+      (item) => item.title === fileName
+    );
+    editableTabs.value[tabIndex].title = "* " + fileName;
+    fileInfos[fileIndex].modified = true;
+  }
   return;
 }
 
@@ -269,10 +336,6 @@ function focusLine() {
 }
 
 function clearFocusLine() {
-  return;
-}
-
-function fileModified() {
   return;
 }
 </script>
