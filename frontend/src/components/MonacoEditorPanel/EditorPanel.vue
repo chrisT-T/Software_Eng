@@ -44,7 +44,6 @@ export interface FileInfo {
   path: string;
   modified: boolean;
   index: number;
-  show: boolean;
   options: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
@@ -125,10 +124,6 @@ const removeTab = (targetName: string) => {
 
   editableTabsValue.value = activeName;
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
-  let fileIndex = fileInfos.findIndex(
-    (fileInfo) => fileInfo.index.toString() === targetName
-  );
-  fileInfos[fileIndex].show = false;
 };
 
 function getLanguageByFileName(fileName: string) {
@@ -158,7 +153,6 @@ function addFile(path: string, value: string) {
       path: path,
       modified: false,
       index: ++tabIndex,
-      show: true,
       options: {
         theme: props.theme, // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
@@ -172,9 +166,6 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, tabIndex.toString());
-  } else if (fileInfos[fileIndex].show === false) {
-    fileInfos[fileIndex].show = true;
-    addTab(fileName, fileInfos[fileIndex].index.toString());
   } else {
     editableTabsValue.value = fileInfos[fileIndex].index.toString();
   }
