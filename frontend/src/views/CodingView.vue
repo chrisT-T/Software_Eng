@@ -138,7 +138,7 @@ function runDebugger(filePath: string) {
 }
 
 function focusLine() {
-  editorPanel.value?.focusLine("adfa/df.py", 1);
+  editorPanel.value?.focusLine("adfa/df.py", 35);
   return;
 }
 

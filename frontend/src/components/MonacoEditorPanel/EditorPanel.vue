@@ -5,6 +5,7 @@
       type="card"
       class="demo-tabs"
       closable
+      :key="tabsKey"
       @tab-remove="removeTab"
     >
       <el-tab-pane
@@ -85,6 +86,7 @@ let tabIndex = 0;
 const editableTabsValue = ref("0");
 const editableTabs = ref<Array<TabInfo>>(new Array<TabInfo>());
 const monacoEditors = shallowRef([]);
+const tabsKey = ref(0);
 
 const getOption = (index: string) => {
   let fileIndex = fileInfos.findIndex(
@@ -337,6 +339,7 @@ function focusToFileByPath(path: string, value: string) {
     return;
   }
   editableTabsValue.value = fileInfos[fileIndex].index.toString();
+  tabsKey.value ^= 1;
   return;
 }
 
@@ -361,6 +364,10 @@ function focusLine(path: string, line: number) {
     },
   };
   model.deltaDecorations([], [decoration]);
+
+  let curEditor = getEditorByIndex(fileInfos[fileIndex].index.toString());
+  curEditor.locateLine(line);
+  tabsKey.value ^= 1;
   return;
 }
 
@@ -379,7 +386,7 @@ function clearFocusLine() {
 }
 </script>
 
-<style>
+<style scoped>
 .editor-panel-container {
   height: 100%;
   width: 100%;
@@ -390,11 +397,11 @@ function clearFocusLine() {
   width: 100%;
 }
 
-.demo-tabs > .el-tabs__header {
+::v-deep .demo-tabs > .el-tabs__header {
   margin: 0px;
 }
 
-.demo-tabs > .el-tabs__content {
+::v-deep .demo-tabs > .el-tabs__content {
   padding: 0px;
   color: #6b778c;
   font-size: 32px;
@@ -403,7 +410,7 @@ function clearFocusLine() {
   width: 100%;
 }
 
-.demo-tabs > .el-tabs__content > .el-tab-pane {
+::v-deep .demo-tabs > .el-tabs__content > .el-tab-pane {
   height: 100%;
   width: 100%;
 }
