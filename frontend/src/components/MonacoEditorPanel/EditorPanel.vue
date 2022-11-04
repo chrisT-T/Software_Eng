@@ -5,7 +5,6 @@
       type="card"
       class="demo-tabs"
       closable
-      :key="tabsKey"
       @tab-remove="removeTab"
     >
       <el-tab-pane
@@ -86,7 +85,6 @@ let tabIndex = 0;
 const editableTabsValue = ref("0");
 const editableTabs = ref<Array<TabInfo>>(new Array<TabInfo>());
 const monacoEditors = shallowRef([]);
-const tabsKey = ref(0);
 
 const getOption = (index: string) => {
   let fileIndex = fileInfos.findIndex(
@@ -339,12 +337,11 @@ function focusToFileByPath(path: string, value: string) {
     return;
   }
   editableTabsValue.value = fileInfos[fileIndex].index.toString();
-  tabsKey.value ^= 1;
   return;
 }
 
 function focusLine(path: string, line: number) {
-  focusToFileByPath(path, "");
+  focusToFileByPath(path, ""); // there need to modify in the future
   let fileIndex = fileInfos.findIndex((item) => item.path === path);
 
   let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
@@ -366,8 +363,10 @@ function focusLine(path: string, line: number) {
   model.deltaDecorations([], [decoration]);
 
   let curEditor = getEditorByIndex(fileInfos[fileIndex].index.toString());
-  curEditor.locateLine(line);
-  tabsKey.value ^= 1;
+
+  setTimeout(() => {
+    curEditor.locateLine(line);
+  }, 5);
   return;
 }
 
