@@ -167,11 +167,7 @@ function addFile(path: string, value: string) {
           enabled: true,
           independentColorPoolPerBracketType: true,
         },
-        model: monaco.editor.createModel(
-          value,
-          language,
-          monaco.Uri.file(path)
-        ),
+        model: monaco.editor.createModel(value, language),
       },
     });
     addTab(fileName, tabIndex.toString());
@@ -186,9 +182,8 @@ function addFile(path: string, value: string) {
 function setTheme(theme: string) {
   fileInfos.forEach((item) => {
     item.options.theme = theme;
-    let curEditor = getEditorByIndex(item.index.toString());
-    curEditor.updateTheme(theme);
   });
+  monaco.editor.setTheme(theme);
 }
 
 function setLanguage(language: string, index: string) {
@@ -198,10 +193,6 @@ function setLanguage(language: string, index: string) {
   fileInfos[fileIndex].options.language = language;
   let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
   monaco.editor.setModelLanguage(model, language);
-
-  let curEditor = getEditorByIndex(index);
-
-  curEditor.updateLanguage(fileInfos[fileIndex].options.language);
 }
 
 function renameFile(oldPath: string, newPath: string) {
@@ -228,6 +219,8 @@ function deleteFile(path: string) {
   if (fileIndex === -1) {
     return;
   }
+
+  fileInfos[fileIndex].options.model?.dispose();
   removeTab(fileInfos[fileIndex].index.toString());
   fileInfos.splice(fileIndex, 1);
 }
@@ -258,8 +251,16 @@ function getBreakpoints() {
 
 function saveFile() {
   if (editableTabsValue.value === "0") {
-    console.log("enter");
+    console.log("no focus editor now");
+    return;
   }
+
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === editableTabsValue.value
+  );
+  let path = fileInfos[fileIndex].path as string;
+  let value = fileInfos[fileIndex].options.model?.getValue() as string;
+  emit("saveFile", path, value);
   return;
 }
 

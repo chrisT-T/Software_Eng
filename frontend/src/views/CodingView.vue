@@ -105,7 +105,6 @@ const backmain = () => {
 function openFile(path: string) {
   console.log("open File");
   editorPanel.value?.addFile("adfa/df.py", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/dfa.py", "alkdsfjlasdjflad");
 }
 
 function changeTheme() {
@@ -124,6 +123,7 @@ function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
 }
 function saveFile(path: string, value: string) {
+  console.log(path, value);
   return;
 }
 
