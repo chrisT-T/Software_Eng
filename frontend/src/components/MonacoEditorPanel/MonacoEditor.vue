@@ -38,17 +38,15 @@ const emit = defineEmits<{
 
 defineExpose({
   locateLine,
-  updateOptions,
+  updateTheme,
   updateLanguage,
 });
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
 
-function updateOptions(
-  options: monaco.editor.IStandaloneEditorConstructionOptions
-) {
-  editor.value?.updateOptions(options);
+function updateTheme(theme: string) {
+  monaco.editor.setTheme(theme);
 }
 
 function updateLanguage(language: string) {
@@ -146,6 +144,24 @@ onMounted(() => {
   } else {
     console.error("monacEeditorContainner is null or editorOption is null");
   }
+
+  editor.value?.onDidChangeModelContent(() => {
+    emit("modified");
+  });
+
+  editor.value?.addAction({
+    id: "save-current-file",
+    label: "save",
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    precondition: undefined,
+    keybindingContext: undefined,
+    contextMenuGroupId: undefined,
+    contextMenuOrder: 1.5,
+    run: function () {
+      emit("saveFile");
+    },
+  });
+
   editor.value?.onMouseMove((e) => {
     const { target } = e;
     if (
@@ -202,7 +218,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   console.log("Monaco Editor Destroyed");
-  editor.value?.getModel()?.dispose();
   editor.value?.dispose();
 });
 </script>

@@ -186,10 +186,8 @@ function addFile(path: string, value: string) {
 function setTheme(theme: string) {
   fileInfos.forEach((item) => {
     item.options.theme = theme;
-    let curEditor = getEditorByIndex(
-      item.index.toString()
-    ) as monaco.editor.IStandaloneCodeEditor;
-    curEditor.updateOptions(item.options);
+    let curEditor = getEditorByIndex(item.index.toString());
+    curEditor.updateTheme(theme);
   });
 }
 
@@ -201,9 +199,7 @@ function setLanguage(language: string, index: string) {
   let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
   monaco.editor.setModelLanguage(model, language);
 
-  let curEditor = getEditorByIndex(
-    index
-  ) as monaco.editor.IStandaloneCodeEditor;
+  let curEditor = getEditorByIndex(index);
 
   curEditor.updateLanguage(fileInfos[fileIndex].options.language);
 }
@@ -260,6 +256,13 @@ function getBreakpoints() {
   return breakpoints;
 }
 
+function saveFile() {
+  if (editableTabsValue.value === "0") {
+    console.log("enter");
+  }
+  return;
+}
+
 function focusLine() {
   return;
 }
@@ -269,10 +272,6 @@ function clearFocusLine() {
 }
 
 function fileModified() {
-  return;
-}
-
-function saveFile() {
   return;
 }
 </script>
