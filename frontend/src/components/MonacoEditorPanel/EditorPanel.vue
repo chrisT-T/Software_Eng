@@ -162,7 +162,11 @@ function addFile(path: string, value: string) {
           enabled: true,
           independentColorPoolPerBracketType: true,
         },
-        model: monaco.editor.createModel(value, language),
+        model: monaco.editor.createModel(
+          value,
+          language,
+          monaco.Uri.file(path)
+        ),
       },
     });
     addTab(fileName, tabIndex.toString());
@@ -178,32 +182,24 @@ function setTheme(theme: string) {
   monaco.editor.setTheme(theme);
 }
 
-function setLanguage(language: string, index: string) {
-  let fileIndex = fileInfos.findIndex(
-    (item) => item.index.toString() === index
-  );
-  fileInfos[fileIndex].options.language = language;
-  let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
-  monaco.editor.setModelLanguage(model, language);
-}
+// function setLanguage(language: string, index: string) {
+//   let fileIndex = fileInfos.findIndex(
+//     (item) => item.index.toString() === index
+//   );
+//   fileInfos[fileIndex].options.language = language;
+//   let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
+//   monaco.editor.setModelLanguage(model, language);
+// }
 
 function renameFile(oldPath: string, newPath: string) {
   let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
   if (fileIndex === -1) {
     return;
   }
+  let value = fileInfos[fileIndex].options.model?.getValue() as string;
 
-  let newTitle = newPath.split("/").pop() as string;
-  fileInfos[fileIndex].path = newPath;
-  let newLanguage = getLanguageByFileName(newTitle);
-  if (fileInfos[fileIndex].options.language !== newLanguage) {
-    setLanguage(newLanguage, fileInfos[fileIndex].index.toString());
-  }
-
-  let tabIndex = editableTabs.value.findIndex(
-    (item) => item.title === oldPath.split("/").pop()
-  );
-  editableTabs.value[tabIndex].title = newTitle;
+  deleteFileByFileIndex(fileIndex);
+  addFile(newPath, value);
 }
 
 function deleteFileByFileIndex(fileIndex: number) {
@@ -225,13 +221,13 @@ function deleteFileByFileIndex(fileIndex: number) {
       fileInfos.splice(fileIndex, 1);
       ElMessage({
         type: "success",
-        message: "Delete completed",
+        message: "completed",
       });
     })
     .catch(() => {
       ElMessage({
         type: "info",
-        message: "Delete canceled",
+        message: "canceled",
       });
     });
 }
