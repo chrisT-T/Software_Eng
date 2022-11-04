@@ -330,14 +330,51 @@ function startDebug() {
   emit("startDebug", path);
 }
 
-function focusToFileByIndex() {
+function focusToFileByPath(path: string, value: string) {
+  let fileIndex = fileInfos.findIndex((item) => item.path === path);
+  if (fileIndex === -1) {
+    addFile(path, value);
+    return;
+  }
+  editableTabsValue.value = fileInfos[fileIndex].index.toString();
   return;
 }
-function focusLine() {
+
+function focusLine(path: string, line: number) {
+  focusToFileByPath(path, "");
+  let fileIndex = fileInfos.findIndex((item) => item.path === path);
+
+  let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
+  let lineCount = model.getLineCount();
+  if (line < 1 || line > lineCount) {
+    console.error("line out of range");
+    return;
+  }
+
+  const decoration = {
+    range: new monaco.Range(line, 1, line, 1),
+    options: {
+      isWholeLine: true,
+      className: common.focusLineClassName,
+      stickiness:
+        monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+    },
+  };
+  model.deltaDecorations([], [decoration]);
   return;
 }
 
 function clearFocusLine() {
+  fileInfos.forEach((item) => {
+    let model = item.options.model as monaco.editor.ITextModel;
+    let decorations = model
+      .getAllDecorations()
+      .filter((item) => item.options.className === common.focusLineClassName);
+    model.deltaDecorations(
+      decorations.map((item) => item.id),
+      []
+    );
+  });
   return;
 }
 </script>

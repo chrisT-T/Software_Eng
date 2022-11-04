@@ -65,6 +65,10 @@
           <el-button size="small" @click="getBreakpoints">
             getBreakpoints
           </el-button>
+          <el-button size="small" @click="focusLine"> focusLine </el-button>
+          <el-button size="small" @click="clearFocusLine">
+            clearFocusLine
+          </el-button>
           <EditorPanel
             ref="editorPanel"
             :theme="editorTheme"
@@ -130,6 +134,16 @@ function saveFile(path: string, value: string) {
 
 function runDebugger(filePath: string) {
   console.log(filePath);
+  return;
+}
+
+function focusLine() {
+  editorPanel.value?.focusLine("adfa/df.py", 1);
+  return;
+}
+
+function clearFocusLine() {
+  editorPanel.value?.clearFocusLine();
   return;
 }
 </script>
