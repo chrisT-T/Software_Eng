@@ -34,6 +34,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "saveFile"): void;
   (e: "modified"): void;
+  (e: "debug"): void;
 }>();
 
 defineExpose({
@@ -148,6 +149,19 @@ onMounted(() => {
     contextMenuOrder: 1.5,
     run: function () {
       emit("saveFile");
+    },
+  });
+
+  editor.value?.addAction({
+    id: "debug-current-file",
+    label: "debug",
+    keybindings: [monaco.KeyCode.F5],
+    precondition: undefined,
+    keybindingContext: undefined,
+    contextMenuGroupId: undefined,
+    contextMenuOrder: 1.5,
+    run: function () {
+      emit("debug");
     },
   });
 

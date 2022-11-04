@@ -129,6 +129,7 @@ function saveFile(path: string, value: string) {
 }
 
 function runDebugger(filePath: string) {
+  console.log(filePath);
   return;
 }
 </script>

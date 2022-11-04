@@ -5,7 +5,7 @@
       type="card"
       class="demo-tabs"
       closable
-      @tab-remove="deleteFileByIndex"
+      @tab-remove="removeTab"
     >
       <el-tab-pane
         v-for="item in editableTabs"
@@ -19,6 +19,7 @@
           :editor-option="getOption(item.name)"
           @modified="fileModified"
           @saveFile="saveFile"
+          @debug="startDebug"
         ></MonacoEditor>
       </el-tab-pane>
     </el-tabs>
@@ -44,6 +45,7 @@ export interface FileInfo {
   path: string;
   modified: boolean;
   index: number;
+  show: boolean;
   options: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
@@ -106,7 +108,7 @@ const addTab = (title: string, name: string) => {
   editableTabsValue.value = name;
 };
 
-const removeTab = (targetName: string) => {
+const justRemoveTab = (targetName: string) => {
   const tabs = editableTabs.value;
   let activeName = editableTabsValue.value;
   if (activeName === targetName) {
@@ -124,6 +126,11 @@ const removeTab = (targetName: string) => {
 
   editableTabsValue.value = activeName;
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
+
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === targetName
+  );
+  fileInfos[fileIndex].show = false;
 };
 
 function getLanguageByFileName(fileName: string) {
@@ -153,6 +160,7 @@ function addFile(path: string, value: string) {
       path: path,
       modified: false,
       index: ++tabIndex,
+      show: true,
       options: {
         theme: props.theme, // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
@@ -170,6 +178,15 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, tabIndex.toString());
+  } else if (fileInfos[fileIndex].show === false) {
+    fileInfos[fileIndex].show = true;
+    let model = fileInfos[fileIndex].options.model;
+    let decorations = model?.getAllDecorations();
+    model?.setValue(value);
+    if (decorations) {
+      model?.deltaDecorations([], decorations);
+    }
+    addTab(fileName, fileInfos[fileIndex].index.toString());
   } else {
     editableTabsValue.value = fileInfos[fileIndex].index.toString();
   }
@@ -182,15 +199,6 @@ function setTheme(theme: string) {
   monaco.editor.setTheme(theme);
 }
 
-// function setLanguage(language: string, index: string) {
-//   let fileIndex = fileInfos.findIndex(
-//     (item) => item.index.toString() === index
-//   );
-//   fileInfos[fileIndex].options.language = language;
-//   let model = fileInfos[fileIndex].options.model as monaco.editor.ITextModel;
-//   monaco.editor.setModelLanguage(model, language);
-// }
-
 function renameFile(oldPath: string, newPath: string) {
   let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
   if (fileIndex === -1) {
@@ -198,15 +206,26 @@ function renameFile(oldPath: string, newPath: string) {
   }
   let value = fileInfos[fileIndex].options.model?.getValue() as string;
 
-  deleteFileByFileIndex(fileIndex);
+  deleteFile(fileInfos[fileIndex].path);
   addFile(newPath, value);
 }
 
-function deleteFileByFileIndex(fileIndex: number) {
+function deleteFile(path: string) {
+  let fileIndex = fileInfos.findIndex((item) => item.path === path);
+  if (fileIndex === -1) {
+    return;
+  }
+  fileInfos[fileIndex].options.model?.dispose();
+  justRemoveTab(fileInfos[fileIndex].index.toString());
+  fileInfos.splice(fileIndex, 1);
+}
+
+function removeTab(targetName: string) {
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === targetName
+  );
   if (fileInfos[fileIndex].modified === false) {
-    fileInfos[fileIndex].options.model?.dispose();
-    removeTab(fileInfos[fileIndex].index.toString());
-    fileInfos.splice(fileIndex, 1);
+    justRemoveTab(targetName);
     return;
   }
 
@@ -216,9 +235,7 @@ function deleteFileByFileIndex(fileIndex: number) {
     type: "warning",
   })
     .then(() => {
-      fileInfos[fileIndex].options.model?.dispose();
-      removeTab(fileInfos[fileIndex].index.toString());
-      fileInfos.splice(fileIndex, 1);
+      justRemoveTab(targetName);
       ElMessage({
         type: "success",
         message: "completed",
@@ -232,31 +249,13 @@ function deleteFileByFileIndex(fileIndex: number) {
     });
 }
 
-function deleteFile(path: string) {
-  let fileIndex = fileInfos.findIndex((item) => item.path === path);
-  if (fileIndex === -1) {
-    return;
-  }
-  deleteFileByFileIndex(fileIndex);
-}
-
-function deleteFileByIndex(index: string) {
-  let fileIndex = fileInfos.findIndex(
-    (item) => item.index.toString() === index
-  );
-  if (fileIndex === -1) {
-    return;
-  }
-  deleteFileByFileIndex(fileIndex);
-}
-
-function moveFile(oldPath: string, newPath: string) {
-  let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
-  if (fileIndex === -1) {
-    return;
-  }
-  fileInfos[fileIndex].path = newPath;
-}
+// function moveFile(oldPath: string, newPath: string) {
+//   let fileIndex = fileInfos.findIndex((item) => item.path === oldPath);
+//   if (fileIndex === -1) {
+//     return;
+//   }
+//   fileInfos[fileIndex].path = newPath;
+// }
 
 function getBreakpoints() {
   const breakpoints = new Map<string, Array<number>>();
@@ -318,6 +317,22 @@ function fileModified() {
   return;
 }
 
+function startDebug() {
+  if (editableTabsValue.value === "0") {
+    console.log("no focus editor now");
+    return;
+  }
+
+  let fileIndex = fileInfos.findIndex(
+    (item) => item.index.toString() === editableTabsValue.value
+  );
+  let path = fileInfos[fileIndex].path as string;
+  emit("startDebug", path);
+}
+
+function focusToFileByIndex() {
+  return;
+}
 function focusLine() {
   return;
 }
