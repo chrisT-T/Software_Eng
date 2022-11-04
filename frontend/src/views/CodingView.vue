@@ -35,6 +35,7 @@
           <icon-user-add
             :style="{ fontSize: '20px', margin: '0 5px' }"
             :stroke-width="3"
+            @click="dialogTableVisible = true"
           />
         </div>
       </el-header>
@@ -49,40 +50,97 @@
           "
           ><FileTreeBox />
         </a-resize-box>
-        <a-resize-box
-          :directions="['bottom']"
-          style="
-            width: 100%;
-            text-align: center;
-            max-height: 90%;
-            min-height: 0;
-          "
-        >
-          <el-button size="small" @click="openFile"> open file </el-button>
-          <el-button size="small" @click="changeTheme">change theme </el-button>
-          <el-button size="small" @click="changeName">change name </el-button>
-          <el-button size="small" @click="deleteFile"> delete file </el-button>
-          <el-button size="small" @click="getBreakpoints">
-            getBreakpoints
-          </el-button>
-          <el-button size="small" @click="focusLine"> focusLine </el-button>
-          <el-button size="small" @click="clearFocusLine">
-            clearFocusLine
-          </el-button>
-          <EditorPanel
-            ref="editorPanel"
-            :theme="editorTheme"
-            @save-file="saveFile"
-            @start-debug="(path) => runDebugger(name + '/' + path)"
+        <el-container direction="vertical">
+          <a-resize-box
+            :directions="['bottom']"
+            style="
+              width: 100%;
+              text-align: center;
+              max-height: 90%;
+              min-height: 0;
+            "
           >
-          </EditorPanel>
-        </a-resize-box>
+            <el-button size="small" @click="openFile"> open file </el-button>
+            <el-button size="small" @click="changeTheme">change theme </el-button>
+            <el-button size="small" @click="changeName">change name </el-button>
+            <el-button size="small" @click="deleteFile"> delete file </el-button>
+            <el-button size="small" @click="getBreakpoints">
+              getBreakpoints
+            </el-button>
+            <el-button size="small" @click="focusLine"> focusLine </el-button>
+            <el-button size="small" @click="clearFocusLine">
+              clearFocusLine
+            </el-button>
+            <EditorPanel
+              ref="editorPanel"
+              :theme="editorTheme"
+              @save-file="saveFile"
+              @start-debug="(path) => runDebugger(name + '/' + path)"
+            >
+            </EditorPanel>
+          </a-resize-box>
+          <TerminalPanel />
+        </el-container>
       </el-container>
     </el-container>
   </div>
+  <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
+    <el-table :data="changepr" style="width: 100%" max-height="250">
+      <el-table-column prop="user" label="用户名" />
+      <el-table-column label="权限">
+        <template #default="scope">
+          <span v-if="scope.row.permission === 'administrator'">
+            项目管理员
+          </span>
+          <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
+          <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
+        </template>
+      </el-table-column>
+      <el-table-column fixed="right" width="180">
+        <template #default>
+          <el-button link type="primary" size="small"> 移除成员 </el-button>
+          <el-button link type="primary" size="small"> 修改权限 </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button
+      class="mt-4"
+      style="width: 100%"
+      @click="dialogShareVisible = true"
+      >新增权限组</el-button
+    >
+  </el-dialog>
+  <el-dialog
+    v-model="dialogShareVisible"
+    title="共享项目"
+    class="share-dialog"
+    align-center
+  >
+    <el-form :model="form" ref="addForm">
+      <el-form-item label="用户ID" :label-width="formLabelWidth">
+        <el-input v-model="form.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="共享权限" :label-width="formLabelWidth">
+        <el-select v-model="form.region" placeholder="选择用户权限">
+          <el-option label="只可读" value="readonly" />
+          <el-option label="可编辑" value="edit" />
+          <el-option label="项目管理员" value="administrator" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogShareVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogShareVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
+import { reactive, getCurrentInstance, ref } from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -96,10 +154,50 @@ import FileTreeBox from "@/components/FileTreeBox.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
+import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
+import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
 const name = useRouter().currentRoute.value.params.username;
 
 const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
+const dialogTableVisible = ref(false);
+const dialogShareVisible = ref(false);
+
+const formLabelWidth = "140px";
+const form = reactive({
+  name: "",
+  region: "",
+  date1: "",
+  date2: "",
+  delivery: false,
+  type: [],
+  resource: "",
+  desc: "",
+});
+
+interface PermissionTest {
+  user: string;
+  permission: "administrator" | "readonly" | "edit";
+}
+
+const changepr: PermissionTest[] = [
+  {
+    user: "A",
+    permission: "readonly",
+  },
+  {
+    user: "B",
+    permission: "readonly",
+  },
+  {
+    user: "C",
+    permission: "edit",
+  },
+  {
+    user: "D",
+    permission: "administrator",
+  },
+];
 
 const backmain = () => {
   console.log(name);

@@ -3,13 +3,55 @@
     <a-card title="项目列表" class="list-card">
       <template #extra>
         <a-space>
-          <a-button type="outline" shape="round" size="small">导入</a-button>
-          <a-button type="primary" shape="round" size="small">新建</a-button>
+          <a-button
+            type="outline"
+            shape="round"
+            size="small"
+            @click="dialogUploadVisible = true"
+            >导入</a-button
+          >
+          <a-button
+            type="primary"
+            shape="round"
+            size="small"
+            @click="dialogFormVisible = true"
+          >
+            新建
+          </a-button>
         </a-space>
       </template>
-      <a-table :pagination="basePagination" :data="data" ellipsis="true">
+      <a-table
+        class="table"
+        :data="data"
+        ellipsis="true"
+        noDataElement="创建你的新项目"
+        hoverable
+      >
         <template #columns>
-          <a-table-column title="项目名称">
+          <a-table-column
+            title="项目名称"
+            :filterable="{
+              filters: [
+                {
+                  text: 'Python',
+                  value: 'Python',
+                },
+                {
+                  text: 'Cpp',
+                  value: 'Cpp',
+                },
+                {
+                  text: 'C',
+                  value: 'C',
+                },
+                {
+                  text: 'Java',
+                  value: 'Java',
+                },
+              ],
+              filter: (value, row) => row.language.includes(value),
+            }"
+          >
             <template #cell="{ record }">
               <router-link
                 replace
@@ -39,8 +81,6 @@
                     alt="avater"
                     src="https://api.iconify.design/logos:c-plusplus.svg"
                   />
-                  <!-- <span>{{ record.projectName }}</span> -->
-
                   <span :style="{ margin: '10px' }">
                     {{ record.projectName }}
                   </span>
@@ -48,20 +88,33 @@
               </router-link>
             </template>
           </a-table-column>
-          <a-table-column title="创建人">
+          <a-table-column
+            title="创建人"
+            data-index="creator"
+            :sortable="{
+              sortDirections: ['ascend', 'descend'],
+            }"
+          ></a-table-column>
+          <a-table-column title="权限组">
             <template #cell="{ record }">
-              <div class="creater-box">
-                {{ record.creater }}
-              </div>
-            </template>
-          </a-table-column>
-          <a-table-column title="可编辑成员">
-            <template #cell="{ record }">
-              <a-avatar-group :size="24" :max-count="3">
-                <a-avatar v-for="site in record.permissionGp" :key="site">
-                  {{ site }}
-                </a-avatar>
-              </a-avatar-group>
+              <a-dropdown position="bl">
+                <div class="pr-gp">
+                  <a-avatar-group :size="24" :max-count="3">
+                    <a-avatar v-for="site in record.permissionGp" :key="site">
+                      {{ site.user }}
+                    </a-avatar>
+                  </a-avatar-group>
+                </div>
+                <template #content>
+                  <a-doption
+                    @click="
+                      printtable(record.permissionGp),
+                        (dialogTableVisible = true)
+                    "
+                    >查看权限组</a-doption
+                  >
+                </template>
+              </a-dropdown>
             </template>
           </a-table-column>
 
@@ -73,17 +126,43 @@
               sortDirections: ['ascend', 'descend'],
             }"
           ></a-table-column>
+          <a-table-column
+            title="创建时间"
+            data-index="createTime"
+            :width="150"
+            :sortable="{
+              sortDirections: ['ascend', 'descend'],
+            }"
+          ></a-table-column>
           <a-table-column :width="100">
-            <template #cell>
+            <template #cell="{ record }">
               <div class="btn-gp">
                 <a-dropdown position="bottom">
                   <a-button type="text" shape="circle"><icon-edit /></a-button>
                   <template #content>
-                    <a-doption>修改名称</a-doption>
-                    <!-- <a-dsubmenu value="share-gp">
-                      <template #default>分享项目</template>
-                    </a-dsubmenu> -->
-                    <a-doption>删除项目</a-doption>
+                    <a-doption
+                      @click="
+                        (NameEditform.originalName = record.projectName),
+                          (dialogEditNameVisible = true)
+                      "
+                    >
+                      修改名称
+                    </a-doption>
+                    <a-doption
+                      @click="
+                        (Deleteform.name = record.projectName),
+                          (dialogDeleteVisible = true)
+                      "
+                    >
+                      删除项目
+                    </a-doption>
+                    <a-doption
+                      @click="
+                        printtable(record.permissionGp),
+                          (dialogTableVisible = true)
+                      "
+                      >查看权限组</a-doption
+                    >
                   </template>
                 </a-dropdown>
                 <a-button type="text" shape="circle"
@@ -96,16 +175,356 @@
       </a-table>
     </a-card>
   </div>
+
+  <el-dialog v-model="dialogFormVisible" title="新建项目">
+    <el-form :model="NewProjform" ref="addProjectForm">
+      <el-form-item label="项目名称" :label-width="formLabelWidth">
+        <el-input v-model="NewProjform.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="项目模板" :label-width="formLabelWidth">
+        <el-select v-model="NewProjform.language" placeholder="选择项目语言">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog v-model="dialogUploadVisible" title="上传项目">
+    <el-upload
+      class="upload-demo"
+      drag
+      action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+      multiple
+    >
+      <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+      <div class="el-upload__text">
+        Drop file here or <em>click to upload</em>
+      </div>
+    </el-upload>
+    <el-select v-model="NewProjform.language" placeholder="选择项目语言">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+  </el-dialog>
+
+  <el-dialog v-model="dialogTableVisible" title="权限组" width="600px">
+    <el-button @click="clearFilter">reset all filters</el-button>
+    <el-table
+      :data="changepr"
+      style="width: 100%"
+      max-height="250"
+      ref="permissionGpRef"
+    >
+      <el-table-column prop="user" label="用户名" />
+      <el-table-column
+        label="权限"
+        prop="permission"
+        :filters="[
+          { text: '只可读', value: 'readonly' },
+          { text: '可编辑', value: 'edit' },
+          { text: '管理员', value: 'administrator' },
+        ]"
+        filter-placement="bottom-end"
+        :filter-method="filterTag"
+      >
+        <template #default="scope">
+          <el-tag
+            :type="
+              scope.row.permission === 'administrator' ? 'warning' : 'info'
+            "
+            disable-transitions
+            effect="plain"
+          >
+            <span v-if="scope.row.permission === 'administrator'">
+              管理员
+            </span>
+            <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
+            <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column>
+        <template #default="scope">
+          <span
+            v-if="scope.row.state === 'pending'"
+            :style="{ color: 'rgb(var(--red-5))' }"
+          >
+            pending
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column fixed="right" width="180">
+        <template #default>
+          <el-button link type="primary" size="small"> 移除成员 </el-button>
+          <el-button link type="primary" size="small"> 修改权限 </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button
+      class="mt-4"
+      style="width: 100%"
+      @click="dialogShareVisible = true"
+      >新增权限组</el-button
+    >
+  </el-dialog>
+
+  <el-dialog
+    v-model="dialogShareVisible"
+    title="共享项目"
+    class="share-dialog"
+    align-center
+  >
+    <el-form :model="Userform" ref="addForm">
+      <el-form-item label="用户ID" :label-width="formLabelWidth">
+        <el-input v-model="Userform.id" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="共享权限" :label-width="formLabelWidth">
+        <el-select v-model="Userform.permission" placeholder="选择用户权限">
+          <el-option label="只可读" value="readonly" />
+          <el-option label="可编辑" value="edit" />
+          <el-option label="项目管理员" value="administrator" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogShareVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="dialogShareVisible = false">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+    v-model="dialogEditNameVisible"
+    title="修改项目名称"
+    class="share-dialog"
+    align-center
+    width="350px"
+    :close="resetForm(NameEditRef)"
+  >
+    <el-form
+      ref="NameEditRef"
+      :model="NameEditform"
+      label-position="top"
+      :rules="NameEditrules"
+      status-icon
+    >
+      <el-form-item label="新名称" prop="newName">
+        <el-input v-model="NameEditform.newName" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input
+          v-model="NameEditform.password"
+          autocomplete="off"
+          type="password"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button
+          @click="resetForm(NameEditRef), (dialogEditNameVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button
+          type="primary"
+          @click="submitForm(NameEditRef), (dialogEditNameVisible = false)"
+        >
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+    v-model="dialogDeleteVisible"
+    title="删除项目"
+    align-center
+    width="350px"
+    :close="resetForm(NameEditRef)"
+  >
+    <el-form
+      :model="Deleteform"
+      ref="ProjDeleteRef"
+      label-position="top"
+      status-icon
+      :rules="Deleterules"
+    >
+      <el-form-item label="项目名称" prop="confirmname">
+        <el-input v-model="Deleteform.confirmname" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input
+          v-model="Deleteform.password"
+          autocomplete="off"
+          type="password"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button
+          @click="resetForm(NameEditRef), (dialogDeleteVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button
+          type="primary"
+          @click="submitForm(ProjDeleteRef), (dialogDeleteVisible = false)"
+        >
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance } from "vue";
+import { reactive, ref } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
-import router from "@/router";
+import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
+import type { FormInstance } from "element-plus";
+import { ElTable } from "element-plus";
+
+const permissionGpRef = ref<InstanceType<typeof ElTable>>();
+const NameEditRef = ref<FormInstance>();
+const ProjDeleteRef = ref<FormInstance>();
 
 const name = useRouter().currentRoute.value.params.username;
+
+const clearFilter = () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  permissionGpRef.value!.clearFilter();
+};
+
+const dialogFormVisible = ref(false);
+const dialogUploadVisible = ref(false);
+const dialogTableVisible = ref(false);
+const dialogShareVisible = ref(false);
+const dialogEditNameVisible = ref(false);
+const dialogDeleteVisible = ref(false);
+
+const formLabelWidth = "140px";
+const NewProjform = reactive({
+  name: "",
+  language: "",
+});
+
+const Userform = reactive({
+  id: "",
+  permission: "",
+});
+
+const NameEditform = reactive({
+  originalName: "",
+  newName: "",
+  password: "",
+});
+
+const Deleteform = reactive({
+  name: "",
+  confirmname: "",
+  password: "",
+});
+
+const validateNewName = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("请输入项目新名称"));
+  } else if (value === NameEditform.originalName) {
+    callback(new Error("新名称不应该与原名称相同"));
+  } else {
+    callback();
+  }
+};
+const validatepass = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("请输入密码"));
+  } else {
+    callback();
+  }
+};
+
+const validateconfirmName = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("请输入需要删除的项目名称"));
+  } else if (value !== Deleteform.name) {
+    callback(new Error("新名称不应该与原名称相同"));
+  } else {
+    callback();
+  }
+};
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
+};
+const resetForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.resetFields();
+};
+
+const NameEditrules = reactive({
+  newName: [{ validator: validateNewName, trigger: "blur" }],
+  password: [{ validator: validatepass, trigger: "blur" }],
+});
+
+const Deleterules = reactive({
+  confirmname: [{ validator: validateconfirmName, trigger: "blur" }],
+  password: [{ validator: validatepass, trigger: "blur" }],
+});
+
+interface lang_opt {
+  value: "C" | "Python" | "Java" | "Cpp";
+  label: string;
+}
+
+const options: lang_opt[] = [
+  {
+    value: "Python",
+    label: "python",
+    // 根据拓展语言添加
+  },
+  {
+    value: "C",
+    label: "C",
+  },
+  {
+    value: "Cpp",
+    label: "C++",
+  },
+  {
+    value: "Java",
+    label: "Java",
+  },
+];
 
 const basePagination: PaginationProps = {
   current: 1,
@@ -117,49 +536,157 @@ interface ProjectData {
   projectID: string;
   projectName: string;
   language: "C" | "Python" | "Java" | "Cpp";
-  creater: string;
-  permissionGp?: string[];
+  creator: string;
+  permissionGp?: PermissionTest[];
   lastUpdateTime: string;
+  createTime: string;
 }
+
+interface PermissionTest {
+  user: string;
+  permission: "administrator" | "readonly" | "edit";
+  state: "pending" | "accept";
+}
+
+const changepr = ref<PermissionTest[]>();
+
+const printtable = (data: PermissionTest[] | undefined) => {
+  if (!data) {
+    data = [];
+  }
+  changepr.value = [...data];
+  console.log(changepr);
+};
+
+const filterTag = (value: string, row: PermissionTest) => {
+  return row.permission === value;
+};
 
 const data: ProjectData[] = [
   {
     projectID: "A123",
     projectName: "Project1",
     language: "C",
-    creater: "sam",
-    permissionGp: ["A", "B", "C", "D"],
+    creator: "sam",
+    permissionGp: [
+      {
+        user: "A",
+        permission: "readonly",
+        state: "accept",
+      },
+      {
+        user: "B",
+        permission: "readonly",
+        state: "accept",
+      },
+      {
+        user: "C",
+        permission: "edit",
+        state: "accept",
+      },
+    ],
     lastUpdateTime: "2022/10/01 12:33",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "A1U83",
     projectName: "Project2",
     language: "Cpp",
-    creater: "sam2",
-    permissionGp: ["D", "B", "C", "Arco", "some"],
+    creator: "sam2",
+    permissionGp: [
+      {
+        user: "A",
+        permission: "readonly",
+        state: "accept",
+      },
+      {
+        user: "D",
+        permission: "readonly",
+        state: "accept",
+      },
+      {
+        user: "C",
+        permission: "administrator",
+        state: "accept",
+      },
+      {
+        user: "C0c0",
+        permission: "edit",
+        state: "accept",
+      },
+      {
+        user: "David",
+        permission: "edit",
+        state: "pending",
+      },
+    ],
     lastUpdateTime: "2022/03/01 15:47",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "A1po23",
     projectName: "Project3",
     language: "Python",
-    creater: "sam",
+    creator: "sam",
     lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
+  },
+  {
+    projectID: "A1po23",
+    projectName: "Project3",
+    language: "Python",
+    creator: "sam",
+    lastUpdateTime: "2021/11/08 02:53",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "KJ1d3",
     projectName: "Project4",
     language: "Java",
-    creater: "sam",
-    permissionGp: ["C"],
+    creator: "sam",
+    permissionGp: [
+      {
+        user: "A",
+        permission: "readonly",
+        state: "accept",
+      },
+      {
+        user: "Arco",
+        permission: "edit",
+        state: "accept",
+      },
+      {
+        user: "C",
+        permission: "edit",
+        state: "accept",
+      },
+    ],
     lastUpdateTime: "2022/02/01 05:13",
+    createTime: "2022/10/01 12:33",
   },
   {
     projectID: "AJKpo0",
     projectName: "Project5",
     language: "Python",
-    creater: "sam2",
+    creator: "sam2",
     lastUpdateTime: "2020/10/01 21:00",
+    createTime: "2022/10/01 12:33",
   },
 ];
 </script>

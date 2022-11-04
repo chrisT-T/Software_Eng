@@ -17,4 +17,16 @@ module.exports = defineConfig({
       }),
     ],
   },
+  devServer: {
+    proxy: {
+      "/auth": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

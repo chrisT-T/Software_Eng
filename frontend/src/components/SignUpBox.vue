@@ -11,9 +11,9 @@
     <el-form-item label="Username" prop="username">
       <el-input v-model.number="ruleForm.username" />
     </el-form-item>
-    <el-form-item label="Password" prop="pass">
+    <el-form-item label="Password" prop="password">
       <el-input
-        v-model="ruleForm.pass"
+        v-model="ruleForm.password"
         type="password"
         autocomplete="off"
         show-password
@@ -40,7 +40,11 @@
 
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
+import router from "@/router";
 import type { FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -51,11 +55,34 @@ const checkUsername = (rule: any, value: any, callback: any) => {
   setTimeout(() => {
     var uPattern = /^[a-zA-Z0-9_-]{4,16}$/;
     if (!uPattern.test(value)) {
-      callback(new Error("用户名正则, 4到16位 (字母，数字，下划线，减号)"));
+      callback(new Error("用户名规则, 4到16位 (字母，数字，下划线，减号)"));
+    } else {
+      axios
+        .get("/api/user?username=" + ruleForm.username)
+        .then(function (response) {
+          const code = response.data["code"];
+          if (code == 1) {
+            callback(new Error("用户名重复或无效"));
+          } else {
+            callback();
+          }
+        });
+    }
+  }, 1000);
+};
+
+const checkEmail = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    return callback(new Error("Please input the email"));
+  }
+  setTimeout(() => {
+    var uPattern = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/;
+    if (!uPattern.test(value)) {
+      callback(new Error("请输入合法邮箱域名"));
     } else {
       callback();
     }
-  }, 1000);
+  }, 500);
 };
 
 const validatePass = (rule: any, value: any, callback: any) => {
@@ -79,7 +106,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("Please input the password again"));
-  } else if (value !== ruleForm.pass) {
+  } else if (value !== ruleForm.password) {
     callback(new Error("Two inputs don't match!"));
   } else {
     callback();
@@ -87,15 +114,17 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
 };
 
 const ruleForm = reactive({
-  pass: "",
+  password: "",
   checkPass: "",
   username: "",
+  email: "",
 });
 
 const rules = reactive({
-  pass: [{ validator: validatePass, trigger: "blur" }],
+  password: [{ validator: validatePass, trigger: "blur" }],
   checkPass: [{ validator: validatePass2, trigger: "blur" }],
   username: [{ validator: checkUsername, trigger: "blur" }],
+  email: [{ validator: checkEmail, trigger: "blur" }],
 });
 
 const submitForm = (formEl: FormInstance | undefined) => {
@@ -103,6 +132,26 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
+      axios.post("/api/user", qs.stringify(ruleForm)).then(function (response) {
+        const code = response.data["code"];
+        if (code === 200) {
+          axios
+            .post("/auth/login", qs.stringify(ruleForm))
+            .then(function (response) {
+              const code = response.data["code"];
+              console.log(code);
+              if (code === 200) {
+                sessionStorage.setItem("username", ruleForm.username);
+                router.replace({
+                  name: "main",
+                  params: { username: ruleForm.username },
+                });
+              }
+            });
+        } else {
+          ElMessage("Register Failed");
+        }
+      });
     } else {
       console.log("error submit!");
       return false;
@@ -117,6 +166,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+.signup_ {
+  padding-top: 5px;
+}
 .button_gp {
   display: flex;
   justify-content: center;

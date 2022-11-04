@@ -1,2 +1,2 @@
-from .user import UserService
 from .project import ProjectService
+from .user import UserService

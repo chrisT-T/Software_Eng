@@ -1,40 +1,45 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="ruleForm"
-    status-icon
-    :rules="rules"
-    label-width="120px"
-    class="demo-ruleForm"
-    label-position="top"
-  >
-    <el-form-item label="Username" prop="username">
-      <el-input v-model.number="ruleForm.username" />
-    </el-form-item>
-    <el-form-item label="Password" prop="pass">
-      <el-input
-        v-model="ruleForm.pass"
-        type="password"
-        autocomplete="off"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item>
-      <div class="button_gp">
-        <el-button type="primary" @click="submitForm(ruleFormRef)"
-          >Sign In</el-button
-        >
-        <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-      </div>
-    </el-form-item>
-  </el-form>
+  <div class="login_">
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      status-icon
+      :rules="rules"
+      label-width="120px"
+      class="demo-ruleForm"
+      label-position="top"
+    >
+      <el-form-item label="Username" prop="username">
+        <el-input v-model.number="ruleForm.username" />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input
+          v-model="ruleForm.password"
+          type="password"
+          autocomplete="off"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item>
+        <div class="button_gp">
+          <el-button type="primary" @click="submitForm(ruleFormRef)"
+            >Sign In</el-button
+          >
+          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import router from "@/router";
 import { reactive, ref } from "vue";
 import type { FormInstance } from "element-plus";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -55,12 +60,12 @@ const validatePass = (rule: any, value: any, callback: any) => {
 };
 
 const ruleForm = reactive({
-  pass: "",
+  password: "",
   username: "",
 });
 
 const rules = reactive({
-  pass: [{ validator: validatePass, trigger: "blur" }],
+  password: [{ validator: validatePass, trigger: "blur" }],
   username: [{ validator: checkUsername, trigger: "blur" }],
 });
 
@@ -69,9 +74,22 @@ const submitForm = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
-      router.replace({ name: "main", params: { username: ruleForm.username } });
+      axios
+        .post("/auth/login", qs.stringify(ruleForm))
+        .then(function (response) {
+          const code = response.data["code"];
+          if (code === 200) {
+            sessionStorage.setItem("username", ruleForm.username);
+            router.replace({
+              name: "main",
+              params: { username: ruleForm.username },
+            });
+          } else {
+            ElMessage("Invalid Username or Password");
+          }
+        });
     } else {
-      console.log("error submit!");
+      ElMessage("Error Submit!");
       return false;
     }
   });
@@ -84,6 +102,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
 </script>
 
 <style scoped>
+.login_ {
+  padding-top: 30px;
+}
 .button_gp {
   display: flex;
   justify-content: center;
