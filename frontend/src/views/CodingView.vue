@@ -138,7 +138,6 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
-import { Component } from "vue-property-decorator";
 
 onMounted(() => {
   setInterval(() => {
