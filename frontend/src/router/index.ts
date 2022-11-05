@@ -43,14 +43,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.meta.LoginRequired) {
     const username = sessionStorage.getItem("username");
-    const loginTime = Number(sessionStorage.getItem("login_time"))
+    const activeTime = Number(sessionStorage.getItem("active_time"));
     const time = new Date().getTime();
-    if ((time - loginTime) > 30 * 60 * 1000){
+    if (time - activeTime > 1800000) {
       sessionStorage.removeItem("username");
-      sessionStorage.removeItem("login_time");
+      sessionStorage.removeItem("active_time");
       axios.get("/auth/logout");
       router.replace("/login");
-    } else if (username) { 
+    } else if (username) {
       if (to.params.username == username) {
         next();
       } else {

@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import ProjectCard from "@/components/ProjectCard.vue";
 import PersonalDetail from "@/components/PersonalDetail.vue";
 import router from "@/router";
@@ -65,6 +65,13 @@ import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
 import axios from "axios";
 import { Search } from "@element-plus/icons-vue";
+
+onMounted(() => {
+  setInterval(() => {
+    const time = new Date().getTime();
+    sessionStorage.setItem("active_time", time);
+  }, 5 * 60 * 1000);
+});
 
 const name = useRouter().currentRoute.value.params.username;
 

@@ -123,7 +123,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref } from "vue";
+import { reactive, getCurrentInstance, ref, onMounted } from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -138,6 +138,14 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
+import { Component } from "vue-property-decorator";
+
+onMounted(() => {
+  setInterval(() => {
+    const time = new Date().getTime();
+    sessionStorage.setItem("active_time", time);
+  }, 5 * 60 * 1000);
+});
 const name = useRouter().currentRoute.value.params.username;
 
 const dialogTableVisible = ref(false);
