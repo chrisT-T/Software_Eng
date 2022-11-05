@@ -76,6 +76,7 @@ const select = ref("");
 const logout = () => {
   console.log("logout");
   sessionStorage.removeItem("username");
+  sessionStorage.removeItem("login_time");
   axios.get("/auth/logout");
   router.replace("/login");
 };
