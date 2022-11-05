@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import axios from "axios";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -42,7 +43,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.meta.LoginRequired) {
     const username = sessionStorage.getItem("username");
-    if (username) {
+    const activeTime = Number(sessionStorage.getItem("active_time"));
+    const time = new Date().getTime();
+    if (time - activeTime > 1800000) {
+      sessionStorage.removeItem("username");
+      sessionStorage.removeItem("active_time");
+      axios.get("/auth/logout");
+      router.replace("/login");
+    } else if (username) {
       if (to.params.username == username) {
         next();
       } else {
