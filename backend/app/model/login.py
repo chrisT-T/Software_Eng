@@ -6,19 +6,16 @@ from app.extensions import db, login_manager
 
 class User(db.Model, UserMixin):
     __tablename__ = 'tbl_user'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
-
-    project_creator = db.relationship(
-        'Project', backref=db.backref('created_projects'))
+    created_projects = db.relationship("Project", back_populates="creator")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def validate_password(self, password):
         return check_password_hash(self.password_hash, password)
-
 
 @login_manager.user_loader
 def load_user(user_id):
