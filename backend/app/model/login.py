@@ -12,7 +12,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64))
     email = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
-    
+
     created_projects = db.relationship("Project", back_populates="creator")
     readonly_projects = db.relationship("Project", secondary=readonly_table, back_populates="readonly_users")
     editable_projects = db.relationship("Project", secondary=editable_table, back_populates="editable_users")
@@ -24,6 +24,7 @@ class User(db.Model, UserMixin):
 
     def validate_password(self, password):
         return check_password_hash(self.password_hash, password)
+
 
 @login_manager.user_loader
 def load_user(user_id):
