@@ -50,4 +50,4 @@ class DataBaseTestCase(unittest.TestCase):
         self.assertEqual(len(me.readonly_projects), 2)
 
         user1 = User.query.filter_by(id=1).first()
-        self.assertEqual(len(user1.readonly_projects), 2)
+        self.assertEqual(len(user1.readonly_projects), 0)
