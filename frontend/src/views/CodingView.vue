@@ -61,9 +61,13 @@
             "
           >
             <el-button size="small" @click="openFile"> open file </el-button>
-            <el-button size="small" @click="changeTheme">change theme </el-button>
+            <el-button size="small" @click="changeTheme"
+              >change theme
+            </el-button>
             <el-button size="small" @click="changeName">change name </el-button>
-            <el-button size="small" @click="deleteFile"> delete file </el-button>
+            <el-button size="small" @click="deleteFile">
+              delete file
+            </el-button>
             <el-button size="small" @click="getBreakpoints">
               getBreakpoints
             </el-button>
@@ -149,7 +153,6 @@ import {
   IconBug,
   IconPause,
 } from "@arco-design/web-vue/es/icon";
-import { ref } from "vue";
 import FileTreeBox from "@/components/FileTreeBox.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
