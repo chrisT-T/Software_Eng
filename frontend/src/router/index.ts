@@ -45,7 +45,7 @@ router.beforeEach((to, from, next) => {
     const username = sessionStorage.getItem("username");
     const activeTime = Number(sessionStorage.getItem("active_time"));
     const time = new Date().getTime();
-    if (time - activeTime > 1800000) {
+    if (time - activeTime > 1800000 && activeTime != 0) {
       sessionStorage.removeItem("username");
       sessionStorage.removeItem("active_time");
       axios.get("/auth/logout");
