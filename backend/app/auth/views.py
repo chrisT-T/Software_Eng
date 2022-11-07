@@ -17,9 +17,11 @@ def login():
         if user:
             if user.validate_password(password):
                 login_user(user)
-                return jsonify({"code": 200, "msg": "Login Success"})
+                return jsonify({"msg": "Login Success"}), 200
         else:
-            return jsonify({"code": 400, "msg": "Username Or Password Error"})
+            return jsonify({"msg": "Username Or Password Error"}), 404
+    else:
+        return jsonify({"msg": "Invalid username"}), 400
 
 
 @bp.route('/auth/logout', methods=['GET'])

@@ -19,33 +19,33 @@ class User(Resource):
     def get(self):
         username = request.args.get('username', None)
         if not username:
-            return {'code': 1, 'message': 'bad arguments'}
+            return {'message': 'bad arguments'}, 400
         else:
             try:
                 exist = service.find_user(username)
                 if exist:
-                    return {'code': 1, 'message': 'user exists'}
+                    return {'message': 'user exists'}, 200
                 else:
-                    return {'code': 0, 'message': 'user not exist'}
+                    return {'message': 'user not exist'}, 204
             except Exception:
-                return {'code': 0, 'message': 'user not exist'}
+                return {'message': 'user not exist'}, 500
 
     def post(self):
         content = request.form.to_dict()
         print(content)
         if 'username' not in content.keys() or 'password' not in content.keys():
-            return {'code': 401, 'message': 'bad arguments'}
+            return {'message': 'bad arguments'}, 400
 
         username = content['username']
         password = content['password']
 
         try:
             if (service.create_user(username, password)):
-                return {'code': 200, 'message': "ok"}
+                return {'message': "ok"}, 201
             else:
-                return {'code': 400, 'message': "user exists"}
+                return {'message': "user exists"}, 400
         except:  # noqa
-            return {'code': 401, "message": "create new user failed"}
+            return {"message": "create new user failed"}, 500
 
 
 user_api.add_resource(User, '/api/user')
