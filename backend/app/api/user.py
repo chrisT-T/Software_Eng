@@ -22,7 +22,7 @@ class User(Resource):
             return {'message': 'bad arguments'}, 400
         else:
             try:
-                user = service.find_user(username) 
+                user = service.find_user(username)
                 if user:
                     return {'message': 'user exists'}, 200
                 else:

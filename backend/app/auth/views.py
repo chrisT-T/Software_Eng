@@ -5,8 +5,8 @@ from app.model.login import User
 from app.service.user import UserService
 
 bp = Blueprint('auth', __name__)
-
 service = UserService()
+
 
 @bp.route('/auth/login', methods=['POST'])
 def login():
