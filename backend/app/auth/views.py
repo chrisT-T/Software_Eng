@@ -13,7 +13,7 @@ def login():
     username = form['username']
     password = form['password']
     if username:
-        user = User.query.filter_by(username=username).first()
+        user = UserService.find_user(username)
         if user:
             if user.validate_password(password):
                 login_user(user)
