@@ -6,6 +6,7 @@ from app.service.user import UserService
 
 bp = Blueprint('auth', __name__)
 
+service = UserService()
 
 @bp.route('/auth/login', methods=['POST'])
 def login():
@@ -13,7 +14,7 @@ def login():
     username = form['username']
     password = form['password']
     if username:
-        user = UserService.find_user(username)
+        user = service.find_user(username)
         if user:
             if user.validate_password(password):
                 login_user(user)

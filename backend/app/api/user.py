@@ -22,8 +22,8 @@ class User(Resource):
             return {'message': 'bad arguments'}, 400
         else:
             try:
-                exist = service.find_user(username)
-                if exist:
+                user = service.find_user(username) 
+                if user:
                     return {'message': 'user exists'}, 200
                 else:
                     return {'message': 'user not exist'}, 204
