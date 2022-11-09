@@ -1,7 +1,6 @@
-from flask import Blueprint, jsonify, request
-from flask_restful import Api, Resource
+from flask import Blueprint, request
+from flask_restful import Api, Resource, marshal_with, fields, abort, reqparse
 from flask_login import login_required, current_user
-from json import dumps
 
 from app.checker import check_create_project_param
 from app.extensions import db
@@ -17,39 +16,57 @@ api = Api(bp)
 proj_service = ProjectService()
 user_service = UserService()
 
-class Project(Resource):
-    
-    def get(self):
-        project_id = request.args.get("id", None)
-        if not project_id:
-            return {'message': 'bad arguments'}, 400
-        else:
-            flag = proj_service.get_project(project_id)["flag"]
-            if flag:
-                proj = proj_service.get_project(project_id)['result']
-                return {"message": dumps(proj,default=proj_service.to_dict)}, 200
-            else:
-                return {"message": "no such project"}, 404
-            
+parser = reqparse.RequestParser()
+parser.add_argument('creator_id', type=int, location='form')
+parser.add_argument('project_name', type=str, location='form')
+parser.add_argument('project_language', type=str, location='form',  choices=('python', 'cpp', 'typescript'), help='Bad choice: {error_msg}')
 
+class Project(Resource):
+    res_fields = {
+        "id": fields.Integer,
+        "project_name": fields.String,
+        "create_time": fields.String,
+        "last_edit_time": fields.String,
+        "project_language": fields.String,
+        "creator_id": fields.Integer
+    }
+    
+    @marshal_with(res_fields)
+    def get(self, proj_id):
+        flag = proj_service.get_project(proj_id)["flag"]
+        if flag:
+            proj = proj_service.get_project(proj_id)['result']
+            return proj, 200
+        else:
+            abort(404, message="Project {} doesn't exist".format(proj_id))
+    
     @login_required
     def post(self):
-        content = request.get_json()
-        if content is None:
-            return {"message": "bad parameters"}, 400
-        key, passed = check_create_project_param(content)
+        args = parser.parse_args()
+        key, passed = check_create_project_param(args)
         if passed:
-            user_result = user_service.find_user_by_id(id=content['creator_id'])
+            user_result = user_service.find_user_by_id(id=args['creator_id'])
             if not user_result['flag']:
-                return {"message": "Invalid User"}, 400
+                abort(400, message="User {} not exist".format(args['creator_id']))
             user = user_result['result']
             if current_user.username == user.username:
-                result = proj_service.create_project(content['creator_id'], content['project_name'], content['project_language'])
-                return {"message": result}, 200
+                proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
+                return "", 204
             else:
-                return {"message": "Can't create project for other users"}
+                abort(400, message="Can't create project for other users")
         else:
-            return {"message": key}, 400
+            abort(400, message="Invalid argument {}".format(key))
+        
+    @login_required
+    def patch(self):
+        pass
+    
+    def put(self):
+        pass
+    
+    def delete(self):
+        pass
 
 
-api.add_resource(Project, '/api/project')
+api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project')
+

@@ -47,14 +47,14 @@ class ProjectService():
                 )
 
                 docker_id = container.id
-
-            new_project = Project(id=max_id + 1,
-                                  creator_id=creator_id,
+            
+            creator = login.User.query.filter_by(id=creator_id).first()
+            new_project = Project(creator_id=creator_id,
                                   create_time=datetime.date.fromtimestamp(time.time()),
                                   project_name=project_name,
                                   project_language=project_language,
                                   docker_id=docker_id)
-            print(new_project.id)
+            new_project.admin_users.append(creator)
             db.session.add(new_project)
             db.session.commit()
             return {"flag": True, "result": new_project.id}
@@ -239,12 +239,4 @@ class ProjectService():
             print(e)
             return {"flag": False, "result": 'Exception in remove user'}
 
-    def to_dict(self, project: Project):
-        return {
-            "id": project.id,
-            "project_name": project.project_name,
-            "create_time": str(project.create_time),
-            "last_edit_time": str(project.last_edit_time),
-            "project_language": project.project_language,
-            "creator_id": project.creator_id
-        }
+    

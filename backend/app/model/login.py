@@ -9,8 +9,8 @@ from app.model.relation_tables import (admin_table, editable_table,
 class User(db.Model, UserMixin):
     __tablename__ = 'tbl_user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(64))
-    email = db.Column(db.String(64))
+    username = db.Column(db.String(64), unique=True)
+    email = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
 
     created_projects = db.relationship("Project", back_populates="creator")

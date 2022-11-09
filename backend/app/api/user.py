@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
-from flask_restful import Api, Resource
+from flask import Blueprint, request
+from flask_restful import Api, Resource, reqparse, abort
 
+from app.checker import check_create_user_param
 from app.extensions import db
 from app.model import project
 from app.service import UserService
@@ -14,39 +15,48 @@ bp = Blueprint(
 
 user_api = Api(bp)
 
+parser = reqparse.RequestParser()
+parser.add_argument('username', type=str)
+parser.add_argument('password', type=str, location='form', required=True)
+parser.add_argument('email', type=str, location='form')
+
 
 class User(Resource):
     def get(self):
-        username = request.args.get('username', None)
+        args = parser.parse_args()
+        username = args["username"]
         if not username:
-            return {'message': 'bad arguments'}, 400
+            abort(400, message="bad arguments")
         else:
             try:
                 flag = service.find_user_by_username(username)['flag']
                 if flag:
-                    return {'message': 'user exists'}, 200
+                    abort(400, message="bad arguments")
                 else:
-                    return {'message': 'user not exist'}, 204
-            except Exception:
-                return {'message': 'user not exist'}, 500
+                    return "", 204
+            except Exception as e:
+                abort(500, message=e)
 
     def post(self):
-        content = request.form.to_dict()
-        print(content)
-        if 'username' not in content.keys() or 'password' not in content.keys():
-            return {'message': 'bad arguments'}, 400
-
-        username = content['username']
-        password = content['password']
-
+        args = parser.parse_args()
+        key, flag = check_create_user_param(args)
+        if not flag:
+            abort(400, message="invalid arguments: {}".format(key))
         try:
-            flag = service.create_user(username, password)['flag']
+            flag = service.create_user(args["username"], args["password"], args["email"])['flag']
             if (flag):
-                return {'message': "ok"}, 201
+                return "", 204
             else:
-                return {'message': "user exists"}, 400
-        except:  # noqa
-            return {"message": "create new user failed"}, 500
+                abort(400, message="user exists")
+        except Exception as e:  # noqa
+            print(e)
+            abort(500, message="internal error")
+        
+    def patch(self):
+        pass
+    
+    def put(self):
+        pass
 
 
-user_api.add_resource(User, '/api/user')
+user_api.add_resource(User, '/api/user/')

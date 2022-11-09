@@ -21,10 +21,9 @@ migrate = Migrate(app, db)
 def init_db():
     """Init db"""
     db.create_all()
-    me = User(id=0, username="test",
+    me = User(username="test",
               password_hash=generate_password_hash(str("test")))
     proj = Project(
-        id=1, 
         project_name="a", 
         create_time=datetime.date.fromtimestamp(time.time()), 
         last_edit_time=datetime.date.fromtimestamp(time.time()), 
