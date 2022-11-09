@@ -22,8 +22,8 @@ class User(Resource):
             return {'message': 'bad arguments'}, 400
         else:
             try:
-                user = service.find_user(username)
-                if user:
+                flag = service.find_user_by_username(username)['flag']
+                if flag:
                     return {'message': 'user exists'}, 200
                 else:
                     return {'message': 'user not exist'}, 204
@@ -40,7 +40,8 @@ class User(Resource):
         password = content['password']
 
         try:
-            if (service.create_user(username, password)):
+            flag = service.create_user(username, password)['flag']
+            if (flag):
                 return {'message': "ok"}, 201
             else:
                 return {'message': "user exists"}, 400

@@ -67,10 +67,11 @@ class APITestCase(unittest.TestCase):
         '''
 
         '''
-        data = {"username": "adfwer"}
+        data = {"username": "tttt"}
         response = current_app.test_client().get(
             f"/api/user?username={data['username']}",
         )
+        print(response)
         print(response.data)
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user not exist")
@@ -80,6 +81,18 @@ class APITestCase(unittest.TestCase):
         response = current_app.test_client().get(
             f"/api/user?username={data['username']}",
         )
+        print(response)
+        print(response.data)
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user exists")
         self.assertEqual(response.status_code, 200)
+        
+        data = {"username": ""}
+        response = current_app.test_client().get(
+            f"/api/user?username={data['username']}",
+        )
+        print(response)
+        print(response.data)
+        json_data = json.loads(response.data)
+        self.assertEqual(json_data['message'], "bad arguments")
+        self.assertEqual(response.status_code, 400)

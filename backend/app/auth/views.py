@@ -14,15 +14,16 @@ def login():
     username = form['username']
     password = form['password']
     if username:
-        user = service.find_user(username)
-        if user:
+        result = service.find_user_by_username(username)
+        if result['flag']:
+            user = result['result']
             if user.validate_password(password):
                 login_user(user)
-                return jsonify({"msg": "Login Success"}), 200
+                return {"msg": "Login Success"}, 200
         else:
-            return jsonify({"msg": "Username Or Password Error"}), 404
+            return {"msg": "Username Or Password Error"}, 404
     else:
-        return jsonify({"msg": "Invalid username"}), 400
+        return {"msg": "Invalid username"}, 400
 
 
 @bp.route('/auth/logout', methods=['GET'])
