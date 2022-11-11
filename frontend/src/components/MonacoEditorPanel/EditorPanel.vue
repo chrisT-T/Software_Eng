@@ -9,14 +9,14 @@
     >
       <el-tab-pane
         v-for="item in editableTabs"
-        :key="item.name"
+        :key="item.index"
         :label="item.title"
-        :name="item.name"
+        :name="item.index"
       >
         <MonacoEditor
           ref="monacoEditors"
-          :name="item.name"
-          :editor-option="getOption(item.name)"
+          :name="item.index"
+          :editor-option="getOption(item.index)"
           @modified="fileModified"
           @saveFile="saveFile"
           @debug="startDebug"
@@ -40,6 +40,7 @@ import {
   watch,
 } from "vue";
 import * as common from "./common";
+import { NullLogger } from "vscode-jsonrpc";
 
 export interface FileInfo {
   path: string;
@@ -51,7 +52,11 @@ export interface FileInfo {
 
 export interface TabInfo {
   title: string;
-  name: string;
+  fileName: string;
+  parentPath: string;
+  dup: boolean;
+  modified: boolean;
+  index: string;
 }
 
 const props = defineProps<{
@@ -100,35 +105,90 @@ function getEditorByIndex(index: string) {
   return monacoEditors.value[editorIndex];
 }
 
-const addTab = (title: string, name: string) => {
-  editableTabs.value.push({
-    title: title,
-    name: name,
+function isDup(fileName: string): boolean {
+  let flag = false;
+  editableTabs.value.forEach((tab, index) => {
+    if (tab.fileName === fileName) {
+      flag = true;
+    }
   });
-  editableTabsValue.value = name;
+  return flag;
+}
+
+function updateTitle(curTab: TabInfo) {
+  if (curTab.dup) {
+    curTab.title = curTab.fileName + " " + curTab.parentPath;
+  } else {
+    curTab.title = curTab.fileName;
+  }
+  if (curTab.modified) {
+    curTab.title = "* " + curTab.title;
+  }
+  return;
+}
+
+function updateOtherTitle(fileName: string) {
+  let count = 0;
+  editableTabs.value.forEach((item, index) => {
+    if (item.fileName === fileName) {
+      count++;
+    }
+  });
+
+  editableTabs.value.forEach((item, index) => {
+    if (item.fileName === fileName) {
+      if (count > 1) {
+        item.dup = true;
+        updateTitle(item);
+      } else {
+        item.dup = false;
+        updateTitle(item);
+      }
+    }
+  });
+}
+
+const addTab = (fileName: string, parentPath: string, index: string) => {
+  let dup = isDup(fileName);
+  let newTab = {
+    title: "",
+    fileName: fileName,
+    parentPath: parentPath,
+    dup: dup,
+    modified: false,
+    index: index,
+  };
+  updateTitle(newTab);
+  editableTabs.value.push(newTab);
+  if (dup) {
+    updateOtherTitle(fileName);
+  }
+  editableTabsValue.value = index;
 };
 
-const justRemoveTab = (targetName: string) => {
+const justRemoveTab = (targetIndex: string) => {
   const tabs = editableTabs.value;
-  let activeName = editableTabsValue.value;
-  if (activeName === targetName) {
-    tabs.forEach((tab, index) => {
-      if (tab.name === targetName) {
-        const nextTab = tabs[index + 1] || tabs[index - 1];
-        if (nextTab) {
-          activeName = nextTab.name;
-        } else {
-          activeName = "0";
-        }
-      }
-    });
+  let activeIndex = editableTabsValue.value;
+  let tabIndex = tabs.findIndex((item) => item.index === targetIndex);
+  if (activeIndex === targetIndex) {
+    const nextTab = tabs[tabIndex + 1] || tabs[tabIndex - 1];
+    if (nextTab) {
+      activeIndex = nextTab.index;
+    } else {
+      activeIndex = "0";
+    }
   }
 
-  editableTabsValue.value = activeName;
-  editableTabs.value = tabs.filter((tab) => tab.name !== targetName);
+  editableTabsValue.value = activeIndex;
+  let dup = tabs[tabIndex].dup;
+  let fileName = tabs[tabIndex].fileName;
+  editableTabs.value.splice(tabIndex, 1);
+  if (dup) {
+    updateOtherTitle(fileName);
+  }
 
   let fileIndex = fileInfos.findIndex(
-    (item) => item.index.toString() === targetName
+    (item) => item.index.toString() === targetIndex
   );
   fileInfos[fileIndex].show = false;
 };
@@ -153,6 +213,8 @@ function addFile(path: string, value: string) {
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
   let language = getLanguageByFileName(fileName);
+  let parentPath = path.substring(0, path.length - fileName.length) as string;
+  console.log(parentPath);
   let fileIndex = fileInfos.findIndex((fileInfo) => fileInfo.path === path);
 
   if (fileIndex === -1) {
@@ -177,7 +239,7 @@ function addFile(path: string, value: string) {
         ),
       },
     });
-    addTab(fileName, tabIndex.toString());
+    addTab(fileName, parentPath, tabIndex.toString());
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
     let model = fileInfos[fileIndex].options.model;
@@ -186,7 +248,7 @@ function addFile(path: string, value: string) {
     if (decorations) {
       model?.deltaDecorations([], decorations);
     }
-    addTab(fileName, fileInfos[fileIndex].index.toString());
+    addTab(fileName, parentPath, fileInfos[fileIndex].index.toString());
   } else {
     editableTabsValue.value = fileInfos[fileIndex].index.toString();
   }
@@ -220,12 +282,12 @@ function deleteFile(path: string) {
   fileInfos.splice(fileIndex, 1);
 }
 
-function removeTab(targetName: string) {
+function removeTab(targetIndex: string) {
   let fileIndex = fileInfos.findIndex(
-    (item) => item.index.toString() === targetName
+    (item) => item.index.toString() === targetIndex
   );
   if (fileInfos[fileIndex].modified === false) {
-    justRemoveTab(targetName);
+    justRemoveTab(targetIndex);
     return;
   }
 
@@ -235,7 +297,7 @@ function removeTab(targetName: string) {
     type: "warning",
   })
     .then(() => {
-      justRemoveTab(targetName);
+      justRemoveTab(targetIndex);
       ElMessage({
         type: "success",
         message: "completed",
@@ -283,14 +345,16 @@ function saveFile() {
     (item) => item.index.toString() === editableTabsValue.value
   );
   let path = fileInfos[fileIndex].path as string;
+  let index = fileInfos[fileIndex].index;
   let value = fileInfos[fileIndex].options.model?.getValue() as string;
   if (fileInfos[fileIndex].modified === true) {
-    let fileName = path.split("/").pop() as string;
     let tabIndex = editableTabs.value.findIndex(
-      (item) => item.title === "* " + fileName
+      (item) => item.index === index.toString()
     );
-    editableTabs.value[tabIndex].title = fileName;
     fileInfos[fileIndex].modified = false;
+    let curTab = editableTabs.value[tabIndex];
+    curTab.modified = false;
+    updateTitle(curTab);
   }
 
   emit("saveFile", path, value);
@@ -307,12 +371,14 @@ function fileModified() {
     (item) => item.index.toString() === editableTabsValue.value
   );
   if (fileInfos[fileIndex].modified === false) {
-    let fileName = fileInfos[fileIndex].path.split("/").pop();
+    let index = fileInfos[fileIndex].index;
     let tabIndex = editableTabs.value.findIndex(
-      (item) => item.title === fileName
+      (item) => item.index === index.toString()
     );
-    editableTabs.value[tabIndex].title = "* " + fileName;
     fileInfos[fileIndex].modified = true;
+    let curTab = editableTabs.value[tabIndex];
+    curTab.modified = true;
+    updateTitle(curTab);
   }
   return;
 }

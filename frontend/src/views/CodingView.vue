@@ -211,6 +211,8 @@ function openFile(path: string) {
   console.log("open File");
   editorPanel.value?.addFile("adfa/df.py", "alkdsfjlasdjflad");
   editorPanel.value?.addFile("adfa/default.py", "asfs/adf.cpp");
+  editorPanel.value?.addFile("adfadfa/df.py", "alkdsfjlasdjflad");
+  editorPanel.value?.addFile("adfadsfa/default.py", "asfs/adf.cpp");
 }
 
 function changeTheme() {
