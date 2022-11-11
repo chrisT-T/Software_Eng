@@ -8,6 +8,7 @@ bp = Blueprint('auth', __name__)
 
 service = UserService()
 
+
 @bp.route('/auth/login', methods=['POST'])
 def login():
     form = request.form.to_dict()
