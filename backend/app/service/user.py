@@ -19,7 +19,4 @@ class UserService():
 
     def find_user(self, username):
         user = login.User.query.filter_by(username=username).first()
-        if user:
-            return True
-        else:
-            return False
+        return user
