@@ -17,6 +17,7 @@
           ref="monacoEditors"
           :name="item.index"
           :editor-option="getOption(item.index)"
+          :container-subdomain="`testid`"
           @modified="fileModified"
           @saveFile="saveFile"
           @debug="startDebug"

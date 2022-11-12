@@ -30,6 +30,7 @@ import * as common from "./common";
 
 const props = defineProps<{
   editorOption: monaco.editor.IStandaloneEditorConstructionOptions;
+  containerSubdomain: string;
 }>();
 
 const emit = defineEmits<{
@@ -246,7 +247,7 @@ onMounted(() => {
   let lspUrl = "/lsp";
   // python language server
   if (props.editorOption.language === "python") {
-    lspUrl = "ws://testid.localhost:8088";
+    lspUrl = `ws://${props.containerSubdomain}.localhost:8088`;
   }
 
   // create websocket
