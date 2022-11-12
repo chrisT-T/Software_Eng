@@ -16,6 +16,8 @@ import * as monaco from "monaco-editor";
 import {
   MonacoLanguageClient,
   MonacoServices,
+  CloseAction,
+  ErrorAction,
   MessageTransports,
 } from "monaco-languageclient";
 
@@ -28,6 +30,7 @@ import * as common from "./common";
 
 const props = defineProps<{
   editorOption: monaco.editor.IStandaloneEditorConstructionOptions;
+  containerSubdomain: string;
 }>();
 
 const emit = defineEmits<{
@@ -123,6 +126,26 @@ function locateLine(lineNumber: number) {
   editor.value?.setPosition({ lineNumber, column: 1 });
 }
 
+function createPythonLanguageClient(
+  transports: MessageTransports
+): MonacoLanguageClient {
+  return new MonacoLanguageClient({
+    name: "Python Language Client",
+    clientOptions: {
+      documentSelector: ["python"],
+      errorHandler: {
+        error: () => ({ action: ErrorAction.Continue }),
+        closed: () => ({ action: CloseAction.DoNotRestart }),
+      },
+    },
+    connectionProvider: {
+      get: () => {
+        return Promise.resolve(transports);
+      },
+    },
+  });
+}
+
 onMounted(() => {
   console.log("Monaco Editor Mounted");
   if (monacoEditorContainer.value !== null && props.editorOption !== null) {
@@ -216,6 +239,27 @@ onMounted(() => {
       }
     }
   });
+
+  // initialize language server
+
+  // MonacoServices.install();
+
+  let lspUrl = "/lsp";
+  // python language server
+  if (props.editorOption.language === "python") {
+    lspUrl = `ws://${props.containerSubdomain}.localhost:8088`;
+  }
+
+  // create websocket
+  const webSocket = new WebSocket(lspUrl);
+  webSocket.onopen = () => {
+    const socket = toSocket(webSocket);
+    const reader = new WebSocketMessageReader(socket);
+    const writer = new WebSocketMessageWriter(socket);
+    const languageClient = createPythonLanguageClient({ reader, writer });
+    languageClient.start();
+    reader.onClose(() => languageClient.stop());
+  };
 });
 
 onUnmounted(() => {

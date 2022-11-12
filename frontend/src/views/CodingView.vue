@@ -216,10 +216,10 @@ const backmain = () => {
 
 function openFile(path: string) {
   console.log("open File");
-  editorPanel.value?.addFile("adfa/df.py", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfa/default.py", "asfs/adf.cpp");
-  editorPanel.value?.addFile("adfadfa/df.py", "alkdsfjlasdjflad");
-  editorPanel.value?.addFile("adfadsfa/default.py", "asfs/adf.cpp");
+  editorPanel.value?.addFile("adfa/df.py", "");
+  // editorPanel.value?.addFile("adfa/default.py", "");
+  // editorPanel.value?.addFile("adfadfa/df.py", "");
+  // editorPanel.value?.addFile("adfadsfa/default.py", "");
 }
 
 function changeTheme() {
