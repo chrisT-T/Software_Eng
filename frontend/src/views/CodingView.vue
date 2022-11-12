@@ -48,7 +48,7 @@
             max-width: 50%;
             text-align: center;
           "
-          ><FileTreeBox />
+          ><fileTree />
         </a-resize-box>
         <el-container direction="vertical">
           <a-resize-box
@@ -132,7 +132,7 @@ import {
   IconBug,
   IconPause,
 } from "@arco-design/web-vue/es/icon";
-import FileTreeBox from "@/components/FileTreeBox.vue";
+import fileTree from "@/components/fileTree.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";

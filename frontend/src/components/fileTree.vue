@@ -1,0 +1,168 @@
+<template>
+  <div class="custom-tree-container">
+    <div class="tree-main">
+      <span style="margin-left: 10px">PROJECT NAME</span>
+      <a-button-group type="text">
+        <a-button @click="addNew2Proj()">
+          <template #icon><icon-plus /></template>
+        </a-button>
+      </a-button-group>
+    </div>
+    <el-tree
+      :data="dataSource"
+      node-key="id"
+      default-expand-all
+      :expand-on-click-node="false"
+      @node-click="handleNodeClick"
+    >
+      <template #default="{ node, data }">
+        <span class="custom-tree-node">
+          <el-dropdown
+            v-if="!data.showInput"
+            trigger="contextmenu"
+            size="small"
+          >
+            <span class="el-dropdown-link">
+              {{ node.label }}
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  :icon="Plus"
+                  @click="append(data)"
+                  :disabled="data.type === 'file'"
+                  >Append</el-dropdown-item
+                >
+                <el-dropdown-item
+                  :icon="DeleteFilled"
+                  @click="remove(node, data)"
+                  >Delete</el-dropdown-item
+                >
+                <el-dropdown-item :icon="EditPen">Change name</el-dropdown-item>
+                <el-dropdown-item :icon="CaretRight">Debug</el-dropdown-item>
+                <el-dropdown-item :icon="Download">Download</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </span>
+      </template>
+    </el-tree>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import type Node from "element-plus/es/components/tree/src/model/node";
+import {
+  Plus,
+  DeleteFilled,
+  EditPen,
+  CaretRight,
+  Download,
+} from "@element-plus/icons-vue";
+import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+
+const handleNodeClick = (data: Tree) => {
+  console.log(data);
+};
+
+interface Tree {
+  id: number;
+  label: string;
+  path: string;
+  type: string;
+  children?: Tree[];
+}
+let id = 1000;
+
+const append = (data: Tree) => {
+  const name = "test";
+  const child_path = data.path + "/" + name;
+  const newChild = {
+    id: id++,
+    label: name,
+    path: child_path,
+    type: "file",
+    children: [],
+  };
+  if (!data.children) {
+    data.children = [];
+  }
+  data.children.push(newChild);
+  dataSource.value = [...dataSource.value];
+};
+
+const addNew2Proj = () => {
+  const name = "test";
+  const child_path = name;
+  const newChild = {
+    id: id++,
+    label: name,
+    path: child_path,
+    type: "folder",
+    children: [],
+  };
+  dataSource.value.push(newChild);
+};
+
+const remove = (node: Node, data: Tree) => {
+  const parent = node.parent;
+  const children: Tree[] = parent.data.children || parent.data;
+  const index = children.findIndex((d) => d.id === data.id);
+  children.splice(index, 1);
+  dataSource.value = [...dataSource.value];
+};
+
+const dataSource = ref<Tree[]>([
+  {
+    id: 1,
+    label: "task_1",
+    path: "task_1",
+    type: "folder",
+    children: [
+      {
+        id: 2,
+        label: "task_2",
+        path: "task_1/task_2",
+        type: "folder",
+        children: [
+          {
+            id: 3,
+            label: "task_3",
+            path: "task_1/task_2/tasl_3",
+            type: "file",
+          },
+          {
+            id: 4,
+            label: "task_4",
+            path: "task_1/task_2/tasl_4",
+            type: "file",
+          },
+        ],
+      },
+    ],
+  },
+]);
+</script>
+
+<style>
+.custom-tree-container {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  width: 100%;
+}
+.tree-main {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>
