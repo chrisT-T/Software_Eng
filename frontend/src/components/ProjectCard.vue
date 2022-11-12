@@ -319,7 +319,6 @@
     class="share-dialog"
     align-center
     width="350px"
-    :close="resetForm(NameEditRef)"
   >
     <el-form
       ref="NameEditRef"
@@ -360,7 +359,6 @@
     title="删除项目"
     align-center
     width="350px"
-    :close="resetForm(NameEditRef)"
   >
     <el-form
       :model="Deleteform"
@@ -383,7 +381,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button
-          @click="resetForm(NameEditRef), (dialogDeleteVisible = false)"
+          @click="resetForm(ProjDeleteRef), (dialogDeleteVisible = false)"
           >Cancel</el-button
         >
         <el-button
