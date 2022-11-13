@@ -152,6 +152,7 @@
                     <a-doption
                       @click="
                         (Deleteform.name = record.projectName),
+                          (Deleteform.projectId = record.projectID),
                           (dialogDeleteVisible = true)
                       "
                     >
@@ -196,7 +197,10 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">
+        <el-button
+          type="primary"
+          @click="addNewProject(), (dialogFormVisible = false)"
+        >
           Confirm
         </el-button>
       </span>
@@ -369,7 +373,9 @@
         >
         <el-button
           type="primary"
-          @click="submitForm(NameEditRef), (dialogEditNameVisible = false)"
+          @click="
+            changeProjectName(NameEditRef), (dialogEditNameVisible = false)
+          "
         >
           Confirm
         </el-button>
@@ -409,7 +415,7 @@
         >
         <el-button
           type="primary"
-          @click="submitForm(ProjDeleteRef), (dialogDeleteVisible = false)"
+          @click="removeProject(ProjDeleteRef), (dialogDeleteVisible = false)"
         >
           Confirm
         </el-button>
@@ -537,6 +543,56 @@ const clearFilter = () => {
   permissionGpRef.value!.clearFilter();
 };
 
+const addNewProject = () => {
+  if (NewProjform.language === "" || NewProjform.name === "") {
+    console.log("New Proj Error");
+  } else {
+    console.log(NewProjform);
+    // 新增项目
+    const newProj: ProjectData = {
+      projectID: "asldfuh",
+      projectName: NewProjform.name,
+      language: NewProjform.language,
+      creator: "user",
+      permissionGp: [],
+      lastUpdateTime: "time",
+      createTime: "time",
+    };
+  }
+  NewProjform.language = "";
+  NewProjform.name = "";
+};
+
+const removeProject = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+      console.log(Deleteform.projectId);
+      formEl.resetFields();
+    } else {
+      console.log("error submit!");
+      formEl.resetFields();
+      return false;
+    }
+  });
+};
+
+const changeProjectName = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+      console.log(NameEditform);
+      formEl.resetFields();
+    } else {
+      console.log("error submit!");
+      formEl.resetFields();
+      return false;
+    }
+  });
+};
+
 const dialogFormVisible = ref(false);
 const dialogUploadVisible = ref(false);
 const dialogTableVisible = ref(false);
@@ -559,11 +615,13 @@ const Userform = reactive({
 const NameEditform = reactive({
   originalName: "",
   newName: "",
+  projectId: "",
   password: "",
 });
 
 const Deleteform = reactive({
   name: "",
+  projectId: "",
   confirmname: "",
   password: "",
 });
@@ -589,7 +647,7 @@ const validateconfirmName = (rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("请输入需要删除的项目名称"));
   } else if (value !== Deleteform.name) {
-    callback(new Error("新名称不应该与原名称相同"));
+    callback(new Error("新名称应该与原名称相同"));
   } else {
     callback();
   }
@@ -655,7 +713,7 @@ const basePagination: PaginationProps = {
 interface ProjectData {
   projectID: string;
   projectName: string;
-  language: "C" | "Python" | "Java" | "Cpp";
+  language: string;
   creator: string;
   permissionGp?: PermissionTest[];
   lastUpdateTime: string;
