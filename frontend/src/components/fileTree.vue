@@ -1,9 +1,9 @@
 <template>
   <div class="custom-tree-container">
     <div class="tree-main">
-      <span style="margin-left: 10px">PROJECT NAME</span>
+      <span class="spanStyle" style="margin-left: 10px">PROJECT NAME</span>
       <a-button-group type="text">
-        <a-button @click="addNew2Proj()">
+        <a-button @click="(dialogNewFVisible = true), addNew2Proj()">
           <template #icon><icon-plus /></template>
         </a-button>
       </a-button-group>
@@ -22,14 +22,14 @@
             trigger="contextmenu"
             size="small"
           >
-            <span class="el-dropdown-link">
+            <span class="el-dropdown-link spanStyle">
               {{ node.label }}
             </span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
                   :icon="Plus"
-                  @click="append(data)"
+                  @click="(dialogNewFVisible = true), append(data)"
                   :disabled="data.type === 'file'"
                   >Append</el-dropdown-item
                 >
@@ -48,10 +48,45 @@
       </template>
     </el-tree>
   </div>
+  <el-dialog
+    v-model="dialogNewFVisible"
+    title="新增"
+    class="new-dialog"
+    align-center
+    width="350px"
+  >
+    <el-form
+      ref="NewFRef"
+      :model="NewFform"
+      label-position="top"
+      :rules="NewFrules"
+      status-icon
+    >
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="NewFform.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="Type" prop="type">
+        <el-radio-group v-model="NewFform.type">
+          <el-radio label="folder" />
+          <el-radio label="file" />
+        </el-radio-group>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="resetForm(NewFRef), (dialogNewFVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button type="primary" @click="submitForm(NewFRef)">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import {
   Plus,
@@ -61,6 +96,43 @@ import {
   Download,
 } from "@element-plus/icons-vue";
 import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+import type { FormInstance } from "element-plus";
+
+const NewFRef = ref<FormInstance>();
+let dialogNewFVisible = ref(false);
+
+const NewFform = reactive({
+  name: "",
+  type: "",
+});
+
+const NewFrules = reactive({
+  name: [{ required: true, message: "Please input name", trigger: "blur" }],
+  type: [
+    {
+      required: true,
+      message: "Please select type",
+      trigger: "change",
+    },
+  ],
+});
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+      dialogNewFVisible = ref(false);
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
+};
+const resetForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.resetFields();
+};
 
 const handleNodeClick = (data: Tree) => {
   console.log(data);
@@ -164,5 +236,12 @@ const dataSource = ref<Tree[]>([
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.spanStyle {
+  white-space: nowrap; /*强制span不换行*/
+  display: inline-block; /*将span当做块级元素对待*/
+  overflow: hidden; /*超出宽度部分隐藏*/
+  text-overflow: ellipsis; /*超出部分以点号代替*/
+  line-height: 0.9; /*数字与之前的文字对齐*/
 }
 </style>

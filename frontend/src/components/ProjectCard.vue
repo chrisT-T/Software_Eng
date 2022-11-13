@@ -109,7 +109,8 @@
                   <a-doption
                     @click="
                       printtable(record.permissionGp),
-                        (dialogTableVisible = true)
+                        (dialogTableVisible = true),
+                        (currentPermissionID = record.projectID)
                     "
                     >查看权限组</a-doption
                   >
@@ -271,31 +272,50 @@
         </template>
       </el-table-column>
       <el-table-column fixed="right" width="180">
-        <template #default>
-          <el-button link type="primary" size="small"> 移除成员 </el-button>
-          <el-button link type="primary" size="small"> 修改权限 </el-button>
+        <template #default="scope">
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="removeCurrentPermission(scope.row.user)"
+          >
+            移除成员
+          </el-button>
+          <el-button
+            link
+            type="primary"
+            size="small"
+            @click="
+              OpenChangePermission(scope.row.user, scope.row.permission),
+                (dialogPermissionChangeVisible = true)
+            "
+          >
+            修改权限
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-button
-      class="mt-4"
-      style="width: 100%"
-      @click="dialogShareVisible = true"
-      >新增权限组</el-button
-    >
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogShareVisible = true" style="width: 100%"
+          >新增权限组</el-button
+        >
+      </span>
+    </template>
   </el-dialog>
 
   <el-dialog
     v-model="dialogShareVisible"
     title="共享项目"
     class="share-dialog"
+    width="350px"
     align-center
   >
     <el-form :model="Userform" ref="addForm">
-      <el-form-item label="用户ID" :label-width="formLabelWidth">
-        <el-input v-model="Userform.id" autocomplete="off" />
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="Userform.username" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="共享权限" :label-width="formLabelWidth">
+      <el-form-item label="共享权限" prop="permission">
         <el-select v-model="Userform.permission" placeholder="选择用户权限">
           <el-option label="只可读" value="readonly" />
           <el-option label="可编辑" value="edit" />
@@ -306,7 +326,10 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogShareVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="dialogShareVisible = false">
+        <el-button
+          type="primary"
+          @click="(dialogShareVisible = false), addNewUserPermission()"
+        >
           Confirm
         </el-button>
       </span>
@@ -393,6 +416,44 @@
       </span>
     </template>
   </el-dialog>
+  <el-dialog
+    v-model="dialogPermissionChangeVisible"
+    title="修改用户权限"
+    class="share-dialog"
+    align-center
+    width="350px"
+    draggable
+  >
+    <el-form
+      ref="PermissionChangeRef"
+      :model="PermissionChangeform"
+      label-position="top"
+      status-icon
+    >
+      <el-form-item label="共享权限" prop="newPermission">
+        <el-select
+          v-model="PermissionChangeform.newPermission"
+          placeholder="选择新用户权限"
+        >
+          <el-option label="只可读" value="readonly" />
+          <el-option label="可编辑" value="edit" />
+          <el-option label="项目管理员" value="administrator" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button
+          type="primary"
+          @click="
+            changeCurrentPermission(), (dialogPermissionChangeVisible = false)
+          "
+        >
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -407,8 +468,68 @@ import { ElTable } from "element-plus";
 const permissionGpRef = ref<InstanceType<typeof ElTable>>();
 const NameEditRef = ref<FormInstance>();
 const ProjDeleteRef = ref<FormInstance>();
+const PermissionChangeRef = ref<FormInstance>();
+const currentPermissionID = ref<string>();
 
 const name = useRouter().currentRoute.value.params.username;
+
+// 添加新权限组
+const addNewUserPermission = () => {
+  if (Userform.username === "" || Userform.permission === "") {
+    console.log("error!");
+  } else {
+    // 新增加的用户参数
+    const newPer = {
+      user: Userform.username,
+      permission: Userform.permission,
+      state: "pending",
+    };
+    console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
+    const ID = currentPermissionID.value;
+    // 直接在后端进行修改 下面的代码可以删除
+    const index = data.findIndex((d) => d.projectID === ID);
+    data[index].permissionGp?.push(newPer);
+    changepr.value = data[index].permissionGp;
+  }
+  Userform.username = "";
+  Userform.permission = "";
+  console.log(changepr.value);
+};
+
+// 移除用户
+const removeCurrentPermission = (user: string) => {
+  console.log(user); // 删除的用户名
+  console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
+  // 直接在后端进行修改 下面的代码可以删除
+  const ID = currentPermissionID.value;
+  const index = data.findIndex((d) => d.projectID === ID);
+  const PRID = changepr.value?.findIndex((d) => d.user === user);
+  if (PRID) {
+    data[index].permissionGp?.splice(PRID, 1);
+    changepr.value = data[index].permissionGp;
+  } else {
+    console.log("error Remove!");
+  }
+  console.log(changepr.value);
+};
+
+const PermissionChangeform = reactive({
+  name: "",
+  OriginPermission: "",
+  newPermission: "",
+});
+
+const OpenChangePermission = (user: string, permission: string) => {
+  console.log("OpenChangePermission");
+  PermissionChangeform.name = user;
+  PermissionChangeform.OriginPermission = permission;
+};
+
+// 修改权限
+const changeCurrentPermission = () => {
+  console.log(PermissionChangeform); // 修改权限细节(包括修改权限的用户名，原来的权限和新权限)
+  console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
+};
 
 const clearFilter = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -422,6 +543,7 @@ const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
 const dialogEditNameVisible = ref(false);
 const dialogDeleteVisible = ref(false);
+const dialogPermissionChangeVisible = ref(false);
 
 const formLabelWidth = "140px";
 const NewProjform = reactive({
@@ -430,7 +552,7 @@ const NewProjform = reactive({
 });
 
 const Userform = reactive({
-  id: "",
+  username: "",
   permission: "",
 });
 
@@ -542,8 +664,8 @@ interface ProjectData {
 
 interface PermissionTest {
   user: string;
-  permission: "administrator" | "readonly" | "edit";
-  state: "pending" | "accept";
+  permission: string;
+  state: string;
 }
 
 const changepr = ref<PermissionTest[]>();
@@ -619,30 +741,6 @@ const data: ProjectData[] = [
       },
     ],
     lastUpdateTime: "2022/03/01 15:47",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
     createTime: "2022/10/01 12:33",
   },
   {
