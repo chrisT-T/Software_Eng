@@ -65,7 +65,7 @@ class User(Resource):
             abort(400, message="invalid password")
         user.set_password(args['password_new'])
 
-    def put(self):
+    def put(self): # put is designed for changing data
         pass
 
 

@@ -45,13 +45,15 @@ class Project(Resource):
         args = parser.parse_args()
         key, passed = check_create_project_param(args)
         if passed:
-            user_result = user_service.find_user_by_id(id=args['creator_id'])
-            if not user_result['flag']:
+            user, flag = user_service.find_user_by_id(id=args['creator_id'])
+            if not flag:
                 abort(400, message="User {} not exist".format(args['creator_id']))
-            user = user_result['result']
             if current_user.username == user.username:
-                proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
-                return "", 204
+                response, flag = proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
+                if flag:
+                    return "", 204
+                else:
+                    abort(400, message=response)
             else:
                 abort(400, message="Can't create project for other users")
         else:
@@ -61,9 +63,11 @@ class Project(Resource):
     def patch(self):
         pass
     
+    @login_required
     def put(self):
         pass
     
+    @login_required
     def delete(self):
         pass
 

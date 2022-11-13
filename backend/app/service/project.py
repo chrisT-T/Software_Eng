@@ -52,80 +52,80 @@ class ProjectService():
             
             db.session.add(new_project)
             db.session.commit()
-            return {"flag": True, "result": new_project.id}
+            return new_project.id, True
         except Exception as e:  # noqa
             print(e)
-            return {"flag": False, "result": 'create project failed'}
+            return 'create project failed', False
 
     def get_container_id(self, project_id: int):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
             
-            return {"flag": True, "result": target.docker_id}
+            return target.docker_id, True
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in get container id'}
+            return 'Exception in get container id', False
     
     def get_project(self, project_id: int):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": "no such project"}
-            return {"flag": True, "result": target}
+                return "no such project", False
+            return target, True
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in get project'}
+            return 'Exception in get project', False
     def remove_project(self, project_id: int):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             db.session.delete(target)
             db.session.commit()
-            return {"flag": True, "result": target.docker_id}
+            return target.docker_id, True
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in remove project'}
+            return 'Exception in remove project', False
         
     def add_user_admin(self, project_id: int, username: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             user = User.query.filter_by(username=username).first()
             if user in target.admin_users:
-                return {"flag": True, "result": "user already in admin list"}
+                return "user already in admin list", True
             
             if user not in target.readonly_users and user not in target.editable_users:
-                return {"flag": False, "result": "user not in project"}
+                return "user not in project", False
             if user in target.readonly_users:
                 target.readonly_users.remove(user)
             if user in target.editable_users:
                 target.editable_users.remove(user)
             target.admin_users.append(user)
-            return {"flag": True, "result": "admin user added"}
+            return "admin user added", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in add admin'}
+            return 'Exception in add admin', False
         
     def add_user_read(self, project_id: int, username: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             user = User.query.filter_by(username=username).first()
             
             if user in target.readonly_users:
-                return {"flag": True, "result": "user already in read list"}
+                return "user already in read list", True
             
             if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users:
-                return {"flag": False, "result": "user not in project"}
+                return "user not in project", False
             if user in target.admin_users:
                 target.admin_users.remove(user)
             if user in target.editable_users:
@@ -133,79 +133,79 @@ class ProjectService():
             if user in target.pending_users:
                 target.pending_users.remove(user)
             target.readonly_users.append(user)
-            return {"flag": True, "result": "read user added"}
+            return "read user added", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in add admin'}
+            return 'Exception in add admin', False
         
     def add_user_edit(self, project_id: int, username: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             user = User.query.filter_by(username=username).first()
             
             if user in target.edit_users:
-                return {"flag": True, "result": "user already in read list"}
+                return "user already in read list", True
             
             if user not in target.admin_users and user not in target.readonly_users:
-                return {"flag": False, "result": "user not in project"}
+                return "user not in project", False
             if user in target.admin_users:
                 target.admin_users.remove(user)
             if user in target.readonly_users:
                 target.readonly_users.remove(user)
             target.editable_users.append(user)
-            return {"flag": True, "result": "edit user added"}
+            return "edit user added", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in add admin'}
+            return 'Exception in add admin', False
         
     def add_user_pending(self, project_id: int, username: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             user = User.query.filter_by(username=username).first()
             
             if user in target.edit_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
-                return {"flag": True, "result": "user already exist"}
+                return "user already exist", True
             
             target.pending_users.append(user)
-            return {"flag": True, "result": "pending user added"}
+            return "pending user added", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in add admin'}
+            return 'Exception in add admin', False
     
     def update_edit_time(self, project_id: int):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             target.last_edit_time = datetime.date.fromtimestamp(time.time())
-            return {"flag": True, "result": "edit time updated"}
+            return "edit time updated", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in add admin'}
+            return 'Exception in add admin', False
     
     def remove_user(self, project_id: int, username: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             user = User.query.filter_by(username=username).first()
             if not user:
-                return {"flag": False, "result": 'no such user'}
+                return 'no such user', False
             
             if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users and user not in target.readonly_users:
-                return {"flag": False, "result": 'user not exist in project'}
+                return 'user not exist in project', False
             
             if user in target.admin_users:
                 target.admin_users.remove(user)
@@ -215,23 +215,23 @@ class ProjectService():
                 target.editable_users.remove(user)
             if user in target.pending_users:
                 target.pending_users.remove(user)
-            return {"flag": True, "result": "user removed"}
+            return "user removed", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in remove user'}
+            return 'Exception in remove user', False
         
     def change_name(self, project_id: int, name: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return {"flag": False, "result": 'no such project id'}
+                return 'no such project id', False
 
             target.name = name
-            return {"flag": True, "result": "name changed"}
+            return "name changed", True
         
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in remove user'}
+            return 'Exception in remove user', False
 
     
