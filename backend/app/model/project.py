@@ -11,6 +11,7 @@ class Project(db.Model):
     last_edit_time = db.Column(db.DateTime)
     project_language = db.Column(db.Enum('python', 'cpp', 'typescript'))
     docker_id = db.Column(db.Text)
+    path = db.Column(db.Text)
 
     creator_id = db.Column(db.Integer, db.ForeignKey('tbl_user.id'))
     creator = db.relationship("User", back_populates="created_projects")

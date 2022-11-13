@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash
 
 from app.extensions import db
 from app.model.project import Project
-from app.model import login
+from app.model.login import User
 
 
 class ProjectService():
@@ -17,15 +17,15 @@ class ProjectService():
                        project_name,
                        project_language):
         try:
-
-            select_res = Project.query.order_by(Project.id.desc())
-            if len(select_res.all()) == 0:
-                max_id = 0
-            else:
-                max_id = select_res.first().id
-
+            creator = User.query.filter_by(id=creator_id).first()
+            new_project = Project(creator_id=creator_id,
+                                  create_time=datetime.date.fromtimestamp(time.time()),
+                                  project_name=project_name,
+                                  project_language=project_language)
+            new_project.admin_users.append(creator)
+            
             # create project root_dir
-            project_root_dir = (f'{max_id+1}-{project_name}-{project_language}')
+            project_root_dir = (f'{hash(new_project.create_time)}-{project_name}-{project_language}')
             rootdir = current_app.config['ROOT_DIR']
             project_root_path = f'{rootdir}/{project_root_dir}'
             project_root_path = os.path.abspath(project_root_path)
@@ -35,7 +35,8 @@ class ProjectService():
                 pass
             finally:
                 print(project_root_path)
-
+            new_project.path = project_root_path
+                
             # create docker process
             docker_client = docker.from_env()
             if project_language == 'python':
@@ -45,16 +46,10 @@ class ProjectService():
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
                 )
-
                 docker_id = container.id
             
-            creator = login.User.query.filter_by(id=creator_id).first()
-            new_project = Project(creator_id=creator_id,
-                                  create_time=datetime.date.fromtimestamp(time.time()),
-                                  project_name=project_name,
-                                  project_language=project_language,
-                                  docker_id=docker_id)
-            new_project.admin_users.append(creator)
+            new_project.docker_id = docker_id
+            
             db.session.add(new_project)
             db.session.commit()
             return {"flag": True, "result": new_project.id}
@@ -101,7 +96,7 @@ class ProjectService():
             if not target:
                 return {"flag": False, "result": 'no such project id'}
 
-            user = login.User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
             if user in target.admin_users:
                 return {"flag": True, "result": "user already in admin list"}
             
@@ -124,7 +119,7 @@ class ProjectService():
             if not target:
                 return {"flag": False, "result": 'no such project id'}
 
-            user = login.User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
             
             if user in target.readonly_users:
                 return {"flag": True, "result": "user already in read list"}
@@ -150,7 +145,7 @@ class ProjectService():
             if not target:
                 return {"flag": False, "result": 'no such project id'}
 
-            user = login.User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
             
             if user in target.edit_users:
                 return {"flag": True, "result": "user already in read list"}
@@ -174,7 +169,7 @@ class ProjectService():
             if not target:
                 return {"flag": False, "result": 'no such project id'}
 
-            user = login.User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
             
             if user in target.edit_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
                 return {"flag": True, "result": "user already exist"}
@@ -205,7 +200,7 @@ class ProjectService():
             if not target:
                 return {"flag": False, "result": 'no such project id'}
 
-            user = login.User.query.filter_by(username=username).first()
+            user = User.query.filter_by(username=username).first()
             if not user:
                 return {"flag": False, "result": 'no such user'}
             

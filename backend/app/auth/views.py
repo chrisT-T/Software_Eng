@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, jsonify, redirect, request, url_for
+from flask import Blueprint, redirect, request, url_for
 from flask_login import login_required, login_user, logout_user
 
 from app.model.login import User
