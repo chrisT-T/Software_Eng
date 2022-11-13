@@ -3,7 +3,7 @@
     <div class="tree-main">
       <span class="spanStyle" style="margin-left: 10px">PROJECT NAME</span>
       <a-button-group type="text">
-        <a-button @click="(dialogNewFVisible = true), addNew2Proj()">
+        <a-button @click="dialogNewFVisible = true">
           <template #icon><icon-plus /></template>
         </a-button>
       </a-button-group>
@@ -29,7 +29,7 @@
               <el-dropdown-menu>
                 <el-dropdown-item
                   :icon="Plus"
-                  @click="(dialogNewFVisible = true), append(data)"
+                  @click="(dialogNewFNodeVisible = true), (nodeappend = data)"
                   :disabled="data.type === 'file'"
                   >Append</el-dropdown-item
                 >
@@ -83,6 +83,41 @@
       </span>
     </template>
   </el-dialog>
+  <el-dialog
+    v-model="dialogNewFNodeVisible"
+    title="新增"
+    class="new-dialog"
+    align-center
+    width="350px"
+  >
+    <el-form
+      ref="NewFRef"
+      :model="NewFform"
+      label-position="top"
+      :rules="NewFrules"
+      status-icon
+    >
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="NewFform.name" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="Type" prop="type">
+        <el-radio-group v-model="NewFform.type">
+          <el-radio label="folder" />
+          <el-radio label="file" />
+        </el-radio-group>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="resetForm(NewFRef), (dialogNewFNodeVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button type="primary" @click="submitNodeForm(NewFRef)">
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -96,10 +131,13 @@ import {
   Download,
 } from "@element-plus/icons-vue";
 import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
 
 const NewFRef = ref<FormInstance>();
 let dialogNewFVisible = ref(false);
+let dialogNewFNodeVisible = ref(false);
+const nodeappend = ref<Tree>();
 
 const NewFform = reactive({
   name: "",
@@ -117,12 +155,28 @@ const NewFrules = reactive({
   ],
 });
 
+const submitNodeForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log("submit!");
+      console.log(NewFform);
+      append();
+      formEl.resetFields();
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
+};
 const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
-      dialogNewFVisible = ref(false);
+      console.log(NewFform);
+      addNew2Proj();
+      formEl.resetFields();
     } else {
       console.log("error submit!");
       return false;
@@ -145,33 +199,38 @@ interface Tree {
   type: string;
   children?: Tree[];
 }
-let id = 1000;
+let id = 5;
 
-const append = (data: Tree) => {
-  const name = "test";
-  const child_path = data.path + "/" + name;
-  const newChild = {
-    id: id++,
-    label: name,
-    path: child_path,
-    type: "file",
-    children: [],
-  };
-  if (!data.children) {
-    data.children = [];
+const append = () => {
+  const data = nodeappend.value;
+  if (!data) {
+    console.log("error append");
+  } else {
+    const name = NewFform.name;
+    const child_path = data.path + "/" + name;
+    const newChild = {
+      id: id++,
+      label: name,
+      path: child_path,
+      type: NewFform.type,
+      children: [],
+    };
+    if (!data.children) {
+      data.children = [];
+    }
+    data.children.push(newChild);
+    dataSource.value = [...dataSource.value];
   }
-  data.children.push(newChild);
-  dataSource.value = [...dataSource.value];
 };
 
 const addNew2Proj = () => {
-  const name = "test";
+  const name = NewFform.name;
   const child_path = name;
   const newChild = {
     id: id++,
     label: name,
     path: child_path,
-    type: "folder",
+    type: NewFform.type,
     children: [],
   };
   dataSource.value.push(newChild);
