@@ -60,7 +60,28 @@
               min-height: 0;
             "
           >
-            <EditorPanel> </EditorPanel>
+            <el-button size="small" @click="openFile"> open file </el-button>
+            <el-button size="small" @click="changeTheme"
+              >change theme
+            </el-button>
+            <el-button size="small" @click="changeName">change name </el-button>
+            <el-button size="small" @click="deleteFile">
+              delete file
+            </el-button>
+            <el-button size="small" @click="getBreakpoints">
+              getBreakpoints
+            </el-button>
+            <el-button size="small" @click="focusLine"> focusLine </el-button>
+            <el-button size="small" @click="clearFocusLine">
+              clearFocusLine
+            </el-button>
+            <EditorPanel
+              ref="editorPanel"
+              :theme="editorTheme"
+              @save-file="saveFile"
+              @start-debug="(path) => runDebugger(name + '/' + path)"
+            >
+            </EditorPanel>
           </a-resize-box>
           <TerminalPanel />
         </el-container>
@@ -147,6 +168,8 @@ onMounted(() => {
 });
 const name = useRouter().currentRoute.value.params.username;
 
+const editorTheme = ref("vs");
+const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
 
@@ -190,6 +213,49 @@ const backmain = () => {
   console.log(name);
   router.replace({ name: "main", params: { username: name } });
 };
+
+function openFile(path: string) {
+  console.log("open File");
+  editorPanel.value?.addFile("adfa/df.py", "");
+  // editorPanel.value?.addFile("adfa/default.py", "");
+  // editorPanel.value?.addFile("adfadfa/df.py", "");
+  // editorPanel.value?.addFile("adfadsfa/default.py", "");
+}
+
+function changeTheme() {
+  editorTheme.value = "vs-dark";
+}
+
+function changeName() {
+  editorPanel.value?.renameFile("adfa/df.py", "asfs/adf.cpp");
+}
+
+function deleteFile() {
+  editorPanel.value?.deleteFile("adfa/df.py");
+}
+
+function getBreakpoints() {
+  console.log(editorPanel.value?.getBreakpoints());
+}
+function saveFile(path: string, value: string) {
+  console.log(path, value);
+  return;
+}
+
+function runDebugger(filePath: string) {
+  console.log(filePath);
+  return;
+}
+
+function focusLine() {
+  editorPanel.value?.focusLine("adfa/df.py", 35);
+  return;
+}
+
+function clearFocusLine() {
+  editorPanel.value?.clearFocusLine();
+  return;
+}
 </script>
 
 <style scoped>
