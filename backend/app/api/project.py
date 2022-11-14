@@ -1,6 +1,6 @@
 from flask import Blueprint, request
-from flask_restful import Api, Resource, marshal_with, fields, abort, reqparse
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
+from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
 from app.checker import check_create_project_param
 from app.extensions import db
@@ -19,7 +19,8 @@ user_service = UserService()
 parser = reqparse.RequestParser()
 parser.add_argument('creator_id', type=int, location='form')
 parser.add_argument('project_name', type=str, location='form')
-parser.add_argument('project_language', type=str, location='form',  choices=('python', 'cpp', 'typescript'), help='Bad choice: {error_msg}')
+parser.add_argument('project_language', type=str, location='form', choices=('python', 'cpp', 'typescript'), help='Bad choice: {error_msg}')
+
 
 class Project(Resource):
     res_fields = {
@@ -30,7 +31,7 @@ class Project(Resource):
         "project_language": fields.String,
         "creator_id": fields.Integer
     }
-    
+
     @marshal_with(res_fields)
     def get(self, proj_id):
         flag = proj_service.get_project(proj_id)["flag"]
@@ -39,7 +40,7 @@ class Project(Resource):
             return proj, 200
         else:
             abort(404, message="Project {} doesn't exist".format(proj_id))
-    
+
     @login_required
     def post(self):
         args = parser.parse_args()
@@ -58,19 +59,18 @@ class Project(Resource):
                 abort(400, message="Can't create project for other users")
         else:
             abort(400, message="Invalid argument {}".format(key))
-        
+
     @login_required
     def patch(self):
         pass
-    
+
     @login_required
     def put(self):
         pass
-    
+
     @login_required
     def delete(self):
         pass
 
 
 api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project')
-

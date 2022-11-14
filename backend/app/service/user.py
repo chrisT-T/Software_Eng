@@ -28,7 +28,7 @@ class UserService():
         except Exception as e:
             print(e)
             return 'Exception in finding user', False
-        
+
     def find_user_by_id(self, id):
         try:
             user = login.User.query.filter_by(id=id).first()
@@ -38,7 +38,7 @@ class UserService():
         except Exception as e:
             print(e)
             return 'Exception in finding user', False
-    
+
     def find_user_by_email(self, email):
         try:
             user = login.User.query.filter_by(id=email).first()

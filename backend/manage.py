@@ -1,15 +1,15 @@
-import os
 import datetime
+import os
 import time
 
+from flask import current_app
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
-from flask import current_app
 
 from app import create_app, db
 from app.model.login import User
-from app.utils import config
 from app.model.project import Project
+from app.utils import config
 
 app = create_app(os.getenv('TYPE', 'default'))
 host = config.get_yaml('app.HOST')
@@ -25,9 +25,9 @@ def init_db():
     me = User(username="test",
               password_hash=generate_password_hash(str("test")))
     proj = Project(
-        project_name="a", 
-        create_time=datetime.date.fromtimestamp(time.time()), 
-        last_edit_time=datetime.date.fromtimestamp(time.time()), 
+        project_name="a",
+        create_time=datetime.date.fromtimestamp(time.time()),
+        last_edit_time=datetime.date.fromtimestamp(time.time()),
         project_language="python",
         docker_id="what",
         creator_id=1,

@@ -1,5 +1,6 @@
 from re import search
 
+
 def check_create_user_param(content: dict):
     required_keys = ["username", "password", "email"]
     pat = [r"^[a-zA-Z0-9_-]{4,16}$",
@@ -12,6 +13,7 @@ def check_create_user_param(content: dict):
         if not search(pat[i], content[required_keys[i]]):
             return required_keys[i], False
     return "ok", True
+
 
 def check_change_password_param(content: dict):
     required_keys = ["username", "password", "password_new"]

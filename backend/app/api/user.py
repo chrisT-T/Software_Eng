@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-from flask_restful import Api, Resource, reqparse, abort
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
+from flask_restful import Api, Resource, abort, reqparse
 
-from app.checker import check_create_user_param, check_change_password_param
+from app.checker import check_change_password_param, check_create_user_param
 from app.extensions import db
 from app.model import project
 from app.service import UserService
@@ -53,19 +53,19 @@ class User(Resource):
         except Exception as e:  # noqa
             print(e)
             abort(500, message="internal error")
-    
-    def patch(self): # patch is designed for resetting password 
+
+    def patch(self):  # patch is designed for resetting password
         args = parser.parse_args()
         key, flag = check_change_password_param(args)
         if not flag:
             abort(400, message="invalid argument: {}".format(key))
-        
+
         user, flag = service.find_user_by_username(args['username'])
         if not user.validate_password(args['password']):
             abort(400, message="invalid password")
         user.set_password(args['password_new'])
 
-    def put(self): # put is designed for changing data
+    def put(self):  # put is designed for changing data
         pass
 
 

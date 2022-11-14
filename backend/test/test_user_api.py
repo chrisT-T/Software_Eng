@@ -86,7 +86,7 @@ class APITestCase(unittest.TestCase):
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user exists")
         self.assertEqual(response.status_code, 200)
-        
+
         data = {"username": ""}
         response = current_app.test_client().get(
             f"/api/user?username={data['username']}",
