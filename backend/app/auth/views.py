@@ -7,6 +7,8 @@ from app.service.user import UserService
 bp = Blueprint('auth', __name__)
 service = UserService()
 
+service = UserService()
+
 
 @bp.route('/auth/login', methods=['POST'])
 def login():
@@ -29,4 +31,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('/index.html'))
+    return "user logout"
