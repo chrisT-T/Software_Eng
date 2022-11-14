@@ -4,6 +4,7 @@ import time
 
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
+from flask import current_app
 
 from app import create_app, db
 from app.model.login import User
@@ -29,9 +30,13 @@ def init_db():
         last_edit_time=datetime.date.fromtimestamp(time.time()), 
         project_language="python",
         docker_id="what",
-        creator_id=0,
+        creator_id=1,
         creator=me)
     proj.admin_users.append(me)
+    project_root_dir = (f'{hash(datetime.date.fromtimestamp(time.time()))}-{proj.project_name}-{proj.project_language}')
+    rootdir = current_app.config['ROOT_DIR']
+    proj.path = os.path.abspath(f'{rootdir}/{project_root_dir}')
+    os.makedirs(proj.path)
     db.session.add(me)
     db.session.add(proj)
     db.session.commit()

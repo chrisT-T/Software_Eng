@@ -27,7 +27,7 @@ class ProjectService():
             # create project root_dir
             project_root_dir = (f'{hash(new_project.create_time)}-{project_name}-{project_language}')
             rootdir = current_app.config['ROOT_DIR']
-            project_root_path = f'{rootdir}/{project_root_dir}'
+            project_root_path = os.path.join(rootdir, project_root_dir)
             project_root_path = os.path.abspath(project_root_path)
             try:
                 os.makedirs(project_root_path)

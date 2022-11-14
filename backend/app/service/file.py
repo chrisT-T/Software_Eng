@@ -6,26 +6,33 @@ from app.model.login import User
 
 class FileService():
     def create_file(self,
-                    filename,
                     relative_path,
                     project_id):
         project = Project.query.filter_by(id=project_id).first()
-        proj_path = project.path
-        path = f'{proj_path}/{relative_path}/{filename}'
+        if not project:
+            return 'Project does not exist', False
+        
+        path = os.path.join(project.path, relative_path)
+        print(path)
         if os.path.isfile(path):
             return "File already exists", False
-        fp = open(path, 'w')
-        fp.flush()
-        fp.close()
+        
+        folder = os.path.dirname(path)
+        print(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            
+        open(path, 'x').close()
         return '',  True
         
     def remove_file(self,
-                    filename,
                     relative_path,
                     project_id):
         project = Project.query.filter_by(id=project_id).first()
+        if not project:
+            return 'Project does not exist', False
         proj_path = project.path
-        path = f'{proj_path}/{relative_path}/{filename}'
+        path = os.path.join(proj_path, relative_path)
         if not os.path.isfile(path):
             return "File do not exist", False
         try:
@@ -36,13 +43,14 @@ class FileService():
         return '',  True
     
     def save_file(self,
-                  filename,
                   relative_path,
                   project_id,
                   content):
         project = Project.query.filter_by(id=project_id).first()
+        if not project:
+            return 'Project does not exist', False
         proj_path = project.path
-        path = f'{proj_path}/{relative_path}/{filename}'
+        path = os.path.join(proj_path, relative_path)
         if not os.path.isfile(path):
             return "File do not exist", False
         with open(path, 'w') as fp:
@@ -50,12 +58,13 @@ class FileService():
         return '',  True
     
     def download_file(self,
-                      filename,
                       relative_path,
                       project_id):
         project = Project.query.filter_by(id=project_id).first()
+        if not project:
+            return 'Project does not exist', False
         proj_path = project.path
-        path = f'{proj_path}/{relative_path}/{filename}'
+        path = os.path.join(proj_path, relative_path)
         if not os.path.isfile(path):
             return "File do not exist", False
         with open(path, 'r') as fp:
