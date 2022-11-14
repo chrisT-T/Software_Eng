@@ -134,3 +134,7 @@ node_modules/
 migrations/
 
 /*/*/*.db
+
+# file system
+DevFileSystem/
+TestFileSystem/
