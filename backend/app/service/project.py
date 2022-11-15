@@ -29,12 +29,8 @@ class ProjectService():
             rootdir = current_app.config['ROOT_DIR']
             project_root_path = os.path.join(rootdir, project_root_dir)
             project_root_path = os.path.abspath(project_root_path)
-            try:
+            if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
-            except:  # noqa
-                pass
-            finally:
-                print(project_root_path)
             new_project.path = project_root_path
 
             # create docker process

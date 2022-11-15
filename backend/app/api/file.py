@@ -21,7 +21,7 @@ class File(Resource):
     def get(self, project_id, path):
         res, flag = file_service.download_file(path, project_id)
         if flag:
-            return send_file(res), 200
+            return send_file(res)
         else:
             abort(404, message=res)
 
@@ -39,14 +39,14 @@ class File(Resource):
             abort(400, message='No file available')
         res, flag = file_service.save_file(path, project_id, file)
         if flag:
-            return res, 204
+            return "", 204
         else:
             abort(400, message=res)
 
     def delete(self, project_id, path):
         res, flag = file_service.remove_file(path, project_id)
         if flag:
-            return res, 200
+            return "", 204
         else:
             abort(404, message=res)
 
