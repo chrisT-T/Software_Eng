@@ -78,11 +78,11 @@ class ProjectService():
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return 'no such project id', False
+                return 'project does not exist', False
 
             db.session.delete(target)
             db.session.commit()
-            return target.docker_id, True
+            return '', True
         except Exception as e:
             print(e)
             return 'Exception in remove project', False

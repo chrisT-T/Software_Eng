@@ -22,8 +22,6 @@ class UserAPITestCase(unittest.TestCase):
         db.session.add(me)
         db.session.commit()
 
-        db.session.commit()
-
     def tearDown(self):
         db.session.remove()
         db.drop_all()
@@ -32,7 +30,7 @@ class UserAPITestCase(unittest.TestCase):
 
     def test_create_user(self):
         '''
-        Test create_user api
+        Test user post api
         '''
         data = {"username": "adfwer", "password": "adfwer"}
         response = current_app.test_client().post(
@@ -52,20 +50,9 @@ class UserAPITestCase(unittest.TestCase):
         self.assertEqual(json_data['message'], "user exists")
         self.assertEqual(response.status_code, 400)
 
-    def test_create_project(self):
-        data = {"creator_id": 0, "project_name": "testProj", 'project_language': "python"}
-        response = current_app.test_client().post(
-            "/api/project",
-            json=data
-        )
-        print(response.data)
-        json_data = json.loads(response.data)
-        self.assertEqual(json_data['message'], "ok")
-        self.assertEqual(response.status_code, 200)
-
     def test_find_user(self):
         '''
-
+        Test 
         '''
         data = {"username": "tttt"}
         response = current_app.test_client().get(

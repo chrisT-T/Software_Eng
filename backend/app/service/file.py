@@ -2,7 +2,6 @@ import os
 
 from werkzeug.datastructures import FileStorage
 
-
 from app.model.login import User
 from app.model.project import Project
 
@@ -14,7 +13,7 @@ class FileService():
         project = Project.query.filter_by(id=project_id).first()
         if not project:
             return 'Project does not exist', False
-        
+
         path = os.path.join(project.path, relative_path)
         if os.path.isfile(path):
             return "File already exists", False

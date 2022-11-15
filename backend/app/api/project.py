@@ -1,10 +1,8 @@
-from flask import Blueprint, request
+from flask import Blueprint, current_app
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
 from app.checker import check_create_project_param
-from app.extensions import db
-from app.model import project
 from app.service import ProjectService, UserService
 
 bp = Blueprint(
@@ -34,10 +32,9 @@ class Project(Resource):
 
     @marshal_with(res_fields)
     def get(self, proj_id):
-        flag = proj_service.get_project(proj_id)["flag"]
+        res, flag = proj_service.get_project(proj_id)
         if flag:
-            proj = proj_service.get_project(proj_id)['result']
-            return proj, 200
+            return res, 200
         else:
             abort(404, message="Project {} doesn't exist".format(proj_id))
 
@@ -46,7 +43,7 @@ class Project(Resource):
         args = parser.parse_args()
         key, passed = check_create_project_param(args)
         if passed:
-            user, flag = user_service.find_user_by_id(id=args['creator_id'])
+            user, flag = user_service.find_user_by_id(args['creator_id'])
             if not flag:
                 abort(400, message="User {} not exist".format(args['creator_id']))
             if current_user.username == user.username:
@@ -69,8 +66,12 @@ class Project(Resource):
         pass
 
     @login_required
-    def delete(self):
-        pass
+    def delete(self, proj_id):
+        res, flag = proj_service.get_project(proj_id)
+        if flag:
+            return '', 204
+        else:
+            abort(404, message="Project {} doesn't exist".format(proj_id))
 
 
 api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project')
