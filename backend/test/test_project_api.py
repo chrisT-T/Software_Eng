@@ -61,10 +61,18 @@ class UserAPITestCase(unittest.TestCase):
     def test_get_project(self):
         with current_app.test_client() as cli:
             login = {"username": "test", "password": "test"}
-            response = cli.post(
-                "/auth/login/",data=login
+            cli.post("/auth/login/",data=login)
+            response = cli.get(
+                "/api/project/1",
             )
-            response = current_app.test_client().get(
+            json_data = json.loads(response.data)
+            self.assertEqual(json_data['project_name'], "test")
+            self.assertEqual(response.status_code, 200)
+            
+        with current_app.test_client() as cli:
+            login = {"username": "other", "password": "other"}
+            cli.post("/auth/login/",data=login)
+            response = cli.get(
                 "/api/project/1",
             )
             json_data = json.loads(response.data)
