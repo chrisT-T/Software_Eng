@@ -29,13 +29,14 @@ class Project(Resource):
         "project_language": fields.String,
         "creator_id": fields.Integer
     }
+
     def __init__(self):
-        
+
         super().__init__()
-    
+
     @login_required
     @marshal_with(res_fields)
-    def get(self, proj_id): 
+    def get(self, proj_id):
         if check_project_permission(proj_id, "read"):
             res, flag = proj_service.get_project(proj_id)
             if flag:

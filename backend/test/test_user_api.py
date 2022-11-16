@@ -52,7 +52,7 @@ class UserAPITestCase(unittest.TestCase):
 
     def test_find_user(self):
         '''
-        Test 
+        Test
         '''
         data = {"username": "tttt"}
         response = current_app.test_client().get(

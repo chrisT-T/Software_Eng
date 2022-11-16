@@ -38,7 +38,7 @@ class User(Resource):
                     return user.id, 20
             except Exception as e:
                 abort(500, message=e)
-                
+
     def post(self):
         args = parser.parse_args()
         key, flag = check_create_user_param(args)

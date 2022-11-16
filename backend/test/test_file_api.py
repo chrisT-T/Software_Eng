@@ -1,5 +1,3 @@
-import datetime
-import time
 import unittest
 
 from flask import current_app, url_for

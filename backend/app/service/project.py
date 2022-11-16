@@ -2,6 +2,7 @@ import datetime
 import os
 import time
 from pathlib import Path
+
 import docker
 from flask import current_app
 from werkzeug.security import generate_password_hash
@@ -230,7 +231,7 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in remove user', False
-    
+
     def get_file_tree(self, project_id: int):
         try:
             target = Project.query.filter_by(id=project_id).first()

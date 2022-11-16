@@ -2,6 +2,7 @@ from flask_login import current_user
 
 from app.model.project import Project
 
+
 def check_create_project_param(content: dict):
     required_keys = ['creator_id', 'project_name', 'project_language']
     for req_key in required_keys:
@@ -9,7 +10,8 @@ def check_create_project_param(content: dict):
             return req_key, False
     return 'ok', True
 
-def check_project_permission(proj_id: int, perm: str="admin"):
+
+def check_project_permission(proj_id: int, perm: str = "admin"):
     if not proj_id:
         return False
     username = current_user.username

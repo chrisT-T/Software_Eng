@@ -1,10 +1,11 @@
 from flask import Blueprint, send_file
+from flask_login import login_required
 from flask_restful import Api, Resource, abort, reqparse
 from werkzeug.datastructures import FileStorage
-from flask_login import login_required
 
-from app.service.file import FileService
 from app.checker import check_project_permission
+from app.service.file import FileService
+
 bp = Blueprint(
     "file",
     __name__

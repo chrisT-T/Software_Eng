@@ -1,5 +1,4 @@
 import datetime
-import time
 
 from app.extensions import db
 from app.model.relation_tables import (admin_table, editable_table,
