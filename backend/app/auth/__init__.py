@@ -1,5 +1,6 @@
-from . import views
+from . import login, project
 
 auth_bp = [
-    views.bp,
+    login.bp,
+    project.bp
 ]

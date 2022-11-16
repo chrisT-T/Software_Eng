@@ -63,12 +63,9 @@ class Project(Resource):
             abort(400, message="Invalid argument {}".format(key))
 
     @login_required
-    def patch(self):
-        pass
-
-    @login_required
-    def put(self):
-        pass
+    def put(self, proj_id):
+        if check_project_permission(proj_id, "edit"):
+            pass
 
     @login_required
     def delete(self, proj_id):
