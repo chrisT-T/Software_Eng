@@ -29,7 +29,8 @@ class Project(Resource):
         "project_language": fields.String,
         "creator_id": fields.Integer
     }
-
+    
+    @login_required
     @marshal_with(res_fields)
     def get(self, proj_id):
         res, flag = proj_service.get_project(proj_id)
@@ -67,11 +68,23 @@ class Project(Resource):
 
     @login_required
     def delete(self, proj_id):
-        res, flag = proj_service.get_project(proj_id)
+        proj, flag = proj_service.get_project(proj_id)
         if flag:
-            return '', 204
+            admins = proj.admin_users
+            flag = False
+            for admin in admins:
+                if admin.username == current_user.username:
+                    flag = True
+            if flag:
+                res, flag = proj_service.remove_project(proj_id)
+                if flag:
+                    return '', 204
+                else:
+                    abort(500, message=res)
+            else:
+                abort(400, message="Permission denied")
         else:
             abort(404, message="Project {} doesn't exist".format(proj_id))
 
 
-api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project')
+api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project/')

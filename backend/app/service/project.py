@@ -78,7 +78,7 @@ class ProjectService():
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
-                return 'project does not exist', False
+                return 'project {project_id} does not exist', False
 
             db.session.delete(target)
             db.session.commit()

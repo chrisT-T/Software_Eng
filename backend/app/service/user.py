@@ -8,10 +8,10 @@ class UserService():
     def create_user(self, username, password, email):
         user = login.User.query.filter_by(username=username).first()
         if user:
-            return {"flag": False, "result": "user exists"}
+            return "user exists", False
         user = login.User.query.filter_by(email=email).first()
         if user:
-            return {"flag": False, "result": "user exists"}
+            return "user exists", False
         new_user = login.User(username=username,
                               password_hash=generate_password_hash(password),
                               email=email)
