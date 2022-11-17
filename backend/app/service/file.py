@@ -2,7 +2,7 @@ import os
 
 from werkzeug.datastructures import FileStorage
 
-from app.model.login import User
+from app.model.user import User
 from app.model.project import Project
 
 

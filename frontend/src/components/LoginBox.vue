@@ -79,7 +79,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
         .then(function (response) {
           const code = response.status;
           console.log(code);
-          if (code === 200) {
+          if (code === 204) {
             sessionStorage.setItem("username", ruleForm.username);
             router.replace({
               name: "main",

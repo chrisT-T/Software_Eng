@@ -134,12 +134,12 @@ const submitForm = (formEl: FormInstance | undefined) => {
       console.log("submit!");
       axios.post("/api/user", qs.stringify(ruleForm)).then(function (response) {
         const code = response.status;
-        if (code === 201) {
+        if (code === 200) {
           axios
-            .post("/auth/login", qs.stringify(ruleForm))
+            .post("/api/login", qs.stringify(ruleForm))
             .then(function (response) {
               const code = response.status;
-              if (code === 200) {
+              if (code === 204) {
                 const timestamp = new Date().getTime();
                 sessionStorage.setItem("username", ruleForm.username);
                 sessionStorage.setItem("active_time", timestamp);

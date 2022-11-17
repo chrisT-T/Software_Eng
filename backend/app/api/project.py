@@ -80,3 +80,15 @@ class Project(Resource):
 
 
 api.add_resource(Project, '/api/project/<int:proj_id>/', '/api/project/')
+
+
+@bp.route('/api/project/<int:proj_id>/tree/', methods=['GET'])
+@login_required
+def tree(proj_id):
+    if not check_project_permission(proj_id, "read"):
+        return 'Permission denied', 400
+    res, flag = proj_service.get_file_tree(proj_id)
+    if flag:
+        return res, 200
+    else:
+        return res, 400

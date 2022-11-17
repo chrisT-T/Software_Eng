@@ -3,7 +3,6 @@ import os
 from flask import Flask
 
 from app.api import api_bp
-from app.auth import auth_bp
 from app.configs import configs
 from app.extensions import api, csrf, db, login_manager, swagger
 
@@ -23,8 +22,6 @@ def create_app(config_name=None):
     app = Flask(__name__)
     app.config.from_object(configs[config_name])
     for bp in api_bp:
-        app.register_blueprint(bp)
-    for bp in auth_bp:
         app.register_blueprint(bp)
 
     init_extensions(app)

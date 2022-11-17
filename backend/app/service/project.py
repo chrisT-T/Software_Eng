@@ -9,7 +9,7 @@ from flask import current_app
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
-from app.model.login import User
+from app.model.user import User
 from app.model.project import Project
 
 

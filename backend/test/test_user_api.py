@@ -5,7 +5,7 @@ from flask import current_app, url_for
 from werkzeug.security import generate_password_hash
 
 from app import create_app, db
-from app.model.login import User
+from app.model.user import User
 
 
 class UserAPITestCase(unittest.TestCase):
