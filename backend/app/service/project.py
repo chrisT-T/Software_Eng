@@ -2,6 +2,7 @@ import datetime
 import os
 import time
 from pathlib import Path
+from shutil import rmtree
 
 import docker
 from flask import current_app
@@ -20,7 +21,6 @@ class ProjectService():
         try:
             creator = User.query.filter_by(id=creator_id).first()
             new_project = Project(creator_id=creator_id,
-                                  create_time=datetime.date.fromtimestamp(time.time()),
                                   project_name=project_name,
                                   project_language=project_language)
             new_project.admin_users.append(creator)
@@ -85,6 +85,7 @@ class ProjectService():
             container = docker_client.containers.get(docker_id)
             container.kill()
             container.remove()
+            rmtree(target.path)
             db.session.delete(target)
             db.session.commit()
             return '', True

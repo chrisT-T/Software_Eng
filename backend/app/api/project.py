@@ -58,7 +58,6 @@ class Project(Resource):
                 abort(400, message=response)
         else:
             abort(400, message="Can't create project for other users")
-            
 
     @login_required
     def put(self, proj_id):
@@ -75,7 +74,7 @@ class Project(Resource):
             if flag:
                 return '', 204
             else:
-                abort(500, message=res) 
+                abort(500, message=res)
         else:
             abort(404, message="Project {} doesn't exist".format(proj_id))
 

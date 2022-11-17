@@ -32,8 +32,8 @@ class File(Resource):
 
     @login_required
     def post(self, project_id, path):
-        if not check_project_permission(project_id, 'write'):
-            abort(404, message="Permission denied")
+        if not check_project_permission(project_id, 'edit'):
+            abort(400, message="Permission denied")
         res, flag = file_service.create_file(path, project_id)
         if flag:
             return '', 204
@@ -42,7 +42,7 @@ class File(Resource):
 
     @login_required
     def put(self, project_id, path):
-        if not check_project_permission(project_id, 'write'):
+        if not check_project_permission(project_id, 'edit'):
             abort(404, message="Permission denied")
         args = parser.parse_args()
         file = args['file']
@@ -56,7 +56,7 @@ class File(Resource):
 
     @login_required
     def delete(self, project_id, path):
-        if not check_project_permission(project_id, 'write'):
+        if not check_project_permission(project_id, 'edit'):
             abort(404, message="Permission denied")
         res, flag = file_service.remove_file(path, project_id)
         if flag:
@@ -65,4 +65,4 @@ class File(Resource):
             abort(404, message=res)
 
 
-file_api.add_resource(File, "/file/<int:project_id>/<path:path>")
+file_api.add_resource(File, "/api/file/<int:project_id>/<path:path>")

@@ -34,7 +34,7 @@ class User(Resource):
             return res.id, 200
         else:
             abort(404, message="user not exist")
-            
+
     def post(self):
         args = parser.parse_args()
         key, flag = check_create_user_param(args)

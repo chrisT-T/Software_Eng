@@ -33,21 +33,21 @@ class UserAPITestCase(unittest.TestCase):
         Test user post api
         '''
         with current_app.test_client() as cli:
-            data = {"username": "adfwer", "password": "adfwer", "email":"a@126.com"}
+            data = {"username": "adfwer", "password": "adfwer", "email": "a@126.com"}
             response = cli.post(
                 "/api/user", data=data
             )
             self.assertEqual(json.loads(response.data)['message'], 'invalid argument: password')
             self.assertEqual(response.status_code, 400)
 
-            data = {"username": "adfwer", "password": "Adfwer1!", "email":"a.com"}
+            data = {"username": "adfwer", "password": "Adfwer1!", "email": "a.com"}
             response = cli.post(
                 "/api/user", data=data
             )
             self.assertEqual(json.loads(response.data)['message'], 'invalid argument: email')
             self.assertEqual(response.status_code, 400)
 
-            data = {"username": "adfwer", "password": "Adfwer1!", "email":"a@126.com"}
+            data = {"username": "adfwer", "password": "Adfwer1!", "email": "a@126.com"}
             response = cli.post(
                 "/api/user",
                 data=data
@@ -55,7 +55,7 @@ class UserAPITestCase(unittest.TestCase):
             json_data = json.loads(response.data)
             self.assertEqual(json_data, 2)
             self.assertEqual(response.status_code, 200)
-            
+
             response = cli.post(
                 "/api/user",
                 data=data
@@ -75,7 +75,6 @@ class UserAPITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         json_data = json.loads(response.data)
         self.assertEqual(json_data['message'], "user not exist")
-        
 
         data = {"username": "test"}
         response = current_app.test_client().get(
