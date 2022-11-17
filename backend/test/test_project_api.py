@@ -9,8 +9,7 @@ from app.model.login import User
 from app.model.project import Project
 
 
-class UserAPITestCase(unittest.TestCase):
-    coo = None
+class ProjectAPITestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app('test')
@@ -44,16 +43,19 @@ class UserAPITestCase(unittest.TestCase):
         with current_app.test_client() as cli:
             login = {"username": "test", "password": "test"}
             response = cli.post(
-                "/auth/login/", data=login
-            )
-            data = {"creator_id": 1, "project_name": "testProj", 'project_language': "python"}
-            response = current_app.test_client().post(
-                "/api/project/",
-                data=data
+                "/login/", data=login
             )
             self.assertEqual(response.status_code, 204)
-            response = current_app.test_client().get(
-                "/api/project/2"
+            
+            data = {"creator_id": 1, "project_name": "testProj", 'project_language': "python"}
+            response = cli.post(
+                "/api/project/", data=data
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, 2)
+            
+            response = cli.get(
+                "/api/project/2/"
             )
             name = json.loads(response.data)['project_name']
             self.assertEqual(name, "testProj")
@@ -61,9 +63,10 @@ class UserAPITestCase(unittest.TestCase):
     def test_get_project(self):
         with current_app.test_client() as cli:
             login = {"username": "test", "password": "test"}
-            cli.post("/auth/login/", data=login)
+            cli.post("/login/", data=login)
+            
             response = cli.get(
-                "/api/project/1",
+                "/api/project/1/",
             )
             json_data = json.loads(response.data)
             self.assertEqual(json_data['project_name'], "test")
@@ -71,23 +74,22 @@ class UserAPITestCase(unittest.TestCase):
 
         with current_app.test_client() as cli:
             login = {"username": "other", "password": "other"}
-            cli.post("/auth/login/", data=login)
+            cli.post("/login/", data=login)
             response = cli.get(
-                "/api/project/1",
+                "/api/project/1/",
             )
             json_data = json.loads(response.data)
-            self.assertEqual(json_data['project_name'], "test")
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 400)
 
     def test_remove_project(self):
         with current_app.test_client() as cli:
             login = {"username": "test", "password": "test"}
             response = cli.post(
-                "/auth/login/", data=login
+                "/login/", data=login
             )
 
-            response = current_app.test_client().delete(
-                "/api/project/1"
+            response = cli.delete(
+                "/api/project/1/"
             )
             self.assertEqual(response.status_code, 204)
 

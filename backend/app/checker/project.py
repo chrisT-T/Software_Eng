@@ -16,6 +16,8 @@ def check_project_permission(proj_id: int, perm: str = "admin"):
         return False
     username = current_user.username
     proj = Project.query.filter_by(id=proj_id).first()
+    if not proj:
+        return False
     admins = proj.admin_users
     edits = proj.editable_users
     reads = proj.readonly_users

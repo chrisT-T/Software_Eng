@@ -80,7 +80,11 @@ class ProjectService():
             target = Project.query.filter_by(id=project_id).first()
             if not target:
                 return 'project {project_id} does not exist', False
-
+            docker_id = target.docker_id
+            docker_client = docker.from_env()
+            container = docker_client.containers.get(docker_id)
+            container.kill()
+            container.remove()
             db.session.delete(target)
             db.session.commit()
             return '', True

@@ -30,38 +30,35 @@ class Project(Resource):
         "creator_id": fields.Integer
     }
 
-    def __init__(self):
-
-        super().__init__()
-
     @login_required
     @marshal_with(res_fields)
     def get(self, proj_id):
-        if check_project_permission(proj_id, "read"):
-            res, flag = proj_service.get_project(proj_id)
-            if flag:
-                return res, 200
-            else:
-                abort(404, message="Project {} doesn't exist".format(proj_id))
+        if not check_project_permission(proj_id, "read"):
+            abort(400, message="Permission Denied")
+        res, flag = proj_service.get_project(proj_id)
+        if flag:
+            return res, 200
+        else:
+            abort(404, message="Project {} doesn't exist".format(proj_id))
 
     @login_required
     def post(self):
         args = parser.parse_args()
-        key, passed = check_create_project_param(args)
-        if passed:
-            user, flag = user_service.find_user_by_id(args['creator_id'])
-            if not flag:
-                abort(400, message="User {} not exist".format(args['creator_id']))
-            if current_user.username == user.username:
-                response, flag = proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
-                if flag:
-                    return "", 204
-                else:
-                    abort(400, message=response)
-            else:
-                abort(400, message="Can't create project for other users")
-        else:
+        key, flag = check_create_project_param(args)
+        if not flag:
             abort(400, message="Invalid argument {}".format(key))
+        user, flag = user_service.find_user_by_id(args['creator_id'])
+        if not flag:
+            abort(400, message="User {} not exist".format(args['creator_id']))
+        if current_user.username == user.username:
+            response, flag = proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
+            if flag:
+                return response, 200
+            else:
+                abort(400, message=response)
+        else:
+            abort(400, message="Can't create project for other users")
+            
 
     @login_required
     def put(self, proj_id):
@@ -70,24 +67,17 @@ class Project(Resource):
 
     @login_required
     def delete(self, proj_id):
-        if check_project_permission(proj_id, "admin"):
-            proj, flag = proj_service.get_project(proj_id)
+        if not check_project_permission(proj_id, "admin"):
+            abort(400, message="Permission denied")
+        proj, flag = proj_service.get_project(proj_id)
+        if flag:
+            res, flag = proj_service.remove_project(proj_id)
             if flag:
-                admins = proj.admin_users
-                flag = False
-                for admin in admins:
-                    if admin.username == current_user.username:
-                        flag = True
-                if flag:
-                    res, flag = proj_service.remove_project(proj_id)
-                    if flag:
-                        return '', 204
-                    else:
-                        abort(500, message=res)
-                else:
-                    abort(400, message="Permission denied")
+                return '', 204
             else:
-                abort(404, message="Project {} doesn't exist".format(proj_id))
+                abort(500, message=res) 
+        else:
+            abort(404, message="Project {} doesn't exist".format(proj_id))
 
 
-api.add_resource(Project, '/api/project/<int:proj_id>', '/api/project/')
+api.add_resource(Project, '/api/project/<int:proj_id>/', '/api/project/')

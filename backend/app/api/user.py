@@ -17,8 +17,8 @@ bp = Blueprint(
 user_api = Api(bp)
 
 parser = reqparse.RequestParser()
-parser.add_argument('username', type=str)
-parser.add_argument('password', type=str, location='form', required=True)
+parser.add_argument('username', type=str, location=['args', 'form'])
+parser.add_argument('password', type=str, location='form')
 parser.add_argument('password_new', type=str, location='form')
 parser.add_argument('email', type=str, location='form')
 
@@ -29,30 +29,23 @@ class User(Resource):
         username = args["username"]
         if not username:
             abort(400, message="bad arguments")
+        res, flag = service.find_user_by_username(username)
+        if flag:
+            return res.id, 200
         else:
-            try:
-                user, flag = service.find_user_by_username(username)
-                if flag:
-                    abort(400, message="bad arguments")
-                else:
-                    return user.id, 20
-            except Exception as e:
-                abort(500, message=e)
-
+            abort(404, message="user not exist")
+            
     def post(self):
         args = parser.parse_args()
         key, flag = check_create_user_param(args)
         if not flag:
             abort(400, message="invalid argument: {}".format(key))
-        try:
-            flag = service.create_user(args["username"], args["password"], args["email"])['flag']
-            if (flag):
-                return "", 204
-            else:
-                abort(400, message="user exists")
-        except Exception as e:  # noqa
-            print(e)
-            abort(500, message="internal error")
+        id, flag = service.create_user(args["username"], args["password"], args["email"])
+        print(flag)
+        if flag:
+            return id, 200
+        else:
+            abort(400, message="user exists")
 
     def patch(self):  # patch is designed for resetting password
         args = parser.parse_args()
@@ -69,4 +62,4 @@ class User(Resource):
         pass
 
 
-user_api.add_resource(User, '/api/user/')
+user_api.add_resource(User, '/api/user')
