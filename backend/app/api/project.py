@@ -33,6 +33,25 @@ class Project(Resource):
     @login_required
     @marshal_with(res_fields)
     def get(self, proj_id):
+        """
+        Get Project Info
+        ---
+        tags:
+            - Project
+        parameters:
+            - name: project_id
+              type: int
+              required: true
+              in: query
+        responses:
+            200:
+                description: project dict
+            400:
+                description: no permission
+            404:
+                description: project doesn't exist
+            
+        """
         if not check_project_permission(proj_id, "read"):
             abort(400, message="Permission Denied")
         res, flag = proj_service.get_project(proj_id)
@@ -43,6 +62,28 @@ class Project(Resource):
 
     @login_required
     def post(self):
+        """
+        Create project
+        ---
+        tags:
+            - Project
+        parameters:
+            - name: creator_id
+              type: int
+              required: true
+              in: formData
+            - name: project_name
+              type: string
+              required: true
+              in: formData
+            - name: project_language
+              type: string
+              required: true
+              in: formData
+        responses:
+            400:
+                description: failed, error in message
+        """
         args = parser.parse_args()
         key, flag = check_create_project_param(args)
         if not flag:
@@ -66,6 +107,27 @@ class Project(Resource):
 
     @login_required
     def delete(self, proj_id):
+        """
+        Delete Project
+        ---
+        tags:
+            - Project
+        parameters:
+            - name: project_id
+              type: int
+              required: true
+              in: query
+        responses:
+            204:
+                description: project delete success
+            400:
+                description: no permission
+            404:
+                description: project doesn't exist
+            500:
+                description: delete project failed
+            
+        """
         if not check_project_permission(proj_id, "admin"):
             abort(400, message="Permission denied")
         proj, flag = proj_service.get_project(proj_id)
