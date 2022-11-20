@@ -5,6 +5,7 @@ from werkzeug.datastructures import FileStorage
 
 from app.checker import check_project_permission
 from app.service.file import FileService
+from app.extensions import swagger
 
 bp = Blueprint(
     "file",
@@ -22,6 +23,26 @@ parser.add_argument('file', type=FileStorage, location='files')
 class File(Resource):
     @login_required
     def get(self, project_id, path):
+        """
+        Download File
+        ---
+        tags:
+            - Files
+        parameters: 
+            - name: project_id  
+              in: path
+              required: true
+              type: string
+            - name: path
+              in: path
+              required: true
+              type: string
+        responses: 
+            200: 
+                description: send file success
+            404:
+                description: check permission denied or send file failed
+        """
         if not check_project_permission(project_id, 'read'):
             abort(404, message="Permission denied")
         res, flag = file_service.download_file(path, project_id)
