@@ -1,31 +1,33 @@
-from flask import Blueprint, flash, jsonify, redirect, request, url_for
+from flask import Blueprint, request
 from flask_login import login_required, login_user, logout_user
 
 from app.model.login import User
 from app.service.user import UserService
 
-bp = Blueprint('auth', __name__)
+bp = Blueprint('user_service', __name__)
 
 service = UserService()
 
 
-@bp.route('/auth/login', methods=['POST'])
+@bp.route('/login/', methods=['POST'])
 def login():
     form = request.form.to_dict()
     username = form['username']
     password = form['password']
     if username:
-        user = service.find_user(username)
-        if user is not None:
+        user, flag = service.find_user_by_username(username)
+        if flag:
             if user.validate_password(password):
                 login_user(user)
-                return jsonify({"code": 200, "msg": "Login Success"})
+                return "", 204
         else:
-            return jsonify({"code": 400, "msg": "Username Or Password Error"})
+            return "Username or password error", 404
+    else:
+        return "Invalid username", 400
 
 
-@bp.route('/auth/logout', methods=['GET'])
+@bp.route('/logout/', methods=['GET'])
 @login_required
 def logout():
     logout_user()
-    return "user logout"
+    return "", 204

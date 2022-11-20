@@ -60,8 +60,8 @@ const checkUsername = (rule: any, value: any, callback: any) => {
       axios
         .get("/api/user?username=" + ruleForm.username)
         .then(function (response) {
-          const code = response.data["code"];
-          if (code == 1) {
+          const code = response.status;
+          if (code !== 204) {
             callback(new Error("用户名重复或无效"));
           } else {
             callback();
@@ -133,13 +133,12 @@ const submitForm = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       axios.post("/api/user", qs.stringify(ruleForm)).then(function (response) {
-        const code = response.data["code"];
-        if (code === 200) {
+        const code = response.status;
+        if (code === 201) {
           axios
             .post("/auth/login", qs.stringify(ruleForm))
             .then(function (response) {
-              const code = response.data["code"];
-              console.log(code);
+              const code = response.status;
               if (code === 200) {
                 const timestamp = new Date().getTime();
                 sessionStorage.setItem("username", ruleForm.username);

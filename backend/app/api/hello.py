@@ -8,4 +8,4 @@ bp = Blueprint(
 
 @bp.route('/api/hello', methods=['GET'])
 def hello_world():
-    return jsonify({'message': "Hello world"}), 200
+    return {'message': "Hello world"}, 200

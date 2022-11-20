@@ -1,12 +1,15 @@
 import datetime
 import os
 import time
+from pathlib import Path
+from shutil import rmtree
 
 import docker
 from flask import current_app
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
+from app.model.login import User
 from app.model.project import Project
 
 
@@ -16,24 +19,20 @@ class ProjectService():
                        project_name,
                        project_language):
         try:
-
-            select_res = Project.query.order_by(Project.id.desc())
-            if len(select_res.all()) == 0:
-                max_id = 0
-            else:
-                max_id = select_res.first().id
+            creator = User.query.filter_by(id=creator_id).first()
+            new_project = Project(creator_id=creator_id,
+                                  project_name=project_name,
+                                  project_language=project_language)
+            new_project.admin_users.append(creator)
 
             # create project root_dir
-            project_root_dir = (f'{max_id+1}-{project_name}-{project_language}')
+            project_root_dir = (f'{hash(new_project.create_time)}-{project_name}-{project_language}')
             rootdir = current_app.config['ROOT_DIR']
-            project_root_path = f'{rootdir}/{project_root_dir}'
+            project_root_path = os.path.join(rootdir, project_root_dir)
             project_root_path = os.path.abspath(project_root_path)
-            try:
+            if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
-            except:  # noqa
-                pass
-            finally:
-                print(project_root_path)
+            new_project.path = project_root_path
 
             # create docker process
             docker_client = docker.from_env()
@@ -44,33 +43,209 @@ class ProjectService():
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
                 )
-
                 docker_id = container.id
 
-            new_project = Project(id=max_id + 1,
-                                  creator_id=creator_id,
-                                  create_time=datetime.date.fromtimestamp(time.time()),
-                                  project_name=project_name,
-                                  project_language=project_language,
-                                  docker_id=docker_id)
-            print(new_project.id)
+            new_project.docker_id = docker_id
+
             db.session.add(new_project)
             db.session.commit()
-            return 'ok'
+            return new_project.id, True
         except Exception as e:  # noqa
             print(e)
-            return 'create project failed'
+            return 'create project failed', False
 
     def get_container_id(self, project_id: int):
         try:
-            select_res = Project.query.filter_by(id=project_id).all()
-            if len(select_res) == 0:
-                return {"flag": False, "result": 'no such project id'}
-            elif len(select_res) != 1:
-                return {"flag": False, "result": 'unknown project id error'}
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
 
-            target_project = select_res[0]
-            return {"flag": True, "result": target_project.docker_id}
+            return target.docker_id, True
         except Exception as e:
             print(e)
-            return {"flag": False, "result": 'Exception in get container id'}
+            return 'Exception in get container id', False
+
+    def get_project(self, project_id: int):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return "no such project", False
+            return target, True
+        except Exception as e:
+            print(e)
+            return 'Exception in get project', False
+
+    def remove_project(self, project_id: int):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'project {project_id} does not exist', False
+            docker_id = target.docker_id
+            docker_client = docker.from_env()
+            container = docker_client.containers.get(docker_id)
+            container.kill()
+            container.remove()
+            rmtree(target.path)
+            db.session.delete(target)
+            db.session.commit()
+            return '', True
+        except Exception as e:
+            print(e)
+            return 'Exception in remove project', False
+
+    def add_user_admin(self, project_id: int, username: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            user = User.query.filter_by(username=username).first()
+            if user in target.admin_users:
+                return "user already in admin list", True
+
+            if user not in target.readonly_users and user not in target.editable_users:
+                return "user not in project", False
+            if user in target.readonly_users:
+                target.readonly_users.remove(user)
+            if user in target.editable_users:
+                target.editable_users.remove(user)
+            target.admin_users.append(user)
+            return "admin user added", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in add admin', False
+
+    def add_user_read(self, project_id: int, username: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            user = User.query.filter_by(username=username).first()
+
+            if user in target.readonly_users:
+                return "user already in read list", True
+
+            if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users:
+                return "user not in project", False
+            if user in target.admin_users:
+                target.admin_users.remove(user)
+            if user in target.editable_users:
+                target.editable_users.remove(user)
+            if user in target.pending_users:
+                target.pending_users.remove(user)
+            target.readonly_users.append(user)
+            return "read user added", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in add admin', False
+
+    def add_user_edit(self, project_id: int, username: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            user = User.query.filter_by(username=username).first()
+
+            if user in target.edit_users:
+                return "user already in read list", True
+
+            if user not in target.admin_users and user not in target.readonly_users:
+                return "user not in project", False
+            if user in target.admin_users:
+                target.admin_users.remove(user)
+            if user in target.readonly_users:
+                target.readonly_users.remove(user)
+            target.editable_users.append(user)
+            return "edit user added", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in add admin', False
+
+    def add_user_pending(self, project_id: int, username: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            user = User.query.filter_by(username=username).first()
+
+            if user in target.edit_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
+                return "user already exist", True
+
+            target.pending_users.append(user)
+            return "pending user added", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in add admin', False
+
+    def update_edit_time(self, project_id: int):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            target.last_edit_time = datetime.date.fromtimestamp(time.time())
+            return "edit time updated", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in add admin', False
+
+    def remove_user(self, project_id: int, username: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            user = User.query.filter_by(username=username).first()
+            if not user:
+                return 'no such user', False
+
+            if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users and user not in target.readonly_users:
+                return 'user not exist in project', False
+
+            if user in target.admin_users:
+                target.admin_users.remove(user)
+            if user in target.readonly_users:
+                target.readonly_users.remove(user)
+            if user in target.editable_users:
+                target.editable_users.remove(user)
+            if user in target.pending_users:
+                target.pending_users.remove(user)
+            return "user removed", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in remove user', False
+
+    def change_name(self, project_id: int, name: str):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+
+            target.name = name
+            return "name changed", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in remove user', False
+
+    def get_file_tree(self, project_id: int):
+        try:
+            target = Project.query.filter_by(id=project_id).first()
+            if not target:
+                return 'no such project id', False
+            p = Path(target.path)
+            path_list = [str(i) for i in p.rglob('*')]
+            return path_list, True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in getting file tree', False

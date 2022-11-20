@@ -13,6 +13,7 @@ class Config():
 class DevConfig(Config):
     TYPE = 'dev'
     DEBUG = True
+    ROOT_DIR = './DevFileSystem'
 
 
 class ProdConfig(Config):

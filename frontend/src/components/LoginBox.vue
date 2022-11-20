@@ -77,7 +77,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
       axios
         .post("/auth/login", qs.stringify(ruleForm))
         .then(function (response) {
-          const code = response.data["code"];
+          const code = response.status;
+          console.log(code);
           if (code === 200) {
             sessionStorage.setItem("username", ruleForm.username);
             router.replace({

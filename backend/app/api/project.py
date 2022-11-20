@@ -1,10 +1,9 @@
-from flask import Blueprint, jsonify, request
-from flask_restful import Api, Resource
+from flask import Blueprint, current_app
+from flask_login import current_user, login_required
+from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
-from app.checker import check_create_project_param
-from app.extensions import db
-from app.model import project
-from app.service import ProjectService
+from app.checker import check_create_project_param, check_project_permission
+from app.service import ProjectService, UserService
 
 bp = Blueprint(
     'project',
@@ -12,26 +11,72 @@ bp = Blueprint(
 )
 
 api = Api(bp)
-service = ProjectService()
+proj_service = ProjectService()
+user_service = UserService()
+
+parser = reqparse.RequestParser()
+parser.add_argument('creator_id', type=int, location='form')
+parser.add_argument('project_name', type=str, location='form')
+parser.add_argument('project_language', type=str, location='form', choices=('python', 'cpp', 'typescript'), help='Bad choice: {error_msg}')
 
 
 class Project(Resource):
-    def get(self):
+    res_fields = {
+        "id": fields.Integer,
+        "project_name": fields.String,
+        "create_time": fields.String,
+        "last_edit_time": fields.String,
+        "project_language": fields.String,
+        "creator_id": fields.Integer
+    }
 
-        project.Project.query.all()
-
-        return "test"
-
-    def post(self):
-        content = request.get_json()
-        if content is None:
-            return {"message": "bad parameters"}
-        key, passed = check_create_project_param(content)
-        if passed:
-            result = service.create_project(content['creator_id'], content['project_name'], content['project_language'])
-            return {"message": result}
+    @login_required
+    @marshal_with(res_fields)
+    def get(self, proj_id):
+        if not check_project_permission(proj_id, "read"):
+            abort(400, message="Permission Denied")
+        res, flag = proj_service.get_project(proj_id)
+        if flag:
+            return res, 200
         else:
-            return {"message": key}
+            abort(404, message="Project {} doesn't exist".format(proj_id))
+
+    @login_required
+    def post(self):
+        args = parser.parse_args()
+        key, flag = check_create_project_param(args)
+        if not flag:
+            abort(400, message="Invalid argument {}".format(key))
+        user, flag = user_service.find_user_by_id(args['creator_id'])
+        if not flag:
+            abort(400, message="User {} not exist".format(args['creator_id']))
+        if current_user.username == user.username:
+            response, flag = proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
+            if flag:
+                return response, 200
+            else:
+                abort(400, message=response)
+        else:
+            abort(400, message="Can't create project for other users")
+
+    @login_required
+    def put(self, proj_id):
+        if check_project_permission(proj_id, "edit"):
+            pass
+
+    @login_required
+    def delete(self, proj_id):
+        if not check_project_permission(proj_id, "admin"):
+            abort(400, message="Permission denied")
+        proj, flag = proj_service.get_project(proj_id)
+        if flag:
+            res, flag = proj_service.remove_project(proj_id)
+            if flag:
+                return '', 204
+            else:
+                abort(500, message=res)
+        else:
+            abort(404, message="Project {} doesn't exist".format(proj_id))
 
 
-api.add_resource(Project, '/api/project')
+api.add_resource(Project, '/api/project/<int:proj_id>/', '/api/project/')
