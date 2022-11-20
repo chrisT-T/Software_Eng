@@ -247,7 +247,7 @@ onMounted(() => {
   let lspUrl = "/lsp";
   // python language server
   if (props.editorOption.language === "python") {
-    lspUrl = `ws://${props.containerSubdomain}.localhost:8088`;
+    lspUrl = `ws://${props.containerSubdomain}.lsp.localhost:8088`;
   }
 
   // create websocket

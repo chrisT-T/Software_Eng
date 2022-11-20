@@ -1,8 +1,12 @@
 FROM python:3.9
 
 COPY requirements.txt requirements.txt
+COPY python_debug_service /python_debug_service
+ADD start.sh /
+
 RUN pip3 install -r requirements.txt
 
 EXPOSE 30000
+EXPOSE 30005
 
-CMD [ "pylsp", "--ws", "--port", "30000", "-v"]
+CMD [ "/bin/bash", "/start.sh"]
