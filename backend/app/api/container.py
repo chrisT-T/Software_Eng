@@ -15,6 +15,22 @@ project_service = ProjectService()
 
 class Container(Resource):
     def get(self, project_id):
+        """
+        Get docker container id by project_id
+        ---
+        tags:
+            - Container
+        parameters:
+            - name: project_id
+              in: path
+              required: true
+              type: int
+        responses:
+            200:
+                description: successful return container id
+            404:
+                description: get container id failed
+        """
         res = project_service.get_container_id(project_id)
         if res["flag"]:
             return res["result"], 200

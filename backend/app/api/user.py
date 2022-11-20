@@ -25,17 +25,60 @@ parser.add_argument('email', type=str, location='form')
 
 class User(Resource):
     def get(self):
+        """
+        Get User
+        ---
+        tags:
+            - User
+        parameters:
+            - name: username
+              type: string
+              required: true
+              in: query
+        responses:
+            200:
+                description: user id of the given username
+            404:
+                description: bad arguments
+            404:
+                description: user does not exit
+        """
         args = parser.parse_args()
         username = args["username"]
         if not username:
             abort(400, message="bad arguments")
         res, flag = service.find_user_by_username(username)
         if flag:
+            # TODO: add field
             return res.id, 200
         else:
             abort(404, message="user not exist")
 
     def post(self):
+        """
+        Create new user
+        ---
+        tags:
+            - User
+        parameters:
+            - name: username
+              type: string
+              required: true
+              in: formData
+            - name: password
+              type: string
+              required: true
+              in: formData
+            - name: email
+              type: string
+              required: true
+              in: formData
+        responses:
+            200:
+                description: id of created user
+            400:
+                description: invalid argument or user has been exits
+        """
         args = parser.parse_args()
         key, flag = check_create_user_param(args)
         if not flag:
@@ -48,6 +91,30 @@ class User(Resource):
             abort(400, message="user exists")
 
     def patch(self):  # patch is designed for resetting password
+        """
+        Reset user password
+        ---
+        tags:
+            - User
+        parameters:
+            - name: username
+              type: string
+              required: true
+              in: formData
+            - name: password
+              type: string
+              required: true
+              in: formData
+            - name: password_new
+              type: string
+              required: true
+              in: formData
+        responses:
+            200:
+                description:
+            400:
+                description: invalid argument or user has been exits
+        """
         args = parser.parse_args()
         key, flag = check_change_password_param(args)
         if not flag:
