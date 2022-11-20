@@ -1,5 +1,4 @@
 import atexit
-import logging
 import os
 import threading
 import time
@@ -21,9 +20,11 @@ pdb_output_server = {}
 pdb_instance = {}
 pdb_instance_lock = threading.Lock()
 
+
 @app.route('/pdb/test')
 def backdoor():
     return "test msg"
+
 
 @app.route('/pdb/getstack', methods=['POST'])
 def getStack():
@@ -174,11 +175,6 @@ def connect():
     pass
 
 
-@app.route('/pdb/backdoor')
-def debug_backdoor():
-    socketio.stop()
-
-
 @socketio.on("disconnect_from_pdb", namespace='/pdb')
 def pdb_disconnect():
     token = request.sid
@@ -203,10 +199,12 @@ def atexit_function():
         socketio.emit("pdb_terminated", {'token': key}, namespace="/pdb")
     time.sleep(0.2)
 
+
 @app.cli.command("runserver")
 def runserver():
     print("Set")
     app.run(port=30005, host="0.0.0.0")
+
 
 if __name__ == '__main__':
     app.cli()
