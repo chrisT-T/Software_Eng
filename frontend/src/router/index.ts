@@ -33,6 +33,11 @@ const routes: Array<RouteRecordRaw> = [
       LoginRequired: true,
     },
   },
+  {
+    path: "/tree",
+    name: "tree",
+    component: () => import("../components/fileTree.vue"),
+  },
 ];
 
 const router = createRouter({
