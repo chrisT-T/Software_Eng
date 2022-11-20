@@ -4,8 +4,8 @@ from flask_restful import Api, Resource, abort, reqparse
 from werkzeug.datastructures import FileStorage
 
 from app.checker import check_project_permission
-from app.service.file import FileService
 from app.extensions import swagger
+from app.service.file import FileService
 
 bp = Blueprint(
     "file",
@@ -28,8 +28,8 @@ class File(Resource):
         ---
         tags:
             - File
-        parameters: 
-            - name: project_id  
+        parameters:
+            - name: project_id
               in: path
               required: true
               type: int
@@ -37,8 +37,8 @@ class File(Resource):
               in: path
               required: true
               type: string
-        responses: 
-            200: 
+        responses:
+            200:
                 description: send file success
             404:
                 description: check permission denied or send file failed
@@ -56,10 +56,10 @@ class File(Resource):
         """
         Upload File
         ---
-        tags: 
+        tags:
             - File
         parameters:
-            - name: project_id  
+            - name: project_id
               in: path
               required: true
               type: int
@@ -67,8 +67,8 @@ class File(Resource):
               in: path
               required: true
               type: string
-        responses: 
-            204: 
+        responses:
+            204:
                 description: upload success
             400:
                 description: Permission denied or upload failed
@@ -86,10 +86,10 @@ class File(Resource):
         """
         Create File
         ---
-        tags: 
+        tags:
             - File
         parameters:
-            - name: project_id  
+            - name: project_id
               in: path
               required: true
               type: int
@@ -97,8 +97,8 @@ class File(Resource):
               in: path
               required: true
               type: string
-        responses: 
-            204: 
+        responses:
+            204:
                 description: create file success
             400:
                 description: No file available
@@ -122,10 +122,10 @@ class File(Resource):
         """
         Delete File
         ---
-        tags: 
+        tags:
             - File
         parameters:
-            - name: project_id  
+            - name: project_id
               in: path
               required: true
               type: int
@@ -133,8 +133,8 @@ class File(Resource):
               in: path
               required: true
               type: string
-        responses: 
-            204: 
+        responses:
+            204:
                 description: delete success
             404:
                 description: Permission denied or delete failed

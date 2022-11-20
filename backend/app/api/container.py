@@ -21,12 +21,12 @@ class Container(Resource):
         tags:
             - Container
         parameters:
-            - name: project_id  
+            - name: project_id
               in: path
               required: true
               type: int
         responses:
-            200: 
+            200:
                 description: successful return container id
             404:
                 description: get container id failed

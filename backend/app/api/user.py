@@ -35,12 +35,12 @@ class User(Resource):
               type: string
               required: true
               in: query
-        responses: 
+        responses:
             200:
                 description: user id of the given username
             404:
                 description: bad arguments
-            404: 
+            404:
                 description: user does not exit
         """
         args = parser.parse_args()
@@ -111,7 +111,7 @@ class User(Resource):
               in: formData
         responses:
             200:
-                description: 
+                description:
             400:
                 description: invalid argument or user has been exits
         """

@@ -50,7 +50,7 @@ class Project(Resource):
                 description: no permission
             404:
                 description: project doesn't exist
-            
+
         """
         if not check_project_permission(proj_id, "read"):
             abort(400, message="Permission Denied")
@@ -126,7 +126,7 @@ class Project(Resource):
                 description: project doesn't exist
             500:
                 description: delete project failed
-            
+
         """
         if not check_project_permission(proj_id, "admin"):
             abort(400, message="Permission denied")
