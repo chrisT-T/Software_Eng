@@ -17,6 +17,7 @@ def check_create_project_param(content: dict):
             return req_key, False
     return 'ok', True
 
+
 def check_project_permission(proj_id: int, perm: str = "admin"):
     '''
     check the project permission of the current user by user name

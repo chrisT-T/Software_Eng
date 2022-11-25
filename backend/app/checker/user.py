@@ -5,7 +5,7 @@ def check_create_user_param(content: dict):
     '''
     check the user parameters by regular expressions
 
-    :param content: dict with keys: username, password, email 
+    :param content: dict with keys: username, password, email
 
     :return: (failed key, False) or ("ok", True)
     '''
