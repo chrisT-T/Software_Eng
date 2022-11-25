@@ -13,8 +13,8 @@ class UserService():
         if user:
             return "user exists", False
         new_user = User(username=username,
-                              password_hash=generate_password_hash(password),
-                              email=email)
+                        password_hash=generate_password_hash(password),
+                        email=email)
         db.session.add(new_user)
         db.session.commit()
         return new_user.id, True

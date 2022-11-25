@@ -1,2 +1,2 @@
-from .project import check_create_project_param, check_project_permission
+from .project import check_create_project_param, check_project_permission, check_delete_project_password
 from .user import check_change_password_param, check_create_user_param

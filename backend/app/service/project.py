@@ -15,12 +15,12 @@ from app.model.project import Project
 
 class ProjectService():
     def create_project(self,
-                       creator_id,
+                       creator_name,
                        project_name,
                        project_language):
         try:
-            creator = User.query.filter_by(id=creator_id).first()
-            new_project = Project(creator_id=creator_id,
+            creator = User.query.filter_by(username=creator_name).first()
+            new_project = Project(creator_id=creator.id,
                                   project_name=project_name,
                                   project_language=project_language)
             new_project.admin_users.append(creator)
@@ -36,7 +36,7 @@ class ProjectService():
 
             # create docker process
             docker_client = docker.from_env()
-            if project_language == 'python':
+            if project_language == 'Python':
                 container = docker_client.containers.run(
                     image='python:3.9',
                     command='sh -c "while true;do echo hello docker;sleep 1;done"',
@@ -44,7 +44,7 @@ class ProjectService():
                     detach=True,
                 )
                 docker_id = container.id
-
+            print(docker_id)
             new_project.docker_id = docker_id
 
             db.session.add(new_project)

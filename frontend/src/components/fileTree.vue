@@ -121,7 +121,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import {
   Plus,
@@ -138,7 +138,7 @@ const NewFRef = ref<FormInstance>();
 let dialogNewFVisible = ref(false);
 let dialogNewFNodeVisible = ref(false);
 const nodeappend = ref<Tree>();
-
+const dataSource = ref<Tree[]>([]);
 const NewFform = reactive({
   name: "",
   type: "",
@@ -243,37 +243,6 @@ const remove = (node: Node, data: Tree) => {
   children.splice(index, 1);
   dataSource.value = [...dataSource.value];
 };
-
-const dataSource = ref<Tree[]>([
-  {
-    id: 1,
-    label: "task_1",
-    path: "task_1",
-    type: "folder",
-    children: [
-      {
-        id: 2,
-        label: "task_2",
-        path: "task_1/task_2",
-        type: "folder",
-        children: [
-          {
-            id: 3,
-            label: "task_3",
-            path: "task_1/task_2/tasl_3",
-            type: "file",
-          },
-          {
-            id: 4,
-            label: "task_4",
-            path: "task_1/task_2/tasl_4",
-            type: "file",
-          },
-        ],
-      },
-    ],
-  },
-]);
 </script>
 
 <style>

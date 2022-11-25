@@ -8,6 +8,7 @@ from app import create_app, db
 from app.model.user import User
 from app.model.project import Project
 from app.utils import config
+from app.service import ProjectService
 
 app = create_app(os.getenv('TYPE', 'default'))
 host = config.get_yaml('app.HOST')
@@ -24,7 +25,7 @@ def init_db():
               password_hash=generate_password_hash(str("test")))
     proj = Project(
         project_name="a",
-        project_language="python",
+        project_language="Python",
         docker_id="what",
         creator_id=1,
         creator=me)

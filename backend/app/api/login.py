@@ -8,7 +8,7 @@ bp = Blueprint('login', __name__)
 service = UserService()
 
 
-@bp.route('/api/login/', methods=['POST'])
+@bp.route('/api/login', methods=['POST'])
 def login():
     form = request.form.to_dict()
     username = form['username']
@@ -25,7 +25,7 @@ def login():
         return "Invalid username", 400
 
 
-@bp.route('/api/logout/', methods=['GET'])
+@bp.route('/api/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()

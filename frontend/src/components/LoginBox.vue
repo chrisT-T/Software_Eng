@@ -75,7 +75,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       axios
-        .post("/auth/login", qs.stringify(ruleForm))
+        .post("/api/login", qs.stringify(ruleForm))
         .then(function (response) {
           const code = response.status;
           console.log(code);

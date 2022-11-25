@@ -27,6 +27,9 @@
         show-password
       />
     </el-form-item>
+    <el-form-item label="Email" prop="email">
+      <el-input v-model="ruleForm.email" autocomplete="off" />
+    </el-form-item>
     <el-form-item>
       <div class="button_gp">
         <el-button type="primary" @click="submitForm(ruleFormRef)"
@@ -134,7 +137,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
       console.log("submit!");
       axios.post("/api/user", qs.stringify(ruleForm)).then(function (response) {
         const code = response.status;
-        if (code === 200) {
+        if (code === 201) {
           axios
             .post("/api/login", qs.stringify(ruleForm))
             .then(function (response) {

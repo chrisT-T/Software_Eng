@@ -77,7 +77,7 @@ class File(Resource):
             abort(400, message="Permission denied")
         res, flag = file_service.create_file(path, project_id)
         if flag:
-            return '', 204
+            return '', 201
         else:
             abort(400, message=res)
 

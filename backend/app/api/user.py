@@ -50,7 +50,7 @@ class User(Resource):
             # TODO: add field
             return res.id, 200
         else:
-            abort(404, message="user not exist")
+            return '', 204
 
     def post(self):
         """
@@ -82,9 +82,8 @@ class User(Resource):
         if not flag:
             abort(400, message="invalid argument: {}".format(key))
         id, flag = user_service.create_user(args["username"], args["password"], args["email"])
-        print(flag)
         if flag:
-            return id, 200
+            return id, 201
         else:
             abort(400, message="user exists")
 
@@ -162,13 +161,13 @@ def related_projects(username):
                 'permission': 'pending',
             })
         response.append({
-            'project_id': i.id,
-            'project_name': i.project_name,
-            'create_time': i.create_time,
-            'last_edit_time': i.last_edit_time,
+            'projectID': i.id,
+            'projectName': i.project_name,
             'language': i.project_language,
-            'creator_name': i.creator.username,
-            'permission_group': perm_name,
-            'docker_id': i.docker_id
+            'creator': i.creator.username,
+            'permissionGp': perm_name,
+            'lastUpdateTime': i.last_edit_time,
+            'createTime': i.create_time,
+            'dockerId': i.docker_id
         })
     return response, 200
