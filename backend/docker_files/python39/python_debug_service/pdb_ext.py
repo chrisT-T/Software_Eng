@@ -21,7 +21,7 @@ class PdbExt(Pdb):
     def get_repr_value(self, repr):
         try:
             return {'value': self._getval(repr), 'runflag': True}
-        except: # noqa
+        except:  # noqa
             return {'runflag': False}
 
     def get_current_frame_data(self):
@@ -38,7 +38,7 @@ class PdbExt(Pdb):
                 'globals': self.get_globals(),
                 'locals': self.get_locals()
             }
-        except: # noqa
+        except:  # noqa
             res = 'null frame data'
         return res
 
