@@ -54,7 +54,7 @@ class UserAPITestCase(unittest.TestCase):
             )
             json_data = json.loads(response.data)
             self.assertEqual(json_data, 2)
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 201)
 
             response = cli.post(
                 "/api/user",

@@ -19,9 +19,9 @@ class DataBaseTestCase(unittest.TestCase):
         db.create_all()
         me = User(id=0, username="test1", password_hash=generate_password_hash("test1"))
         user1 = User(id=1, username="test2", password_hash=generate_password_hash("test2"))
-        project1 = Project(project_name="proj", project_language="python", creator_id=0)
-        project2 = Project(project_name="proj2", project_language="python", creator_id=0)
-        project3 = Project(project_name="proj3", project_language="python", creator_id=0)
+        project1 = Project(project_name="proj", project_language="Python", creator_id=0)
+        project2 = Project(project_name="proj2", project_language="Python", creator_id=0)
+        project3 = Project(project_name="proj3", project_language="Python", creator_id=0)
 
         me.readonly_projects.append(project1)
         me.readonly_projects.append(project2)

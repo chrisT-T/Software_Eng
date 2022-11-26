@@ -51,7 +51,7 @@ class User(Resource):
             # TODO: add field
             return res.id, 200
         else:
-            return '', 204
+            abort(404, message="user not exist")
 
     def post(self):
         """

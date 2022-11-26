@@ -75,7 +75,7 @@ class File(Resource):
               type: string
         responses:
             204:
-                description: upload success
+                description: create success
             400:
                 description: Permission denied or upload failed
         """

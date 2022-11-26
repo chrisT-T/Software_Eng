@@ -25,8 +25,9 @@ class FileAPITestCase(unittest.TestCase):
         self.app_context.push()
         db.drop_all()
         db.create_all()
+        db.session.commit()
         user_service.create_user('test', 'test', 'a@126.com')
-        proj_service.create_project(1, 'test', 'python')
+        proj_service.create_project('test', 'test', 'Python')
         file_service.create_file('a.py', 1)
 
     def tearDown(self) -> None:
@@ -42,12 +43,14 @@ class FileAPITestCase(unittest.TestCase):
         with current_app.test_client() as cli:
             login = {"username": "test", "password": "test"}
             response = cli.post(
-                "/login/", data=login
+                "/api/login", data=login
             )
+            print(response.data)
             self.assertEqual(response.status_code, 204)
-
-            response = cli.post("/api/file/1/folder/a.py")
-            self.assertEqual(response.status_code, 204)
+            create = {"type": 'file'}
+            response = cli.post(
+                "/api/file/1/folder", json=create)
+            self.assertEqual(response.status_code, 201)
 
     # def test_remove_file(self):
     #     '''
