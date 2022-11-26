@@ -1,8 +1,9 @@
-from flask import Blueprint, current_app, request, json
+from flask import Blueprint, current_app, json, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
-from app.checker import check_create_project_param, check_project_permission, check_edit_project_password
+from app.checker import (check_create_project_param,
+                         check_edit_project_password, check_project_permission)
 from app.service import ProjectService, UserService
 
 bp = Blueprint(

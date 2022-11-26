@@ -5,10 +5,10 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 
 from app import create_app, db
-from app.model.user import User
 from app.model.project import Project
-from app.utils import config
+from app.model.user import User
 from app.service import ProjectService
+from app.utils import config
 
 app = create_app(os.getenv('TYPE', 'default'))
 host = config.get_yaml('app.HOST')

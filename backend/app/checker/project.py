@@ -5,6 +5,7 @@ from app.service.user import UserService
 
 user_service = UserService()
 
+
 def check_create_project_param(content: dict):
     print(content)
     required_keys = ['creator_name', 'project_name', 'language']
@@ -37,6 +38,7 @@ def check_project_permission(proj_id: int, perm: str = "admin"):
             if read.username == username:
                 return True
     return False
+
 
 def check_edit_project_password(password: str):
     res, flag = user_service.find_user_by_username(current_user.username)

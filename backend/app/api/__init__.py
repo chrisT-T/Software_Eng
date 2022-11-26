@@ -1,4 +1,4 @@
-from . import container, file, hello, project, user, login
+from . import container, file, hello, login, project, user
 
 api_bp = [
     hello.bp,

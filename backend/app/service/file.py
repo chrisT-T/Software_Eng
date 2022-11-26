@@ -2,8 +2,8 @@ import os
 
 from werkzeug.datastructures import FileStorage
 
-from app.model.user import User
 from app.model.project import Project
+from app.model.user import User
 
 
 class FileService():
@@ -68,7 +68,7 @@ class FileService():
         if not os.path.isfile(path):
             return "File do not exist", False
         return path, True
-    
+
     def create_dir(self, relative_path, project_id):
         project = Project.query.filter_by(id=project_id).first()
         if not project:

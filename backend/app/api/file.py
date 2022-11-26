@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file, json, request
+from flask import Blueprint, json, request, send_file
 from flask_login import login_required
 from flask_restful import Api, Resource, abort, reqparse
 from werkzeug.datastructures import FileStorage
@@ -18,6 +18,7 @@ file_service = FileService()
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
+
 
 class File(Resource):
     @login_required

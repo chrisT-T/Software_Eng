@@ -2,8 +2,9 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, reqparse
 
-from app.checker import check_change_password_param, check_create_user_param, check_project_permission
-from app.service import UserService, ProjectService
+from app.checker import (check_change_password_param, check_create_user_param,
+                         check_project_permission)
+from app.service import ProjectService, UserService
 
 user_service = UserService()
 proj_service = ProjectService()
@@ -127,6 +128,7 @@ class User(Resource):
 
 
 user_api.add_resource(User, '/api/user')
+
 
 @bp.route('/api/user/<string:username>/projects/', methods=['GET'])
 @login_required

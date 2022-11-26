@@ -1,4 +1,5 @@
 import datetime
+import glob
 import os
 import time
 from shutil import rmtree
@@ -8,9 +9,9 @@ from flask import current_app
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
-from app.model.user import User
 from app.model.project import Project
-import glob
+from app.model.user import User
+
 
 class ProjectService():
     def create_project(self,
@@ -234,15 +235,15 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in remove user', False
-    
+
     def get_file_data(self, src, project_rootdir):
         try:
             # print(src, current_app.config, os.path.join(current_app.config['ROOT_DIR'], src))
             isfile = os.path.isfile(src)
             current_node = {
                 'label': os.path.basename(src),
-                'path' : os.path.relpath(src).replace(project_rootdir, ''),
-                'type' : 'file' if isfile else 'folder',
+                'path': os.path.relpath(src).replace(project_rootdir, ''),
+                'type': 'file' if isfile else 'folder',
                 'children': []
             }
             if current_node['path'] == '':
@@ -257,7 +258,7 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in getting file tree', False
-        
+
     def get_file_tree(self, proj_id: int):
         try:
             project = Project.query.filter_by(id=proj_id).first()
