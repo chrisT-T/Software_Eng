@@ -55,7 +55,7 @@ class File(Resource):
     @login_required
     def post(self, project_id, path):
         """
-        Upload File
+        Create new File
         ---
         tags:
             - File
@@ -99,7 +99,7 @@ class File(Resource):
     @login_required
     def put(self, project_id, path):
         """
-        Create File
+        Upload File
         ---
         tags:
             - File
