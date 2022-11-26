@@ -38,7 +38,7 @@ def check_project_permission(proj_id: int, perm: str = "admin"):
                 return True
     return False
 
-def check_delete_project_password(username: str, password: str):
+def check_edit_project_password(username: str, password: str):
     res, flag = user_service.find_user_by_username(username)
     if flag:
         return res.validate_password(password)
