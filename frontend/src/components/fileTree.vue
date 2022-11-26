@@ -121,7 +121,7 @@
         >
         <el-button
           type="primary"
-          @click="submitNodeForm(NewFRef), (dialogNewFVisible = false)"
+          @click="submitNodeForm(NewFRef), (dialogNewFNodeVisible = false)"
         >
           Confirm
         </el-button>
