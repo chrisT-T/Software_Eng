@@ -144,6 +144,7 @@
                     <a-doption
                       @click="
                         (NameEditform.originalName = record.projectName),
+                          (NameEditform.projectId = record.projectID),
                           (dialogEditNameVisible = true)
                       "
                     >
@@ -354,8 +355,8 @@
       :rules="NameEditrules"
       status-icon
     >
-      <el-form-item label="新名称" prop="newName">
-        <el-input v-model="NameEditform.newName" autocomplete="off" />
+      <el-form-item label="新名称" prop="new_name">
+        <el-input v-model="NameEditform.new_name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input
@@ -625,6 +626,22 @@ const changeProjectName = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       console.log(NameEditform);
+      axios
+        .put(
+          `/api/project/${NameEditform.projectId}/`,
+          qs.stringify(NameEditform)
+        )
+        .then(function (response) {
+          const code = response.status;
+          console.log(response.data);
+          GetProjectList();
+        })
+        .catch(function (error) {
+          ElMessage({
+            message: "Change project name failed",
+            type: "warning",
+          });
+        });
       formEl.resetFields();
     } else {
       console.log("error submit!");
@@ -656,7 +673,7 @@ const Userform = reactive({
 
 const NameEditform = reactive({
   originalName: "",
-  newName: "",
+  new_name: "",
   projectId: "",
   password: "",
 });
@@ -713,7 +730,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
 };
 
 const NameEditrules = reactive({
-  newName: [{ validator: validateNewName, trigger: "blur" }],
+  new_name: [{ validator: validateNewName, trigger: "blur" }],
   password: [{ validator: validatepass, trigger: "blur" }],
 });
 

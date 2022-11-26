@@ -19,6 +19,7 @@ parser.add_argument('creator_name', type=str, location='form')
 parser.add_argument('project_name', type=str, location='form')
 parser.add_argument('language', type=str, location='form', choices=('Python', 'Cpp', 'Java', 'C'), help='Bad choice: {error_msg}')
 parser.add_argument('password', type=str, location='form')
+parser.add_argument('new_name', type=str, location='form')
 
 
 class Project(Resource):
@@ -107,7 +108,17 @@ class Project(Resource):
         if not check_project_permission(proj_id, "edit"):
             abort(400, message="permission denied")
         args = parser.parse_args()
-        key, flag = check_e_param(args)
+        password = args['password']
+        new_name = args['new_name']
+        print(args)
+        if check_edit_project_password(password):
+            res, flag = proj_service.change_name(proj_id, new_name)
+            if flag:
+                return res, 204
+            else:
+                abort(400, message=res)
+        else:
+            abort(401, message="password error")
 
     @login_required
     def delete(self, proj_id):
@@ -140,7 +151,7 @@ class Project(Resource):
         """
         if not check_project_permission(proj_id, "admin"):
             abort(400, message="Permission denied")
-        if not check_edit_project_password(current_user.username, json.loads(request.data)['password']):
+        if not check_edit_project_password(json.loads(request.data)['password']):
             abort(401, message="invalid password")
         proj, flag = proj_service.get_project(proj_id)
         if flag:

@@ -228,10 +228,9 @@ class ProjectService():
             target = Project.query.filter_by(id=project_id).first()
             if not target:
                 return 'no such project id', False
-
-            target.name = name
-            return "name changed", True
-
+            target.project_name = name
+            db.session.commit()
+            return '', True
         except Exception as e:
             print(e)
             return 'Exception in remove user', False

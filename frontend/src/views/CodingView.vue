@@ -251,7 +251,15 @@ function getBreakpoints() {
 }
 
 function saveFile(path: string, value: string) {
-  console.log(path, value);
+  const param = new FormData();
+  param.append("file", value);
+  const config = {
+    headers: { "Content-Type": "multipart/form-data" },
+  };
+  axios.put(`/api/file/${projectID}${path}`, param, config).then((res) => {
+    console.log(res);
+  });
+
   return;
 }
 
