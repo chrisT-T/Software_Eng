@@ -18,6 +18,12 @@ class ProjectService():
                        creator_name,
                        project_name,
                        project_language):
+        '''
+        create a project and create the corresponding docker container
+
+        TODO: add docker run parameter to fit the traefik reverse-proxy
+        return: ('Error Message', False) or ('new_project_id', True)
+        '''
         try:
             creator = User.query.filter_by(username=creator_name).first()
             new_project = Project(creator_id=creator.id,
@@ -55,6 +61,11 @@ class ProjectService():
             return 'create project failed', False
 
     def get_container_id(self, project_id: int):
+        '''
+        get docker container id by the corresponding project id
+
+        :return: ("Error Message", False), (docker_id, True)
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -66,6 +77,11 @@ class ProjectService():
             return 'Exception in get container id', False
 
     def get_project(self, project_id: int):
+        '''
+        get the project model instance by project id
+
+        :return: ("Error Message", False), (project model, True)
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -76,6 +92,11 @@ class ProjectService():
             return 'Exception in get project', False
 
     def remove_project(self, project_id: int):
+        '''
+        remove project from database by project id
+
+        :return: ("Error Message", False), ("", True)
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -94,6 +115,11 @@ class ProjectService():
             return 'Exception in remove project', False
 
     def add_user_admin(self, project_id: int, username: str):
+        '''
+        add a admin user to a project by project_id and username
+
+        :return: ("Error Message", False), ("user already in admin list" or "admin user added", True),
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -117,6 +143,11 @@ class ProjectService():
             return 'Exception in add admin', False
 
     def add_user_read(self, project_id: int, username: str):
+        '''
+        add a read user to a project by project_id and username
+
+        :return: ("Error Message", False), ("user already in read list" or "read user added", True),
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -140,9 +171,14 @@ class ProjectService():
 
         except Exception as e:
             print(e)
-            return 'Exception in add admin', False
+            return 'Exception in add read', False
 
     def add_user_edit(self, project_id: int, username: str):
+        '''
+        add a edit user to a project by project_id and username
+
+        :return: ("Error Message", False), ("user already in edit list" or "edit user added", True),
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -151,7 +187,7 @@ class ProjectService():
             user = User.query.filter_by(username=username).first()
 
             if user in target.edit_users:
-                return "user already in read list", True
+                return "user already in edit list", True
 
             if user not in target.admin_users and user not in target.readonly_users:
                 return "user not in project", False
@@ -167,6 +203,11 @@ class ProjectService():
             return 'Exception in add admin', False
 
     def add_user_pending(self, project_id: int, username: str):
+        '''
+        add a user to a project pending by project_id and username
+
+        :return: ("Error Message", False), ("user already exist" or "pending user added", True),
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -182,9 +223,14 @@ class ProjectService():
 
         except Exception as e:
             print(e)
-            return 'Exception in add admin', False
+            return 'Exception in add pending', False
 
     def update_edit_time(self, project_id: int):
+        '''
+        Update project edit time by the current backend time
+
+        :return : ("Error Message", False) or ("edit time updated", True)
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
@@ -195,7 +241,7 @@ class ProjectService():
 
         except Exception as e:
             print(e)
-            return 'Exception in add admin', False
+            return 'Exception in update edit time', False
 
     def remove_user(self, project_id: int, username: str):
         try:
@@ -225,6 +271,9 @@ class ProjectService():
             return 'Exception in remove user', False
 
     def change_name(self, project_id: int, name: str):
+        '''
+        change project name
+        '''
         try:
             target = Project.query.filter_by(id=project_id).first()
             if not target:
