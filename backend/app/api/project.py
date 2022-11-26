@@ -1,8 +1,9 @@
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, json, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
-from app.checker import check_create_project_param, check_project_permission
+from app.checker import (check_create_project_param,
+                         check_edit_project_password, check_project_permission)
 from app.service import ProjectService, UserService
 
 bp = Blueprint(
@@ -15,9 +16,11 @@ proj_service = ProjectService()
 user_service = UserService()
 
 parser = reqparse.RequestParser()
-parser.add_argument('creator_id', type=int, location='form')
+parser.add_argument('creator_name', type=str, location='form')
 parser.add_argument('project_name', type=str, location='form')
-parser.add_argument('project_language', type=str, location='form', choices=('python', 'cpp', 'typescript'), help='Bad choice: {error_msg}')
+parser.add_argument('language', type=str, location='form', choices=('Python', 'Cpp', 'Java', 'C'), help='Bad choice: {error_msg}')
+parser.add_argument('password', type=str, location='form')
+parser.add_argument('new_name', type=str, location='form')
 
 
 class Project(Resource):
@@ -27,7 +30,8 @@ class Project(Resource):
         "create_time": fields.String,
         "last_edit_time": fields.String,
         "project_language": fields.String,
-        "creator_id": fields.Integer
+        "creator_id": fields.Integer,
+        "docker_id": fields.String
     }
 
     @login_required
@@ -68,15 +72,15 @@ class Project(Resource):
         tags:
             - Project
         parameters:
-            - name: creator_id
-              type: int
+            - name: creator_name
+              type: str
               required: true
               in: formData
             - name: project_name
               type: string
               required: true
               in: formData
-            - name: project_language
+            - name: language
               type: string
               required: true
               in: formData
@@ -88,13 +92,13 @@ class Project(Resource):
         key, flag = check_create_project_param(args)
         if not flag:
             abort(400, message="Invalid argument {}".format(key))
-        user, flag = user_service.find_user_by_id(args['creator_id'])
+        user, flag = user_service.find_user_by_username(args['creator_name'])
         if not flag:
-            abort(400, message="User {} not exist".format(args['creator_id']))
+            abort(400, message="User {} not exist".format(args['creator_name']))
         if current_user.username == user.username:
-            response, flag = proj_service.create_project(args['creator_id'], args['project_name'], args['project_language'])
+            response, flag = proj_service.create_project(args['creator_name'], args['project_name'], args['language'])
             if flag:
-                return response, 200
+                return response, 201
             else:
                 abort(400, message=response)
         else:
@@ -102,8 +106,20 @@ class Project(Resource):
 
     @login_required
     def put(self, proj_id):
-        if check_project_permission(proj_id, "edit"):
-            pass
+        if not check_project_permission(proj_id, "edit"):
+            abort(400, message="permission denied")
+        args = parser.parse_args()
+        password = args['password']
+        new_name = args['new_name']
+        print(args)
+        if check_edit_project_password(password):
+            res, flag = proj_service.change_name(proj_id, new_name)
+            if flag:
+                return res, 204
+            else:
+                abort(400, message=res)
+        else:
+            abort(401, message="password error")
 
     @login_required
     def delete(self, proj_id):
@@ -117,19 +133,27 @@ class Project(Resource):
               type: int
               required: true
               in: query
+            - name: password
+              type: string
+              required: true
+              in: data
         responses:
             204:
                 description: project delete success
             400:
                 description: no permission
+            401:
+                description: invalid password
             404:
                 description: project doesn't exist
             500:
-                description: delete project failed
+                description: internal error
 
         """
         if not check_project_permission(proj_id, "admin"):
             abort(400, message="Permission denied")
+        if not check_edit_project_password(json.loads(request.data)['password']):
+            abort(401, message="invalid password")
         proj, flag = proj_service.get_project(proj_id)
         if flag:
             res, flag = proj_service.remove_project(proj_id)
@@ -142,3 +166,15 @@ class Project(Resource):
 
 
 api.add_resource(Project, '/api/project/<int:proj_id>/', '/api/project/')
+
+
+@bp.route('/api/project/<int:proj_id>/tree/', methods=['GET'])
+@login_required
+def tree(proj_id):
+    if not check_project_permission(proj_id, "read"):
+        return 'Permission denied', 400
+    res, flag = proj_service.get_file_tree(proj_id)
+    if flag:
+        return res, 200
+    else:
+        return res, 400

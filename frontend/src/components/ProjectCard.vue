@@ -34,7 +34,7 @@
               filters: [
                 {
                   text: 'Python',
-                  value: 'Python',
+                  value: 'python',
                 },
                 {
                   text: 'Cpp',
@@ -144,6 +144,7 @@
                     <a-doption
                       @click="
                         (NameEditform.originalName = record.projectName),
+                          (NameEditform.projectId = record.projectID),
                           (dialogEditNameVisible = true)
                       "
                     >
@@ -167,7 +168,7 @@
                     >
                   </template>
                 </a-dropdown>
-                <a-button type="text" shape="circle"
+                <a-button type="text" shape="circle" @click="DownloadProject()"
                   ><icon-download
                 /></a-button>
               </div>
@@ -181,7 +182,7 @@
   <el-dialog v-model="dialogFormVisible" title="新建项目">
     <el-form :model="NewProjform" ref="addProjectForm">
       <el-form-item label="项目名称" :label-width="formLabelWidth">
-        <el-input v-model="NewProjform.name" autocomplete="off" />
+        <el-input v-model="NewProjform.project_name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="项目模板" :label-width="formLabelWidth">
         <el-select v-model="NewProjform.language" placeholder="选择项目语言">
@@ -354,8 +355,8 @@
       :rules="NameEditrules"
       status-icon
     >
-      <el-form-item label="新名称" prop="newName">
-        <el-input v-model="NameEditform.newName" autocomplete="off" />
+      <el-form-item label="新名称" prop="new_name">
+        <el-input v-model="NameEditform.new_name" autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input
@@ -463,22 +464,33 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, onMounted, vue } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
 import { UploadFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
-import { ElTable } from "element-plus";
+import { ElTable, ElMessage } from "element-plus";
+import axios from "axios";
+import qs from "qs";
 
 const permissionGpRef = ref<InstanceType<typeof ElTable>>();
 const NameEditRef = ref<FormInstance>();
 const ProjDeleteRef = ref<FormInstance>();
 const PermissionChangeRef = ref<FormInstance>();
 const currentPermissionID = ref<string>();
+const data = ref<ProjectData[]>([]);
 
 const name = useRouter().currentRoute.value.params.username;
 
+onMounted(() => {
+  GetProjectList();
+});
+
+// 下载当前项目文件
+const DownloadProject = () => {
+  // TODO
+};
 // 添加新权限组
 const addNewUserPermission = () => {
   if (Userform.username === "" || Userform.permission === "") {
@@ -493,7 +505,7 @@ const addNewUserPermission = () => {
     console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
     const ID = currentPermissionID.value;
     // 直接在后端进行修改 下面的代码可以删除
-    const index = data.findIndex((d) => d.projectID === ID);
+    const index = data.value.findIndex((d) => d.projectID === ID);
     data[index].permissionGp?.push(newPer);
     changepr.value = data[index].permissionGp;
   }
@@ -508,7 +520,7 @@ const removeCurrentPermission = (user: string) => {
   console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
   // 直接在后端进行修改 下面的代码可以删除
   const ID = currentPermissionID.value;
-  const index = data.findIndex((d) => d.projectID === ID);
+  const index = data.value.findIndex((d) => d.projectID === ID);
   const PRID = changepr.value?.findIndex((d) => d.user === user);
   if (PRID) {
     data[index].permissionGp?.splice(PRID, 1);
@@ -517,6 +529,15 @@ const removeCurrentPermission = (user: string) => {
     console.log("error Remove!");
   }
   console.log(changepr.value);
+};
+
+// 拉取项目列表
+const GetProjectList = () => {
+  axios.get(`/api/user/${name}/projects/`).then(function (response) {
+    console.log(response.data);
+    console.log(data);
+    data.value = response.data;
+  });
 };
 
 const PermissionChangeform = reactive({
@@ -544,20 +565,24 @@ const clearFilter = () => {
 };
 
 const addNewProject = () => {
-  if (NewProjform.language === "" || NewProjform.name === "") {
+  if (NewProjform.language === "" || NewProjform.project_name === "") {
     console.log("New Proj Error");
   } else {
     console.log(NewProjform);
     // 新增项目
-    const newProj: ProjectData = {
-      projectID: "asldfuh",
-      projectName: NewProjform.name,
-      language: NewProjform.language,
-      creator: "user",
-      permissionGp: [],
-      lastUpdateTime: "time",
-      createTime: "time",
-    };
+    axios
+      .post("/api/project/", qs.stringify(NewProjform))
+      .then(function (response) {
+        const code = response.status;
+        console.log(response.data);
+        GetProjectList();
+      })
+      .catch(function (error) {
+        ElMessage({
+          message: "Create project failed",
+          type: "warning",
+        });
+      });
   }
   NewProjform.language = "";
   NewProjform.name = "";
@@ -568,10 +593,27 @@ const removeProject = (formEl: FormInstance | undefined) => {
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
-      console.log(Deleteform.projectId);
+      axios
+        .delete(`/api/project/${Deleteform.projectId}/`, {
+          data: Deleteform,
+        })
+        .then(function (response) {
+          const code = response.status;
+          console.log(response.data);
+          GetProjectList();
+        })
+        .catch(function (error) {
+          ElMessage({
+            message: "Delete project failed",
+            type: "warning",
+          });
+        });
       formEl.resetFields();
     } else {
-      console.log("error submit!");
+      ElMessage({
+        message: "Error Message",
+        type: "warning",
+      });
       formEl.resetFields();
       return false;
     }
@@ -584,6 +626,22 @@ const changeProjectName = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       console.log(NameEditform);
+      axios
+        .put(
+          `/api/project/${NameEditform.projectId}/`,
+          qs.stringify(NameEditform)
+        )
+        .then(function (response) {
+          const code = response.status;
+          console.log(response.data);
+          GetProjectList();
+        })
+        .catch(function (error) {
+          ElMessage({
+            message: "Change project name failed",
+            type: "warning",
+          });
+        });
       formEl.resetFields();
     } else {
       console.log("error submit!");
@@ -603,8 +661,9 @@ const dialogPermissionChangeVisible = ref(false);
 
 const formLabelWidth = "140px";
 const NewProjform = reactive({
-  name: "",
+  project_name: "",
   language: "",
+  creator_name: name,
 });
 
 const Userform = reactive({
@@ -614,7 +673,7 @@ const Userform = reactive({
 
 const NameEditform = reactive({
   originalName: "",
-  newName: "",
+  new_name: "",
   projectId: "",
   password: "",
 });
@@ -635,6 +694,7 @@ const validateNewName = (rule: any, value: any, callback: any) => {
     callback();
   }
 };
+
 const validatepass = (rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("请输入密码"));
@@ -670,7 +730,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
 };
 
 const NameEditrules = reactive({
-  newName: [{ validator: validateNewName, trigger: "blur" }],
+  new_name: [{ validator: validateNewName, trigger: "blur" }],
   password: [{ validator: validatepass, trigger: "blur" }],
 });
 
@@ -718,6 +778,7 @@ interface ProjectData {
   permissionGp?: PermissionTest[];
   lastUpdateTime: string;
   createTime: string;
+  dockerId: string;
 }
 
 interface PermissionTest {
@@ -739,110 +800,6 @@ const printtable = (data: PermissionTest[] | undefined) => {
 const filterTag = (value: string, row: PermissionTest) => {
   return row.permission === value;
 };
-
-const data: ProjectData[] = [
-  {
-    projectID: "A123",
-    projectName: "Project1",
-    language: "C",
-    creator: "sam",
-    permissionGp: [
-      {
-        user: "A",
-        permission: "readonly",
-        state: "accept",
-      },
-      {
-        user: "B",
-        permission: "readonly",
-        state: "accept",
-      },
-      {
-        user: "C",
-        permission: "edit",
-        state: "accept",
-      },
-    ],
-    lastUpdateTime: "2022/10/01 12:33",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1U83",
-    projectName: "Project2",
-    language: "Cpp",
-    creator: "sam2",
-    permissionGp: [
-      {
-        user: "A",
-        permission: "readonly",
-        state: "accept",
-      },
-      {
-        user: "D",
-        permission: "readonly",
-        state: "accept",
-      },
-      {
-        user: "C",
-        permission: "administrator",
-        state: "accept",
-      },
-      {
-        user: "C0c0",
-        permission: "edit",
-        state: "accept",
-      },
-      {
-        user: "David",
-        permission: "edit",
-        state: "pending",
-      },
-    ],
-    lastUpdateTime: "2022/03/01 15:47",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "A1po23",
-    projectName: "Project3",
-    language: "Python",
-    creator: "sam",
-    lastUpdateTime: "2021/11/08 02:53",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "KJ1d3",
-    projectName: "Project4",
-    language: "Java",
-    creator: "sam",
-    permissionGp: [
-      {
-        user: "A",
-        permission: "readonly",
-        state: "accept",
-      },
-      {
-        user: "Arco",
-        permission: "edit",
-        state: "accept",
-      },
-      {
-        user: "C",
-        permission: "edit",
-        state: "accept",
-      },
-    ],
-    lastUpdateTime: "2022/02/01 05:13",
-    createTime: "2022/10/01 12:33",
-  },
-  {
-    projectID: "AJKpo0",
-    projectName: "Project5",
-    language: "Python",
-    creator: "sam2",
-    lastUpdateTime: "2020/10/01 21:00",
-    createTime: "2022/10/01 12:33",
-  },
-];
 </script>
 
 <style scoped>

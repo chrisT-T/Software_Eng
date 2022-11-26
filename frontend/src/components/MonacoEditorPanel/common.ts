@@ -29,5 +29,6 @@ export const suffixTypeDict = new Map<string, string>([
   ["yaml", "yaml"],
   ["scss", "scss"],
   ["v", "verilog"],
+  ["md", "markdown"],
 ]);
 export const nameTypeDict = new Map([["dockerfile", "dockerfile"]]);

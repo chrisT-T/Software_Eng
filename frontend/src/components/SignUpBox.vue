@@ -27,6 +27,9 @@
         show-password
       />
     </el-form-item>
+    <el-form-item label="Email" prop="email">
+      <el-input v-model="ruleForm.email" autocomplete="off" />
+    </el-form-item>
     <el-form-item>
       <div class="button_gp">
         <el-button type="primary" @click="submitForm(ruleFormRef)"
@@ -60,8 +63,11 @@ const checkUsername = (rule: any, value: any, callback: any) => {
       axios
         .get("/api/user?username=" + ruleForm.username)
         .then(function (response) {
+          callback(new Error("用户名重复或无效"));
+        })
+        .catch(function (response) {
           const code = response.status;
-          if (code !== 204) {
+          if (code !== 404) {
             callback(new Error("用户名重复或无效"));
           } else {
             callback();
@@ -136,10 +142,10 @@ const submitForm = (formEl: FormInstance | undefined) => {
         const code = response.status;
         if (code === 201) {
           axios
-            .post("/auth/login", qs.stringify(ruleForm))
+            .post("/api/login", qs.stringify(ruleForm))
             .then(function (response) {
               const code = response.status;
-              if (code === 200) {
+              if (code === 204) {
                 const timestamp = new Date().getTime();
                 sessionStorage.setItem("username", ruleForm.username);
                 sessionStorage.setItem("active_time", timestamp);

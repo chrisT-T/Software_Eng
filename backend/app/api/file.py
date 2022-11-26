@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file
+from flask import Blueprint, json, request, send_file
 from flask_login import login_required
 from flask_restful import Api, Resource, abort, reqparse
 from werkzeug.datastructures import FileStorage
@@ -40,11 +40,13 @@ class File(Resource):
         responses:
             200:
                 description: send file success
+            401:
+                description: check permission denied
             404:
-                description: check permission denied or send file failed
+                description: send file failed
         """
         if not check_project_permission(project_id, 'read'):
-            abort(404, message="Permission denied")
+            abort(401, message="Permission denied")
         res, flag = file_service.download_file(path, project_id)
         if flag:
             return send_file(res)
@@ -54,7 +56,7 @@ class File(Resource):
     @login_required
     def post(self, project_id, path):
         """
-        Upload File
+        Create new File
         ---
         tags:
             - File
@@ -67,24 +69,38 @@ class File(Resource):
               in: path
               required: true
               type: string
+            - name: type
+              in: formData
+              required: true
+              type: string
         responses:
             204:
-                description: upload success
+                description: create success
             400:
                 description: Permission denied or upload failed
         """
+        type = json.loads(request.data)['type']
+        if not type:
+            abort(400, message='invalid arguments')
         if not check_project_permission(project_id, 'edit'):
             abort(400, message="Permission denied")
-        res, flag = file_service.create_file(path, project_id)
-        if flag:
-            return '', 204
+        if type == 'folder':
+            res, flag = file_service.create_dir(path, project_id)
+            if flag:
+                return '', 201
+            else:
+                abort(400, message=res)
         else:
-            abort(400, message=res)
+            res, flag = file_service.create_file(path, project_id)
+            if flag:
+                return '', 201
+            else:
+                abort(400, message=res)
 
     @login_required
     def put(self, project_id, path):
         """
-        Create File
+        Upload File
         ---
         tags:
             - File

@@ -26,6 +26,7 @@ const terminalWs = new WebSocket(
 const attachAddon = new AttachAddon(terminalWs);
 
 onMounted(() => {
+  console.log(`ws://localhost:5005/websocket/${props.containerId}`);
   term.open(termDiv?.value as HTMLElement);
   term.loadAddon(fitAddon);
   term.loadAddon(attachAddon);

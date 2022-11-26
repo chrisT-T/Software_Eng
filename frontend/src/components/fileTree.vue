@@ -1,9 +1,9 @@
 <template>
   <div class="custom-tree-container">
     <div class="tree-main">
-      <span class="spanStyle" style="margin-left: 10px">PROJECT NAME</span>
+      <span class="spanStyle" style="margin-left: 10px">{{ projectName }}</span>
       <a-button-group type="text">
-        <a-button @click="dialogNewFVisible = true">
+        <a-button @click="(dialogNewFVisible = true), (NewFform.path = '')">
           <template #icon><icon-plus /></template>
         </a-button>
       </a-button-group>
@@ -29,7 +29,11 @@
               <el-dropdown-menu>
                 <el-dropdown-item
                   :icon="Plus"
-                  @click="(dialogNewFNodeVisible = true), (nodeappend = data)"
+                  @click="
+                    (dialogNewFNodeVisible = true),
+                      (nodeappend = data),
+                      (NewFform.path = data.path)
+                  "
                   :disabled="data.type === 'file'"
                   >Append</el-dropdown-item
                 >
@@ -77,7 +81,10 @@
         <el-button @click="resetForm(NewFRef), (dialogNewFVisible = false)"
           >Cancel</el-button
         >
-        <el-button type="primary" @click="submitForm(NewFRef)">
+        <el-button
+          type="primary"
+          @click="submitForm(NewFRef), (dialogNewFVisible = false)"
+        >
           Confirm
         </el-button>
       </span>
@@ -112,7 +119,10 @@
         <el-button @click="resetForm(NewFRef), (dialogNewFNodeVisible = false)"
           >Cancel</el-button
         >
-        <el-button type="primary" @click="submitNodeForm(NewFRef)">
+        <el-button
+          type="primary"
+          @click="submitNodeForm(NewFRef), (dialogNewFNodeVisible = false)"
+        >
           Confirm
         </el-button>
       </span>
@@ -121,7 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import {
   Plus,
@@ -129,19 +139,24 @@ import {
   EditPen,
   CaretRight,
   Download,
+  defineEmits,
 } from "@element-plus/icons-vue";
 import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
+import axios from "axios";
 
 const NewFRef = ref<FormInstance>();
 let dialogNewFVisible = ref(false);
 let dialogNewFNodeVisible = ref(false);
 const nodeappend = ref<Tree>();
-
+const projectName = ref("");
+const dataSource = ref<Tree[]>([]);
+const projectID = useRouter().currentRoute.value.params.projectid;
 const NewFform = reactive({
   name: "",
   type: "",
+  path: "",
 });
 
 const NewFrules = reactive({
@@ -155,11 +170,29 @@ const NewFrules = reactive({
   ],
 });
 
+const emit = defineEmits<{
+  (e: "openFile", path: string): void;
+}>();
+
+const getFileList = () => {
+  axios.get(`/api/project/${projectID}/tree/`).then((response) => {
+    console.log(response.data);
+    dataSource.value = response.data.children;
+  });
+};
+
 const submitNodeForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
       console.log("submit!");
+      axios
+        .post(`/api/file/${projectID}/${NewFform.path}/${NewFform.name}`, {
+          type: NewFform.type,
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       console.log(NewFform);
       append();
       formEl.resetFields();
@@ -175,6 +208,14 @@ const submitForm = (formEl: FormInstance | undefined) => {
     if (valid) {
       console.log("submit!");
       console.log(NewFform);
+      axios
+        .post(`/api/file/${projectID}/${NewFform.name}`, {
+          type: NewFform.type,
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      console.log(NewFform);
       addNew2Proj();
       formEl.resetFields();
     } else {
@@ -189,11 +230,13 @@ const resetForm = (formEl: FormInstance | undefined) => {
 };
 
 const handleNodeClick = (data: Tree) => {
+  if (data.type == "file") {
+    emit("openFile", data.path);
+  }
   console.log(data);
 };
 
 interface Tree {
-  id: number;
   label: string;
   path: string;
   type: string;
@@ -209,7 +252,6 @@ const append = () => {
     const name = NewFform.name;
     const child_path = data.path + "/" + name;
     const newChild = {
-      id: id++,
       label: name,
       path: child_path,
       type: NewFform.type,
@@ -244,36 +286,14 @@ const remove = (node: Node, data: Tree) => {
   dataSource.value = [...dataSource.value];
 };
 
-const dataSource = ref<Tree[]>([
-  {
-    id: 1,
-    label: "task_1",
-    path: "task_1",
-    type: "folder",
-    children: [
-      {
-        id: 2,
-        label: "task_2",
-        path: "task_1/task_2",
-        type: "folder",
-        children: [
-          {
-            id: 3,
-            label: "task_3",
-            path: "task_1/task_2/tasl_3",
-            type: "file",
-          },
-          {
-            id: 4,
-            label: "task_4",
-            path: "task_1/task_2/tasl_4",
-            type: "file",
-          },
-        ],
-      },
-    ],
-  },
-]);
+onMounted(() => {
+  getFileList();
+
+  axios.get(`/api/project/${projectID}/`).then((resp) => {
+    console.log(resp);
+    projectName.value = resp.data["project_name"];
+  });
+});
 </script>
 
 <style>

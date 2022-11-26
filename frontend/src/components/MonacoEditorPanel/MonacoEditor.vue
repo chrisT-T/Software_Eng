@@ -244,22 +244,21 @@ onMounted(() => {
 
   // MonacoServices.install();
 
-  let lspUrl = "/lsp";
   // python language server
+  let lspUrl = "/lsp";
   if (props.editorOption.language === "python") {
     lspUrl = `ws://${props.containerSubdomain}.lsp.localhost:8088`;
+    // create websocket
+    const webSocket = new WebSocket(lspUrl);
+    webSocket.onopen = () => {
+      const socket = toSocket(webSocket);
+      const reader = new WebSocketMessageReader(socket);
+      const writer = new WebSocketMessageWriter(socket);
+      const languageClient = createPythonLanguageClient({ reader, writer });
+      languageClient.start();
+      reader.onClose(() => languageClient.stop());
+    };
   }
-
-  // create websocket
-  const webSocket = new WebSocket(lspUrl);
-  webSocket.onopen = () => {
-    const socket = toSocket(webSocket);
-    const reader = new WebSocketMessageReader(socket);
-    const writer = new WebSocketMessageWriter(socket);
-    const languageClient = createPythonLanguageClient({ reader, writer });
-    languageClient.start();
-    reader.onClose(() => languageClient.stop());
-  };
 });
 
 onUnmounted(() => {

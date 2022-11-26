@@ -2,13 +2,12 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, reqparse
 
-from app.checker import check_change_password_param, check_create_user_param
-from app.extensions import db
-from app.model import project
-from app.service import UserService
+from app.checker import (check_change_password_param, check_create_user_param,
+                         check_project_permission)
+from app.service import ProjectService, UserService
 
-service = UserService()
-
+user_service = UserService()
+proj_service = ProjectService()
 bp = Blueprint(
     'user',
     __name__
@@ -47,7 +46,7 @@ class User(Resource):
         username = args["username"]
         if not username:
             abort(400, message="bad arguments")
-        res, flag = service.find_user_by_username(username)
+        res, flag = user_service.find_user_by_username(username)
         if flag:
             # TODO: add field
             return res.id, 200
@@ -83,10 +82,9 @@ class User(Resource):
         key, flag = check_create_user_param(args)
         if not flag:
             abort(400, message="invalid argument: {}".format(key))
-        id, flag = service.create_user(args["username"], args["password"], args["email"])
-        print(flag)
+        id, flag = user_service.create_user(args["username"], args["password"], args["email"])
         if flag:
-            return id, 200
+            return id, 201
         else:
             abort(400, message="user exists")
 
@@ -120,7 +118,7 @@ class User(Resource):
         if not flag:
             abort(400, message="invalid argument: {}".format(key))
 
-        user, flag = service.find_user_by_username(args['username'])
+        user, flag = user_service.find_user_by_username(args['username'])
         if not user.validate_password(args['password']):
             abort(400, message="invalid password")
         user.set_password(args['password_new'])
@@ -130,3 +128,48 @@ class User(Resource):
 
 
 user_api.add_resource(User, '/api/user')
+
+
+@bp.route('/api/user/<string:username>/projects/', methods=['GET'])
+@login_required
+def related_projects(username):
+    res, flag = user_service.find_user_by_username(username)
+    if not flag:
+        abort(400, message=res)
+    admins = res.admin_projects
+    edits = res.editable_projects
+    reads = res.readonly_projects
+    response = []
+    for i in admins + edits + reads:
+        perm_name = []
+        for user in i.readonly_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'readonly',
+            })
+        for user in i.editable_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'edit',
+            })
+        for user in i.admin_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'administrator',
+            })
+        for user in i.pending_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'pending',
+            })
+        response.append({
+            'projectID': i.id,
+            'projectName': i.project_name,
+            'language': i.project_language,
+            'creator': i.creator.username,
+            'permissionGp': perm_name,
+            'lastUpdateTime': i.last_edit_time,
+            'createTime': i.create_time,
+            'dockerId': i.docker_id
+        })
+    return response, 200

@@ -17,11 +17,14 @@
   </el-tabs>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, defineProps } from "vue";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 
-const containerId =
-  "ee44d43ade04376eb44e9db9c028ed8e857474d4a4c59a55e5661ee9062d82a3";
+const containerId = "";
+
+const props = defineProps<{
+  containerId: string;
+}>();
 
 let tabIndex = 2;
 const editableTabsValue = ref("2");
@@ -29,7 +32,7 @@ const editableTabs = ref([
   {
     title: "Terminal 1",
     name: "1",
-    container: containerId,
+    container: props.containerId,
   },
 ]);
 
@@ -39,7 +42,7 @@ const handleTabsEdit = (targetName: string, action: "remove" | "add") => {
     editableTabs.value.push({
       title: `Terminal ${tabIndex}`,
       name: newTabName,
-      container: containerId,
+      container: props.containerId,
     });
     editableTabsValue.value = newTabName;
   } else if (action === "remove") {

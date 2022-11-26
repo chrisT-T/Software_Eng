@@ -5,8 +5,9 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 
 from app import create_app, db
-from app.model.login import User
 from app.model.project import Project
+from app.model.user import User
+from app.service import ProjectService
 from app.utils import config
 
 app = create_app(os.getenv('TYPE', 'default'))
@@ -24,7 +25,7 @@ def init_db():
               password_hash=generate_password_hash(str("test")))
     proj = Project(
         project_name="a",
-        project_language="python",
+        project_language="Python",
         docker_id="what",
         creator_id=1,
         creator=me)

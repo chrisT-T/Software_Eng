@@ -48,7 +48,7 @@
             max-width: 50%;
             text-align: center;
           "
-          ><fileTree />
+          ><fileTree @open-file="openFile" />
         </a-resize-box>
         <el-container direction="vertical">
           <a-resize-box
@@ -60,7 +60,6 @@
               min-height: 0;
             "
           >
-            <el-button size="small" @click="openFile"> open file </el-button>
             <el-button size="small" @click="changeTheme"
               >change theme
             </el-button>
@@ -83,7 +82,7 @@
             >
             </EditorPanel>
           </a-resize-box>
-          <TerminalPanel />
+          <TerminalPanel :containerId="containerId" :key="containerId" />
         </el-container>
       </el-container>
     </el-container>
@@ -159,20 +158,26 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
-
+import axios from "axios";
 onMounted(() => {
+  axios.get(`/api/project/${projectID}/`).then((response) => {
+    containerId.value = response.data["docker_id"];
+    console.log(response.data);
+  });
+
   setInterval(() => {
     const time = new Date().getTime();
     sessionStorage.setItem("active_time", time);
   }, 5 * 60 * 1000);
 });
 const name = useRouter().currentRoute.value.params.username;
+const projectID = useRouter().currentRoute.value.params.projectid;
 
 const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
-
+const containerId = ref("");
 const formLabelWidth = "140px";
 const form = reactive({
   name: "",
@@ -215,8 +220,13 @@ const backmain = () => {
 };
 
 function openFile(path: string) {
-  console.log("open File");
-  editorPanel.value?.addFile("adfa/df.py", "");
+  axios
+    .get(`/api/file/${projectID}/${path}`)
+    .then((response) => {
+      let file = response.data;
+      editorPanel.value?.addFile(path, file);
+    })
+    .catch();
   // editorPanel.value?.addFile("adfa/default.py", "");
   // editorPanel.value?.addFile("adfadfa/df.py", "");
   // editorPanel.value?.addFile("adfadsfa/default.py", "");
@@ -237,8 +247,15 @@ function deleteFile() {
 function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
 }
+
 function saveFile(path: string, value: string) {
-  console.log(path, value);
+  const param = new FormData();
+  const export_blob = new Blob([value]);
+  param.append("file", export_blob);
+  axios.put(`/api/file/${projectID}/${path}`, param).then((res) => {
+    console.log(res);
+  });
+
   return;
 }
 

@@ -2,8 +2,8 @@ import os
 
 from werkzeug.datastructures import FileStorage
 
-from app.model.login import User
 from app.model.project import Project
+from app.model.user import User
 
 
 class FileService():
@@ -68,3 +68,14 @@ class FileService():
         if not os.path.isfile(path):
             return "File do not exist", False
         return path, True
+
+    def create_dir(self, relative_path, project_id):
+        project = Project.query.filter_by(id=project_id).first()
+        if not project:
+            return 'Project does not exist', False
+        proj_path = project.path
+        path = os.path.join(proj_path, relative_path)
+        if os.path.exists(path):
+            return "Folder already exists", False
+        os.mkdir(path)
+        return '', True

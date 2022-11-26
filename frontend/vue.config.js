@@ -19,10 +19,6 @@ module.exports = defineConfig({
   },
   devServer: {
     proxy: {
-      "/auth": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-      },
       "/api": {
         target: "http://localhost:5000",
         changeOrigin: true,
@@ -31,8 +27,10 @@ module.exports = defineConfig({
         target: "ws://localhost:30000",
         ws: true,
         changeOrigin: true,
-        pathRewrite: function (path, req) { return path.replace('/pylsp', '') }
-      }
+        pathRewrite: function (path, req) {
+          return path.replace("/pylsp", "");
+        },
+      },
     },
   },
 });

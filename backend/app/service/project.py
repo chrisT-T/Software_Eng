@@ -1,7 +1,7 @@
 import datetime
+import glob
 import os
 import time
-from pathlib import Path
 from shutil import rmtree
 
 import docker
@@ -9,13 +9,13 @@ from flask import current_app
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db
-from app.model.login import User
 from app.model.project import Project
+from app.model.user import User
 
 
 class ProjectService():
     def create_project(self,
-                       creator_id,
+                       creator_name,
                        project_name,
                        project_language):
         '''
@@ -25,8 +25,8 @@ class ProjectService():
         return: ('Error Message', False) or ('new_project_id', True)
         '''
         try:
-            creator = User.query.filter_by(id=creator_id).first()
-            new_project = Project(creator_id=creator_id,
+            creator = User.query.filter_by(username=creator_name).first()
+            new_project = Project(creator_id=creator.id,
                                   project_name=project_name,
                                   project_language=project_language)
             new_project.admin_users.append(creator)
@@ -42,7 +42,7 @@ class ProjectService():
 
             # create docker process
             docker_client = docker.from_env()
-            if project_language == 'python':
+            if project_language == 'Python':
                 container = docker_client.containers.run(
                     image='python:3.9',
                     command='sh -c "while true;do echo hello docker;sleep 1;done"',
@@ -50,7 +50,7 @@ class ProjectService():
                     detach=True,
                 )
                 docker_id = container.id
-
+            print(docker_id)
             new_project.docker_id = docker_id
 
             db.session.add(new_project)
@@ -278,23 +278,49 @@ class ProjectService():
             target = Project.query.filter_by(id=project_id).first()
             if not target:
                 return 'no such project id', False
-
-            target.name = name
-            return "name changed", True
-
+            target.project_name = name
+            db.session.commit()
+            return '', True
         except Exception as e:
             print(e)
             return 'Exception in remove user', False
 
-    def get_file_tree(self, project_id: int):
+    def get_file_data(self, src, project_rootdir):
         try:
-            target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-            p = Path(target.path)
-            path_list = [str(i) for i in p.rglob('*')]
-            return path_list, True
-
+            # print(src, current_app.config, os.path.join(current_app.config['ROOT_DIR'], src))
+            isfile = os.path.isfile(src)
+            current_node = {
+                'label': os.path.basename(src),
+                'path': os.path.relpath(src).replace(project_rootdir, ''),
+                'type': 'file' if isfile else 'folder',
+                'children': []
+            }
+            if current_node['path'] == '':
+                current_node['path'] = '/'
+            if isfile:
+                return current_node
+            else:
+                child_files = glob.glob(os.path.abspath(src) + '/*')
+                for child in child_files:
+                    current_node['children'].append(self.get_file_data(child, project_rootdir))
+                return current_node
         except Exception as e:
             print(e)
             return 'Exception in getting file tree', False
+
+    def get_file_tree(self, proj_id: int):
+        try:
+            project = Project.query.filter_by(id=proj_id).first()
+            project_abs_path = os.path.relpath(project.path)
+            file_data = self.get_file_data(project_abs_path, project_abs_path)
+            file_data['label'] = project.project_name
+            return file_data, True
+        except Exception as e:
+            print(e)
+            return 'Exception in getting file tree', False
+
+
+if __name__ == '__main__':
+    service = ProjectService()
+    tmp = service.get_file_tree(6)
+    print(tmp)
