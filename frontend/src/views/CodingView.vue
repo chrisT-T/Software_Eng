@@ -220,13 +220,11 @@ const backmain = () => {
 };
 
 function openFile(path: string) {
-  console.log("open File");
   axios
     .get(`/api/file/${projectID}/${path}`)
     .then((response) => {
       let file = response.data;
       editorPanel.value?.addFile(path, file);
-      console.log(file);
     })
     .catch();
   // editorPanel.value?.addFile("adfa/default.py", "");
@@ -252,11 +250,9 @@ function getBreakpoints() {
 
 function saveFile(path: string, value: string) {
   const param = new FormData();
-  param.append("file", value);
-  const config = {
-    headers: { "Content-Type": "multipart/form-data" },
-  };
-  axios.put(`/api/file/${projectID}${path}`, param, config).then((res) => {
+  const export_blob = new Blob([value]);
+  param.append("file", export_blob);
+  axios.put(`/api/file/${projectID}/${path}`, param).then((res) => {
     console.log(res);
   });
 
