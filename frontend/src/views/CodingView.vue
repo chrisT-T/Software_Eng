@@ -82,7 +82,7 @@
             >
             </EditorPanel>
           </a-resize-box>
-          <TerminalPanel :containerId="containerId" :key="containerId" />
+          <!-- <TerminalPanel :containerId="containerId" :key="containerId" /> -->
         </el-container>
       </el-container>
     </el-container>
