@@ -84,7 +84,7 @@ const logout = () => {
   console.log("logout");
   sessionStorage.removeItem("username");
   sessionStorage.removeItem("login_time");
-  axios.get("/auth/logout");
+  axios.get("/api/logout");
   router.replace("/login");
 };
 </script>
