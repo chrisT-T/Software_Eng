@@ -147,8 +147,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
               const code = response.status;
               if (code === 204) {
                 const timestamp = new Date().getTime();
-                sessionStorage.setItem("username", ruleForm.username);
-                sessionStorage.setItem("active_time", timestamp);
+                localStorage.setItem("username", ruleForm.username);
+                localStorage.setItem("active_time", timestamp);
                 router.replace({
                   name: "main",
                   params: { username: ruleForm.username },

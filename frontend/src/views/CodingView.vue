@@ -167,7 +167,7 @@ onMounted(() => {
 
   setInterval(() => {
     const time = new Date().getTime();
-    sessionStorage.setItem("active_time", time);
+    localStorage.setItem("active_time", time);
   }, 5 * 60 * 1000);
 });
 const name = useRouter().currentRoute.value.params.username;
