@@ -31,6 +31,9 @@
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import { ta } from "element-plus/es/locale";
 import { ElMessage, ElMessageBox } from "element-plus";
+import * as Y from "yjs";
+import { MonacoBinding } from "y-monaco";
+import { WebsocketProvider } from "y-websocket";
 import * as monaco from "monaco-editor";
 import {
   ref,
@@ -241,6 +244,23 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
+    setTimeout(() => {
+      const ydoc = new Y.Doc();
+      const provider = new WebsocketProvider(
+        "ws://localhost:7070",
+        "test",
+        ydoc
+      );
+      const type = ydoc.getText("monaco");
+      let editor = getEditorByIndex(tabIndex.toString());
+      let model = fileInfos[fileInfos.length - 1].options.model;
+      const monacoBinding = new MonacoBinding(
+        type,
+        model,
+        new Set([editor]),
+        provider.awareness
+      );
+    }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
     let model = fileInfos[fileIndex].options.model;

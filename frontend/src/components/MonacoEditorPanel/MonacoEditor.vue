@@ -41,10 +41,15 @@ const emit = defineEmits<{
 
 defineExpose({
   locateLine,
+  onDidChangeCursorSelection,
 });
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
+
+function onDidChangeCursorSelection(e) {
+  editor.value.onDidChangeCursorSelection(e);
+}
 
 function getAllDecorationByClass(className: string) {
   return editor.value
