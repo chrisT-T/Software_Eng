@@ -17,7 +17,7 @@
           ref="monacoEditors"
           :name="item.index"
           :editor-option="getOption(item.index)"
-          :container-subdomain="`testid`"
+          :container-subdomain="props.containerSubdomain"
           @modified="fileModified"
           @saveFile="saveFile"
           @debug="startDebug"
@@ -62,6 +62,7 @@ export interface TabInfo {
 
 const props = defineProps<{
   theme: string;
+  containerSubdomain: string;
 }>();
 
 const emit = defineEmits<{

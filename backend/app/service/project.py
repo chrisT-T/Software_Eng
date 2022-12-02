@@ -31,8 +31,10 @@ class ProjectService():
                                   project_language=project_language)
             new_project.admin_users.append(creator)
 
+            hash_id = hash(new_project.create_time)
+
             # create project root_dir
-            project_root_dir = (f'{hash(new_project.create_time)}-{project_name}-{project_language}')
+            project_root_dir = (f'{hash_id}-{project_name}-{project_language}')
             rootdir = current_app.config['ROOT_DIR']
             project_root_path = os.path.join(rootdir, project_root_dir)
             project_root_path = os.path.abspath(project_root_path)
@@ -44,15 +46,21 @@ class ProjectService():
             docker_client = docker.from_env()
             if project_language == 'Python':
                 container = docker_client.containers.run(
-                    image='python:3.9',
-                    command='sh -c "while true;do echo hello docker;sleep 1;done"',
+                    image='python_lsp:latest',
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
+                    labels= {
+                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)", 
+                        f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
+                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000"
+                    },
+                    network="traefik_default"
                 )
                 docker_id = container.id
+    
             print(docker_id)
             new_project.docker_id = docker_id
-
+            new_project.hash_id = hash_id
             db.session.add(new_project)
             db.session.commit()
             return new_project.id, True

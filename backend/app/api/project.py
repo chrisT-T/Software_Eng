@@ -31,7 +31,8 @@ class Project(Resource):
         "last_edit_time": fields.String,
         "project_language": fields.String,
         "creator_id": fields.Integer,
-        "docker_id": fields.String
+        "docker_id": fields.String,
+        "hash_id": fields.String
     }
 
     @login_required

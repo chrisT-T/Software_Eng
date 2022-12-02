@@ -77,6 +77,7 @@
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"
+              :container-subdomain="projectSubdomain"
               @save-file="saveFile"
               @start-debug="(path) => runDebugger(name + '/' + path)"
             >
@@ -162,6 +163,7 @@ import axios from "axios";
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {
     containerId.value = response.data["docker_id"];
+    projectSubdomain.value = response.data["hash_id"];
     console.log(response.data);
   });
 
@@ -178,6 +180,7 @@ const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
 const containerId = ref("");
+const projectSubdomain = ref("");
 const formLabelWidth = "140px";
 const form = reactive({
   name: "",
