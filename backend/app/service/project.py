@@ -49,15 +49,18 @@ class ProjectService():
                     image='python_lsp:latest',
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
-                    labels= {
-                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)", 
+                    labels={
+                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)",
                         f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
-                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000"
+                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
+                        f"traefik.http.routers.{hash_id}-debug.rule": f"Host(`{hash_id}.debug.localhost`)",
+                        f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
+                        f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
                     },
                     network="traefik_default"
                 )
                 docker_id = container.id
-    
+
             print(docker_id)
             new_project.docker_id = docker_id
             new_project.hash_id = hash_id

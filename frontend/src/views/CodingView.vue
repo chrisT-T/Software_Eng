@@ -48,7 +48,8 @@
             max-width: 50%;
             text-align: center;
           "
-          ><fileTree @open-file="openFile" />
+        >
+          <LeftBar @open-file="openFile" />
         </a-resize-box>
         <el-container direction="vertical">
           <a-resize-box
@@ -153,7 +154,7 @@ import {
   IconBug,
   IconPause,
 } from "@arco-design/web-vue/es/icon";
-import fileTree from "@/components/fileTree.vue";
+import LeftBar from "@/components/LeftBar/LeftBar.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
