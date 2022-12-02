@@ -84,7 +84,10 @@
             >
             </EditorPanel>
           </a-resize-box>
-          <TerminalPanel :containerId="containerId" :key="containerId" />
+          <BottomPanel
+            :container-id="containerId"
+            :key="containerId"
+          ></BottomPanel>
         </el-container>
       </el-container>
     </el-container>
@@ -158,8 +161,7 @@ import LeftBar from "@/components/LeftBar/LeftBar.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
-import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
-import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
+import BottomPanel from "@/components/BottomPanel/BottomPanel.vue";
 import axios from "axios";
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {

@@ -5,7 +5,7 @@
         <fileTree @open-file="openFile" />
       </el-tab-pane>
       <el-tab-pane label="Debug">
-        <h2>Debug Panel</h2>
+        <DebugLeftBar></DebugLeftBar>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { ref, defineEmits } from "vue";
 import fileTree from "@/components/fileTree.vue";
+import DebugLeftBar from "./DebugLeftBar.vue";
 const tabPosition = ref("left");
 
 const emit = defineEmits<{
