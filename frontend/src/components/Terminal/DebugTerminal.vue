@@ -1,9 +1,54 @@
 <template>
-  <div>
-    <h2>Debugger Terminal Panel</h2>
+  <div class="terminal">
+    <div ref="termDiv"></div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script lang="ts" setup>
+import { ref, onMounted, defineProps } from "vue";
+import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
+import { AttachAddon } from "xterm-addon-attach";
 
-<style></style>
+const props = defineProps<{
+  containerId: string;
+  containerSubdomain: string;
+}>();
+
+// terminal connection test
+const termDiv = ref<HTMLDivElement>();
+const term = new Terminal({
+  cursorBlink: true,
+  macOptionIsMeta: true,
+});
+const fitAddon = new FitAddon();
+const terminalWs = new WebSocket(
+  `ws://localhost:5005/websocket/${props.containerId}`
+);
+const attachAddon = new AttachAddon(terminalWs);
+
+// debugger functions
+let debugServiceURL = "";
+
+onMounted(() => {
+  console.log(`ws://localhost:5005/websocket/${props.containerId}`);
+  term.open(termDiv?.value as HTMLElement);
+  term.loadAddon(fitAddon);
+  term.loadAddon(attachAddon);
+
+  term.writeln("welcome to use debug Termainal");
+
+  setTimeout(() => {
+    fitAddon.fit();
+  }, 6);
+
+  debugServiceURL = `${props.containerId}.debug.localhost:8088`;
+});
+</script>
+
+<style scoped>
+.terminal {
+  text-align: left;
+}
+@import "xterm/css/xterm.css";
+</style>
