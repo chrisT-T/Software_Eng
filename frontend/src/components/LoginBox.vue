@@ -80,7 +80,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
           const code = response.status;
           console.log(code);
           if (code === 204) {
-            sessionStorage.setItem("username", ruleForm.username);
+            localStorage.setItem("username", ruleForm.username);
             router.replace({
               name: "main",
               params: { username: ruleForm.username },
