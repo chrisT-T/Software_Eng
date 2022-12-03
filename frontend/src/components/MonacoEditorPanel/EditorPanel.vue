@@ -35,6 +35,7 @@ import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from "y-websocket";
 import * as monaco from "monaco-editor";
+import { randomColor } from "randomcolor";
 import {
   ref,
   defineEmits,
@@ -45,6 +46,7 @@ import {
 } from "vue";
 import * as common from "./common";
 import { NullLogger } from "vscode-jsonrpc";
+import { forEach } from "lodash";
 
 export interface FileInfo {
   path: string;
@@ -246,20 +248,28 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
+    let block = [...document.styleSheets].reverse().find(({ cssRules }) => {
+      return [...cssRules].find((rule) => {
+        return rule.selectorText.includes("yRemoteSelection");
+      });
+    });
     setTimeout(() => {
       const ydoc = new Y.Doc();
+      const type = ydoc.getText("monaco");
       const provider = new WebsocketProvider(
         "ws://localhost:1234",
         "test",
         ydoc
       );
-      // const awareness = provider.awareness;
-      // awareness.setLocalStateField("user", {
-      //   name: props.username,
-      //   color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-      // });
-      // console.log(awareness.getStates());
-      const type = ydoc.getText("monaco");
+      const awareness = provider.awareness;
+      awareness.on("change", () => {
+        console.log(awareness.getStates());
+      });
+      awareness.setLocalStateField("user", {
+        name: props.username,
+        color: randomColor({ luminosity: "bright" }),
+      });
+      console.log(awareness.clientID);
       let editor = getEditorByIndex(tabIndex.toString()).getEditor();
       const monacoBinding = new MonacoBinding(
         type,
@@ -267,6 +277,14 @@ function addFile(path: string, value: string) {
         new Set([editor]),
         provider.awareness
       );
+      // common.cssRule.forEach((item) => {
+      //   block?.insertRule(
+      //     item
+      //       .replaceAll("clientID", awareness.clientID.toString())
+      //       .replaceAll("randomcolor", awareness.getLocalState()?.user.color),
+      //   0
+      //   );
+      // });
     }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;

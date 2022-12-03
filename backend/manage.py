@@ -51,6 +51,36 @@ def init_db():
     os.makedirs(proj.path)
     db.session.add(me)
     db.session.add(proj)
+    me = User(username="test3",
+              password_hash=generate_password_hash(str("test3")))
+    proj = Project(
+        project_name="a3",
+        project_language="Python",
+        docker_id="what3",
+        creator_id=3,
+        creator=me)
+    proj.admin_users.append(me)
+    project_root_dir = (f'{hash(proj.create_time)}-{proj.project_name}-{proj.project_language}')
+    rootdir = current_app.config['ROOT_DIR']
+    proj.path = os.path.abspath(f'{rootdir}/{project_root_dir}')
+    os.makedirs(proj.path)
+    db.session.add(me)
+    db.session.add(proj)
+    me = User(username="test4",
+              password_hash=generate_password_hash(str("test4")))
+    proj = Project(
+        project_name="a4",
+        project_language="Python",
+        docker_id="what4",
+        creator_id=4,
+        creator=me)
+    proj.admin_users.append(me)
+    project_root_dir = (f'{hash(proj.create_time)}-{proj.project_name}-{proj.project_language}')
+    rootdir = current_app.config['ROOT_DIR']
+    proj.path = os.path.abspath(f'{rootdir}/{project_root_dir}')
+    os.makedirs(proj.path)
+    db.session.add(me)
+    db.session.add(proj)
     db.session.commit()
 
 

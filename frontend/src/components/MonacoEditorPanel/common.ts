@@ -32,3 +32,23 @@ export const suffixTypeDict = new Map<string, string>([
   ["md", "markdown"],
 ]);
 export const nameTypeDict = new Map([["dockerfile", "dockerfile"]]);
+
+export const cssRule = [
+  ".yRemoteSelection .yRemoteSelection-clientID { background-color: randomcolor;}",
+  `.yRemoteSelectionHead .yRemoteSelectionHead-clientID {
+  position: absolute;
+  border-left: randomcolor solid 2px;
+  border-top: randomcolor solid 2px;
+  border-bottom: randomcolor solid 2px;
+  height: 100%;
+  box-sizing: border-box;
+}`,
+  `.yRemoteSelectionHead .yRemoteSelectionHead-clientID::after {
+  position: absolute;
+  content: " ";
+  border: 3px solid randomcolor;
+  border-radius: 4px;
+  left: -4px;
+  top: -5px;
+}`,
+];
