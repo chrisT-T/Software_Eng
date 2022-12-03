@@ -253,12 +253,12 @@ function addFile(path: string, value: string) {
         "test",
         ydoc
       );
-      const awareness = provider.awareness;
-      awareness.setLocalStateField("user", {
-        name: props.username,
-        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-      });
-      console.log(awareness.getLocalState());
+      // const awareness = provider.awareness;
+      // awareness.setLocalStateField("user", {
+      //   name: props.username,
+      //   color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+      // });
+      // console.log(awareness.getStates());
       const type = ydoc.getText("monaco");
       let editor = getEditorByIndex(tabIndex.toString()).getEditor();
       const monacoBinding = new MonacoBinding(
