@@ -6,12 +6,10 @@ import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import ArcoVue from "@arco-design/web-vue";
 import "@arco-design/web-vue/dist/arco.css";
-import { VueSession } from "vue-session";
 
 createApp(App)
   .use(store)
   .use(router)
   .use(ElementPlus)
   .use(ArcoVue)
-  .use(VueSession)
   .mount("#app");

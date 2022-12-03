@@ -46,33 +46,36 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.LoginRequired) {
-    const username = sessionStorage.getItem("username");
-    const activeTime = Number(sessionStorage.getItem("active_time"));
+  const username = localStorage.getItem("username");
+  console.log(localStorage.getItem("username"));
+  if (username) {
+    const activeTime = Number(localStorage.getItem("active_time"));
     const time = new Date().getTime();
     if (time - activeTime > 1800000 && activeTime != 0) {
-      sessionStorage.removeItem("username");
-      sessionStorage.removeItem("active_time");
-      axios.get("/auth/logout");
+      localStorage.removeItem("username");
+      localStorage.removeItem("active_time");
+      axios.get("/api/logout");
       router.replace("/login");
-    } else if (username) {
+    } else {
+      if (to.name == "login") {
+        router.replace({ name: "main", params: { username: username } });
+      }
       if (to.params.username == username) {
         next();
       } else {
         router.replace({ name: "main", params: { username: username } });
       }
-    } else {
+    }
+  } else {
+    if (to.name !== "login") {
       next({
         path: "/login",
         query: { redirected: to.fullPath },
       });
+    } else {
+      next();
     }
-  } else if (to.name == "login") {
-    const username = sessionStorage.getItem("username");
-    if (username) {
-      router.replace({ name: "main", params: { username: username } });
-    } else next();
-  } else next();
+  }
 });
 
 export default router;
