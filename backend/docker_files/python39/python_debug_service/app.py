@@ -117,6 +117,11 @@ def start_debug():
     token = data['token']
     path = data['filepath']
 
+    pdb_input_server[token], pdb_input_client[token] = os.pipe()
+    pdb_output_client[token], pdb_output_server[token] = os.pipe()
+    pdb_instance[token] = PdbExt(stdin=os.fdopen(pdb_input_server[token], 'r'), stdout=os.fdopen(pdb_output_server[token], 'w'))
+    socketio.start_background_task(target=forward_pdb_output, token=token)
+
     def run_pdb_process(token, instance: PdbExt):
         flag: str = 'success'
         try:
@@ -153,51 +158,6 @@ def clearBreakPoint():
     else:
         pdb_instance_lock.release()
         return {'runflag': False}
-
-# 连接：新建一个 Pdb 实例，并将其（Pdb）输入输出用管道导出
-
-
-@socketio.on("connect_to_pdb", namespace='/pdb')
-def pdb_connect(data):
-    token = data['token']
-    socketio.emit('clear_screen', {'token': token}, namespace="/pdb", to=request.sid)
-    if token in pdb_input_server.keys():
-        return
-
-    pdb_input_server[token], pdb_input_client[token] = os.pipe()
-    pdb_output_client[token], pdb_output_server[token] = os.pipe()
-    pdb_instance[token] = PdbExt(stdin=os.fdopen(pdb_input_server[token], 'r'), stdout=os.fdopen(pdb_output_server[token], 'w'))
-    socketio.start_background_task(target=forward_pdb_output, token=token)
-
-
-@socketio.on("connect", namespace='/pdb')
-def connect():
-    pass
-
-
-@socketio.on("disconnect_from_pdb", namespace='/pdb')
-def pdb_disconnect():
-    token = request.sid
-    pdb_instance_lock.acquire()
-    if token in pdb_instance.keys():
-        pdb_input_client.pop(token)
-        pdb_input_server.pop(token)
-        pdb_output_client.pop(token)
-        pdb_output_server.pop(token)
-        pdb_instance.pop(token)
-    pdb_instance_lock.release()
-
-
-@socketio.on("disconnect", namespace='/pdb')
-def disconnect():
-    pass
-
-
-@atexit.register
-def atexit_function():
-    for key in pdb_instance.keys():
-        socketio.emit("pdb_terminated", {'token': key}, namespace="/pdb")
-    time.sleep(0.2)
 
 
 @app.cli.command("runserver")
