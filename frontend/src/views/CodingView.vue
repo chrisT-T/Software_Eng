@@ -86,6 +86,7 @@
           </a-resize-box>
           <BottomPanel
             :container-id="containerId"
+            :container-subdomain="projectSubdomain"
             :key="containerId"
           ></BottomPanel>
         </el-container>

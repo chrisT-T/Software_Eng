@@ -5,7 +5,11 @@
         <TerminalPanel :containerId="containerId" :key="containerId" />
       </el-tab-pane>
       <el-tab-pane label="Debug">
-        <DebugTerminal></DebugTerminal>
+        <DebugTerminal
+          :containerId="$props.containerId"
+          :container-subdomain="$props.containerSubdomain"
+          :key="containerId"
+        />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -16,14 +20,14 @@ import { ref, defineProps, onMounted } from "vue";
 import TerminalPanel from "../Terminal/TerminalPanel.vue";
 import DebugTerminal from "../Terminal/DebugTerminal.vue";
 const tabPosition = ref("left");
-const containerId = ref("");
 
 const props = defineProps<{
   containerId: string;
+  containerSubdomain: string;
 }>();
 
 onMounted(() => {
-  containerId.value = props.containerId;
+  console.log(props);
 });
 </script>
 

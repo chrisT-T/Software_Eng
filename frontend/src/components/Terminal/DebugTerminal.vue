@@ -1,15 +1,17 @@
 <template>
   <div class="terminal">
+    <h2>{{ stage.message }}</h2>
+    <h2>{{ props.containerSubdomain }}</h2>
     <div ref="termDiv"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineProps } from "vue";
+import { ref, onMounted, defineProps, reactive } from "vue";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { AttachAddon } from "xterm-addon-attach";
-
+import axios from "axios";
 const props = defineProps<{
   containerId: string;
   containerSubdomain: string;
@@ -26,9 +28,28 @@ const terminalWs = new WebSocket(
   `ws://localhost:5005/websocket/${props.containerId}`
 );
 const attachAddon = new AttachAddon(terminalWs);
-
+const stage = reactive({
+  flag: false,
+  message: "Debug service is not running",
+});
 // debugger functions
 let debugServiceURL = "";
+
+function getDebugStage() {
+  if (props.containerSubdomain == "") {
+    return;
+  }
+  axios
+    .get(`http://${debugServiceURL}/pdb/test`)
+    .then(() => {
+      stage.flag = true;
+      stage.message = "Debug service is running";
+    })
+    .catch(() => {
+      stage.flag = false;
+      stage.message = "Debug service is not running";
+    });
+}
 
 onMounted(() => {
   console.log(`ws://localhost:5005/websocket/${props.containerId}`);
@@ -42,7 +63,12 @@ onMounted(() => {
     fitAddon.fit();
   }, 6);
 
-  debugServiceURL = `${props.containerId}.debug.localhost:8088`;
+  debugServiceURL = `${props.containerSubdomain}.debug.localhost:8088`;
+
+  setTimeout(() => {
+    getDebugStage();
+    console.log(debugServiceURL);
+  }, 5000);
 });
 </script>
 
