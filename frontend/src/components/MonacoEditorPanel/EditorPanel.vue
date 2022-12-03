@@ -79,6 +79,7 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
+  disposePanel,
 });
 
 watch(
@@ -244,24 +245,26 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
-    setTimeout(() => {
-      const ydoc = new Y.Doc();
-      const provider = new WebsocketProvider(
-        "ws://localhost:1234",
-        "test",
-        ydoc
-      );
-      const type = ydoc.getText("monaco");
-      let editor = getEditorByIndex(tabIndex.toString()).getEditor();
-      console.log(editor);
-      let model = fileInfos[fileInfos.length - 1].options.model;
-      const monacoBinding = new MonacoBinding(
-        type,
-        model,
-        new Set([editor]),
-        provider.awareness
-      );
-    }, 5);
+    // setTimeout(() => {
+    //   const ydoc = new Y.Doc();
+    //   const provider = new WebsocketProvider(
+    //     "ws://localhost:1234",
+    //     "test",
+    //     ydoc
+    //   );
+    //   const awareness = provider.awareness;
+    //   // awareness.setLocalStateField("user", {
+    //   // name:
+    //   // })
+    //   const type = ydoc.getText("monaco");
+    //   let editor = getEditorByIndex(tabIndex.toString()).getEditor();
+    //   const monacoBinding = new MonacoBinding(
+    //     type,
+    //     editor.getModel(),
+    //     new Set([editor]),
+    //     provider.awareness
+    //   );
+    // }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
     let model = fileInfos[fileIndex].options.model;
@@ -470,6 +473,15 @@ function clearFocusLine() {
     );
   });
   return;
+}
+
+function disposePanel() {
+  fileInfos.forEach((item) => {
+    let model = item.options.model as monaco.editor.ITextModel;
+    model.dispose();
+  });
+  fileInfos.splice(0);
+  editableTabs.value.splice(0);
 }
 </script>
 

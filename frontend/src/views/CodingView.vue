@@ -143,7 +143,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref, onMounted } from "vue";
+import { reactive, getCurrentInstance, ref, onMounted, onUnmounted } from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -215,6 +215,8 @@ const changepr: PermissionTest[] = [
 ];
 
 const backmain = () => {
+  console.log("dispose panel");
+  editorPanel.value?.disposePanel();
   console.log(name);
   router.replace({ name: "main", params: { username: name } });
 };
