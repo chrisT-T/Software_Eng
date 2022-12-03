@@ -65,6 +65,7 @@ export interface TabInfo {
 
 const props = defineProps<{
   theme: string;
+  username: string;
 }>();
 
 const emit = defineEmits<{
@@ -245,26 +246,28 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
-    // setTimeout(() => {
-    //   const ydoc = new Y.Doc();
-    //   const provider = new WebsocketProvider(
-    //     "ws://localhost:1234",
-    //     "test",
-    //     ydoc
-    //   );
-    //   const awareness = provider.awareness;
-    //   // awareness.setLocalStateField("user", {
-    //   // name:
-    //   // })
-    //   const type = ydoc.getText("monaco");
-    //   let editor = getEditorByIndex(tabIndex.toString()).getEditor();
-    //   const monacoBinding = new MonacoBinding(
-    //     type,
-    //     editor.getModel(),
-    //     new Set([editor]),
-    //     provider.awareness
-    //   );
-    // }, 5);
+    setTimeout(() => {
+      const ydoc = new Y.Doc();
+      const provider = new WebsocketProvider(
+        "ws://localhost:1234",
+        "test",
+        ydoc
+      );
+      const awareness = provider.awareness;
+      awareness.setLocalStateField("user", {
+        name: props.username,
+        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+      });
+      console.log(awareness.getLocalState());
+      const type = ydoc.getText("monaco");
+      let editor = getEditorByIndex(tabIndex.toString()).getEditor();
+      const monacoBinding = new MonacoBinding(
+        type,
+        editor.getModel(),
+        new Set([editor]),
+        provider.awareness
+      );
+    }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
     let model = fileInfos[fileIndex].options.model;

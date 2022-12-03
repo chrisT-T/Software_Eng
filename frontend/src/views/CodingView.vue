@@ -77,6 +77,7 @@
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"
+              :username="name"
               @save-file="saveFile"
               @start-debug="(path) => runDebugger(name + '/' + path)"
             >
@@ -218,6 +219,7 @@ const backmain = () => {
   console.log("dispose panel");
   editorPanel.value?.disposePanel();
   console.log(name);
+  console.log(typeof name);
   router.replace({ name: "main", params: { username: name } });
 };
 
