@@ -3,6 +3,7 @@ import os
 import threading
 import time
 
+import click
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -161,9 +162,10 @@ def clearBreakPoint():
 
 
 @app.cli.command("runserver")
-def runserver():
+@click.argument("run_port")
+def runserver(run_port):
     print("Set")
-    app.run(port=30005, host="0.0.0.0")
+    app.run(port=run_port, host="0.0.0.0")
 
 
 if __name__ == '__main__':

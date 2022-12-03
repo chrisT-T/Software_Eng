@@ -1,4 +1,5 @@
 import os
+import random
 import shlex
 import subprocess
 import threading
@@ -42,10 +43,12 @@ def create_service(token):
     forwarding_thread = threading.Thread(target=forwarding_application_output, args=(token), daemon=True)
     forwarding_thread.run()
 
-    run_command = shlex("python /python_debug_service/app.py runserver")
-    subprocess.call(run_command, stdin=os.fdopen(debug_service_input_server[token], 'r'), stdout=os.fdopen(debug_service_output_server, 'w'))
-    # TODO: alloc port for debug service
+    port = random.randint(35000, 60000)
+    while is_port_in_use(port):
+        port = random.randint(35000, 60000)
 
+    run_command = shlex(f"python /python_debug_service/app.py runserver {port}")
+    subprocess.call(run_command, stdin=os.fdopen(debug_service_input_server[token], 'r'), stdout=os.fdopen(debug_service_output_server, 'w'))
     # service terminated, for any reason
     socketio.emit("service_exit", {'token': token})
 
@@ -137,3 +140,19 @@ def socket_create_service():
 @socketio.on("connect")
 def socket_connect():
     pass
+
+
+def is_port_in_use(port):
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+
+@app.cli.command("runserver")
+def runserver():
+    print("Set")
+    app.run(port=30005, host="0.0.0.0")
+
+
+if __name__ == '__main__':
+    app.cli()
