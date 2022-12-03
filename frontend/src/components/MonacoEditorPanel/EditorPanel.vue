@@ -247,12 +247,13 @@ function addFile(path: string, value: string) {
     setTimeout(() => {
       const ydoc = new Y.Doc();
       const provider = new WebsocketProvider(
-        "ws://localhost:7070",
+        "ws://localhost:1234",
         "test",
         ydoc
       );
       const type = ydoc.getText("monaco");
-      let editor = getEditorByIndex(tabIndex.toString());
+      let editor = getEditorByIndex(tabIndex.toString()).getEditor();
+      console.log(editor);
       let model = fileInfos[fileInfos.length - 1].options.model;
       const monacoBinding = new MonacoBinding(
         type,
