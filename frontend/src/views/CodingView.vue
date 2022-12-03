@@ -49,7 +49,7 @@
             text-align: center;
           "
         >
-          <LeftBar @open-file="openFile" />
+          <LeftBar @open-file="openFile" :language="projectLanguage" />
         </a-resize-box>
         <el-container direction="vertical">
           <a-resize-box
@@ -168,6 +168,7 @@ onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {
     containerId.value = response.data["docker_id"];
     projectSubdomain.value = response.data["hash_id"];
+    projectLanguage.value = response.data["project_language"];
     console.log(response.data);
   });
 
@@ -183,8 +184,11 @@ const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
+
 const containerId = ref("");
 const projectSubdomain = ref("");
+const projectLanguage = ref("");
+
 const formLabelWidth = "140px";
 const form = reactive({
   name: "",
