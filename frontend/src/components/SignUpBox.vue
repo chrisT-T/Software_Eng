@@ -65,10 +65,10 @@ const checkUsername = (rule: any, value: any, callback: any) => {
         .then(function (response) {
           callback(new Error("用户名重复或无效"));
         })
-        .catch(function (response) {
-          const code = response.status;
+        .catch(function (error) {
+          const code = error.response.status;
           if (code !== 404) {
-            callback(new Error("用户名重复或无效"));
+            callback(new Error("服务器错误"));
           } else {
             callback();
           }
@@ -147,8 +147,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
               const code = response.status;
               if (code === 204) {
                 const timestamp = new Date().getTime();
-                sessionStorage.setItem("username", ruleForm.username);
-                sessionStorage.setItem("active_time", timestamp);
+                localStorage.setItem("username", ruleForm.username);
+                localStorage.setItem("active_time", timestamp);
                 router.replace({
                   name: "main",
                   params: { username: ruleForm.username },

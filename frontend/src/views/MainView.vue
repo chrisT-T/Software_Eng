@@ -69,7 +69,7 @@ import { Search } from "@element-plus/icons-vue";
 onMounted(() => {
   setInterval(() => {
     const time = new Date().getTime();
-    sessionStorage.setItem("active_time", time);
+    localStorage.setItem("active_time", time);
   }, 5 * 60 * 1000);
 });
 
@@ -82,9 +82,9 @@ const select = ref("");
 
 const logout = () => {
   console.log("logout");
-  sessionStorage.removeItem("username");
-  sessionStorage.removeItem("login_time");
-  axios.get("/auth/logout");
+  localStorage.removeItem("username");
+  localStorage.removeItem("login_time");
+  axios.get("/api/logout");
   router.replace("/login");
 };
 </script>
