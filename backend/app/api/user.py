@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, reqparse
 
 from app.checker import (check_change_password_param, check_create_user_param,
-                         check_project_permission)
+                         check_invite_user_params, check_accept_invitation_param)
 from app.service import ProjectService, UserService
 
 user_service = UserService()
@@ -145,7 +145,7 @@ def related_projects(username):
         for user in i.readonly_users:
             perm_name.append({
                 'user': user.username,
-                'permission': 'readonly',
+                'permission': 'read',
             })
         for user in i.editable_users:
             perm_name.append({
@@ -153,10 +153,11 @@ def related_projects(username):
                 'permission': 'edit',
             })
         for user in i.admin_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'administrator',
-            })
+            if user.username != i.creator.username:
+                perm_name.append({
+                    'user': user.username,
+                    'permission': 'administrator',
+                })
         for user in i.pending_users:
             perm_name.append({
                 'user': user.username,
@@ -173,3 +174,59 @@ def related_projects(username):
             'dockerId': i.docker_id
         })
     return response, 200
+
+@bp.route('/api/user/<string:username>/invites/', methods=['GET'])
+@login_required
+def pending_invitations(username):
+    res, flag = user_service.find_user_by_username(username)
+    if not flag:
+        abort(400, message=res)
+    pendings = res.pending_projects
+    response = []
+    for proj in pendings:
+        perm_name = []
+        for user in proj.readonly_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'read',
+            })
+        for user in proj.editable_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'edit',
+            })
+        for user in proj.admin_users:
+            if user.username != proj.creator.username:
+                perm_name.append({
+                    'user': user.username,
+                    'permission': 'admin',
+                })
+        for user in proj.pending_users:
+            perm_name.append({
+                'user': user.username,
+                'permission': 'pending',
+            })
+        response.append({
+            'projectID': proj.id,
+            'projectName': proj.project_name,
+            'language': proj.project_language,
+            'creator': proj.creator.username,
+            'permissionGp': perm_name,
+            'lastUpdateTime': proj.last_edit_time,
+            'createTime': proj.create_time,
+            'dockerId': proj.docker_id
+        })
+    return response, 200
+
+@bp.route('/api/user/<string:username>/accept/<int:proj_id>', methods=['GET'])
+@login_required
+def accept_invitation(username, proj_id):
+    err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
+    if not flag:
+        return err, 400
+    
+    res, flag = proj_service.accept_invitation(current_user.username, proj_id)
+    if not flag:
+        return res, 400
+    else:
+        return '', 204
