@@ -6,7 +6,6 @@ from shutil import rmtree
 
 import docker
 from flask import current_app
-from werkzeug.security import generate_password_hash
 
 from app.extensions import db
 from app.model.project import Project
@@ -76,7 +75,7 @@ class ProjectService():
             print(e)
             return 'Exception in get container id', False
 
-    def get_project(self, project_id: int):
+    def find_project(self, project_id: int):
         '''
         get the project model instance by project id
 
@@ -114,95 +113,25 @@ class ProjectService():
             print(e)
             return 'Exception in remove project', False
 
-    def add_user_admin(self, project_id: int, username: str):
-        '''
-        add a admin user to a project by project_id and username
-
-        :return: ("Error Message", False), ("user already in admin list" or "admin user added", True),
-        '''
+    def change_user_permission(self, project_id: int, username: str, original_perm: str, new_perm: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
             user = User.query.filter_by(username=username).first()
-            if user in target.admin_users:
-                return "user already in admin list", True
 
-            if user not in target.readonly_users and user not in target.editable_users:
-                return "user not in project", False
-            if user in target.readonly_users:
-                target.readonly_users.remove(user)
-            if user in target.editable_users:
-                target.editable_users.remove(user)
-            target.admin_users.append(user)
-            return "admin user added", True
+            perms = ['admin', 'edit', 'read']
+            groups = [target.admin_users, target.editable_users, target.readonly_users]
+
+            groups[perms.index(original_perm)].remove(user)
+            groups[perms.index(new_perm)].append(user)
+            db.session.commit()
+
+            return "permission changed", True
 
         except Exception as e:
             print(e)
-            return 'Exception in add admin', False
+            return 'Exception in changing permission', False
 
-    def add_user_read(self, project_id: int, username: str):
-        '''
-        add a read user to a project by project_id and username
-
-        :return: ("Error Message", False), ("user already in read list" or "read user added", True),
-        '''
-        try:
-            target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
-            user = User.query.filter_by(username=username).first()
-
-            if user in target.readonly_users:
-                return "user already in read list", True
-
-            if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users:
-                return "user not in project", False
-            if user in target.admin_users:
-                target.admin_users.remove(user)
-            if user in target.editable_users:
-                target.editable_users.remove(user)
-            if user in target.pending_users:
-                target.pending_users.remove(user)
-            target.readonly_users.append(user)
-            return "read user added", True
-
-        except Exception as e:
-            print(e)
-            return 'Exception in add read', False
-
-    def add_user_edit(self, project_id: int, username: str):
-        '''
-        add a edit user to a project by project_id and username
-
-        :return: ("Error Message", False), ("user already in edit list" or "edit user added", True),
-        '''
-        try:
-            target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
-            user = User.query.filter_by(username=username).first()
-
-            if user in target.edit_users:
-                return "user already in edit list", True
-
-            if user not in target.admin_users and user not in target.readonly_users:
-                return "user not in project", False
-            if user in target.admin_users:
-                target.admin_users.remove(user)
-            if user in target.readonly_users:
-                target.readonly_users.remove(user)
-            target.editable_users.append(user)
-            return "edit user added", True
-
-        except Exception as e:
-            print(e)
-            return 'Exception in add admin', False
-
-    def add_user_pending(self, project_id: int, username: str):
+    def invite_user(self, project_id: int, username: str):
         '''
         add a user to a project pending by project_id and username
 
@@ -210,15 +139,13 @@ class ProjectService():
         '''
         try:
             target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
             user = User.query.filter_by(username=username).first()
 
-            if user in target.edit_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
-                return "user already exist", True
+            if user in target.editable_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
+                return "user already exist", False
 
             target.pending_users.append(user)
+            db.session.commit()
             return "pending user added", True
 
         except Exception as e:
@@ -233,42 +160,45 @@ class ProjectService():
         '''
         try:
             target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
             target.last_edit_time = datetime.date.fromtimestamp(time.time())
+
             return "edit time updated", True
 
         except Exception as e:
             print(e)
             return 'Exception in update edit time', False
 
-    def remove_user(self, project_id: int, username: str):
+    def remove_user(self, project_id: int, username: str, original_perm: str):
         try:
             target = Project.query.filter_by(id=project_id).first()
-            if not target:
-                return 'no such project id', False
-
             user = User.query.filter_by(username=username).first()
-            if not user:
-                return 'no such user', False
 
-            if user not in target.admin_users and user not in target.editable_users and user not in target.pending_users and user not in target.readonly_users:
-                return 'user not exist in project', False
+            perms = ['admin', 'edit', 'read', 'pending']
+            groups = [target.admin_users, target.editable_users, target.readonly_users, target.pending_users]
 
-            if user in target.admin_users:
-                target.admin_users.remove(user)
-            if user in target.readonly_users:
-                target.readonly_users.remove(user)
-            if user in target.editable_users:
-                target.editable_users.remove(user)
-            if user in target.pending_users:
-                target.pending_users.remove(user)
+            groups[perms.index(original_perm)].remove(user)
+
+            db.session.commit()
             return "user removed", True
 
         except Exception as e:
             print(e)
             return 'Exception in remove user', False
+
+    def accept_invitation(self, username, proj_id):
+        try:
+            target = Project.query.filter_by(id=proj_id).first()
+            user = User.query.filter_by(username=username).first()
+
+            target.pending_users.remove(user)
+            target.readonly_users.append(user)
+            db.session.commit()
+
+            return "invitation accepted", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in accepting invitation', False
 
     def change_name(self, project_id: int, name: str):
         '''
@@ -318,9 +248,3 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in getting file tree', False
-
-
-if __name__ == '__main__':
-    service = ProjectService()
-    tmp = service.get_file_tree(6)
-    print(tmp)
