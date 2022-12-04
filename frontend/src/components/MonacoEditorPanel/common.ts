@@ -34,8 +34,8 @@ export const suffixTypeDict = new Map<string, string>([
 export const nameTypeDict = new Map([["dockerfile", "dockerfile"]]);
 
 export const cssRule = [
-  ".yRemoteSelection .yRemoteSelection-clientID { background-color: randomcolor;}",
-  `.yRemoteSelectionHead .yRemoteSelectionHead-clientID {
+  ".yRemoteSelection.yRemoteSelection-clientID { background-color: randomcolor;}",
+  `.yRemoteSelectionHead.yRemoteSelectionHead-clientID {
   position: absolute;
   border-left: randomcolor solid 2px;
   border-top: randomcolor solid 2px;
@@ -43,7 +43,7 @@ export const cssRule = [
   height: 100%;
   box-sizing: border-box;
 }`,
-  `.yRemoteSelectionHead .yRemoteSelectionHead-clientID::after {
+  `.yRemoteSelectionHead.yRemoteSelectionHead-clientID::after {
   position: absolute;
   content: " ";
   border: 3px solid randomcolor;

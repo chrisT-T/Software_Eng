@@ -53,6 +53,7 @@ export interface FileInfo {
   modified: boolean;
   index: number;
   show: boolean;
+  provider: WebsocketProvider | null;
   options: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
@@ -231,6 +232,7 @@ function addFile(path: string, value: string) {
       modified: false,
       index: ++tabIndex,
       show: true,
+      provider: null,
       options: {
         theme: props.theme, // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
@@ -261,9 +263,23 @@ function addFile(path: string, value: string) {
         "test",
         ydoc
       );
+      fileInfos[fileInfos.length - 1].provider = provider;
       const awareness = provider.awareness;
       awareness.on("change", () => {
         console.log(awareness.getStates());
+        while (!block?.cssRules[0].selectorText.includes("monaco")) {
+          block?.deleteRule(0);
+        }
+        awareness.getStates().forEach((value, clientID) => {
+          common.cssRule.forEach((item) => {
+            block?.insertRule(
+              item
+                .replaceAll("clientID", clientID.toString())
+                .replaceAll("randomcolor", value.user.color),
+              0
+            );
+          });
+        });
       });
       awareness.setLocalStateField("user", {
         name: props.username,
@@ -277,14 +293,6 @@ function addFile(path: string, value: string) {
         new Set([editor]),
         provider.awareness
       );
-      // common.cssRule.forEach((item) => {
-      //   block?.insertRule(
-      //     item
-      //       .replaceAll("clientID", awareness.clientID.toString())
-      //       .replaceAll("randomcolor", awareness.getLocalState()?.user.color),
-      //   0
-      //   );
-      // });
     }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
@@ -324,6 +332,7 @@ function deleteFile(path: string) {
     return;
   }
   fileInfos[fileIndex].options.model?.dispose();
+  fileInfos[fileIndex].provider?.destroy();
   justRemoveTab(fileInfos[fileIndex].index.toString());
   fileInfos.splice(fileIndex, 1);
 }
@@ -500,6 +509,10 @@ function disposePanel() {
   fileInfos.forEach((item) => {
     let model = item.options.model as monaco.editor.ITextModel;
     model.dispose();
+    let provider = item.provider;
+    if (provider != null) {
+      provider.destroy();
+    }
   });
   fileInfos.splice(0);
   editableTabs.value.splice(0);
