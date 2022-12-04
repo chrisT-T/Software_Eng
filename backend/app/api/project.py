@@ -2,11 +2,10 @@ from flask import Blueprint, current_app, json, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
-from app.checker import (check_create_project_param,
-                         check_edit_project_password, 
-                         check_project_permission,
-                         check_change_user_permission_params,
-                         check_invite_user_params)
+from app.checker import (check_change_user_permission_params,
+                         check_create_project_param,
+                         check_edit_project_password, check_invite_user_params,
+                         check_project_permission)
 from app.service import ProjectService, UserService
 
 bp = Blueprint(
@@ -185,18 +184,19 @@ def file_tree(proj_id):
     else:
         return res, 400
 
+
 @bp.route('/api/project/<int:proj_id>/perm/', methods=['POST'])
 @login_required
 def change_user_permission(proj_id):
     if not check_project_permission(proj_id, "admin"):
         return 'Permission denied', 401
-    
+
     args = parser.parse_args()
     res, flag = check_change_user_permission_params(args, proj_id)
-    
+
     if not flag:
         return res, 400
-    
+
     original_perm = args['original_permission']
     new_perm = args['new_permission']
     username = args['username']
@@ -209,6 +209,7 @@ def change_user_permission(proj_id):
         return '', 204
     else:
         return res, 400
+
 
 @bp.route('/api/project/<int:proj_id>/invite/', methods=['POST'])
 @login_required

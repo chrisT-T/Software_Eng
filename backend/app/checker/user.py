@@ -1,9 +1,10 @@
 import re
 
-from app.service import UserService, ProjectService
+from app.service import ProjectService, UserService
 
 user_service = UserService()
 proj_service = ProjectService()
+
 
 def check_create_user_param(content: dict):
     '''
@@ -46,19 +47,20 @@ def check_change_password_param(content: dict):
         return 'password_new', False
     return "ok", True
 
+
 def check_accept_invitation_param(args: dict, proj_id: int):
     username = args['username']
     if not username:
         return 'missing param: username', False
-    
+
     user, flag = user_service.find_user_by_username(username)
     if not flag:
         return 'user not exist', False
-    
+
     proj, flag = proj_service.find_project(proj_id)
     if not flag:
         return 'project not exist', False
-    
+
     if user not in proj.pending_users:
         return 'user is not invited', False
     return '', True

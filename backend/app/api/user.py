@@ -2,8 +2,9 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, reqparse
 
-from app.checker import (check_change_password_param, check_create_user_param,
-                         check_invite_user_params, check_accept_invitation_param)
+from app.checker import (check_accept_invitation_param,
+                         check_change_password_param, check_create_user_param,
+                         check_invite_user_params)
 from app.service import ProjectService, UserService
 
 user_service = UserService()
@@ -175,6 +176,7 @@ def related_projects(username):
         })
     return response, 200
 
+
 @bp.route('/api/user/<string:username>/invites/', methods=['GET'])
 @login_required
 def pending_invitations(username):
@@ -218,13 +220,14 @@ def pending_invitations(username):
         })
     return response, 200
 
+
 @bp.route('/api/user/<string:username>/accept/<int:proj_id>', methods=['GET'])
 @login_required
 def accept_invitation(username, proj_id):
     err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
     if not flag:
         return err, 400
-    
+
     res, flag = proj_service.accept_invitation(current_user.username, proj_id)
     if not flag:
         return res, 400

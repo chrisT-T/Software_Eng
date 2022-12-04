@@ -117,20 +117,20 @@ class ProjectService():
         try:
             target = Project.query.filter_by(id=project_id).first()
             user = User.query.filter_by(username=username).first()
-            
+
             perms = ['admin', 'edit', 'read']
-            groups = [target.admin_users,target.editable_users,target.readonly_users]
-            
+            groups = [target.admin_users, target.editable_users, target.readonly_users]
+
             groups[perms.index(original_perm)].remove(user)
             groups[perms.index(new_perm)].append(user)
             db.session.commit()
-            
+
             return "permission changed", True
 
         except Exception as e:
             print(e)
             return 'Exception in changing permission', False
-    
+
     def invite_user(self, project_id: int, username: str):
         '''
         add a user to a project pending by project_id and username
@@ -140,7 +140,7 @@ class ProjectService():
         try:
             target = Project.query.filter_by(id=project_id).first()
             user = User.query.filter_by(username=username).first()
-            
+
             if user in target.editable_users or user in target.readonly_users or user in target.admin_users or user in target.pending_users:
                 return "user already exist", False
 
@@ -161,7 +161,7 @@ class ProjectService():
         try:
             target = Project.query.filter_by(id=project_id).first()
             target.last_edit_time = datetime.date.fromtimestamp(time.time())
-            
+
             return "edit time updated", True
 
         except Exception as e:
@@ -174,17 +174,17 @@ class ProjectService():
             user = User.query.filter_by(username=username).first()
 
             perms = ['admin', 'edit', 'read', 'pending']
-            groups = [target.admin_users,target.editable_users,target.readonly_users, target.pending_users]
-            
+            groups = [target.admin_users, target.editable_users, target.readonly_users, target.pending_users]
+
             groups[perms.index(original_perm)].remove(user)
-            
+
             db.session.commit()
             return "user removed", True
 
         except Exception as e:
             print(e)
             return 'Exception in remove user', False
-    
+
     def accept_invitation(self, username, proj_id):
         try:
             target = Project.query.filter_by(id=proj_id).first()
@@ -193,7 +193,7 @@ class ProjectService():
             target.pending_users.remove(user)
             target.readonly_users.append(user)
             db.session.commit()
-            
+
             return "invitation accepted", True
 
         except Exception as e:
