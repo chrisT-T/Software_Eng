@@ -69,6 +69,7 @@ export interface TabInfo {
 const props = defineProps<{
   theme: string;
   username: string;
+  projectid: string;
 }>();
 
 const emit = defineEmits<{
@@ -221,11 +222,11 @@ function getLanguageByFileName(fileName: string) {
 }
 
 function addFile(path: string, value: string) {
+  console.log(props.projectid + path);
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
   let language = getLanguageByFileName(fileName);
   let parentPath = path.substring(0, path.length - fileName.length) as string;
-  console.log(parentPath);
   let fileIndex = fileInfos.findIndex((fileInfo) => fileInfo.path === path);
 
   if (fileIndex === -1) {
@@ -262,13 +263,13 @@ function addFile(path: string, value: string) {
       const type = ydoc.getText("monaco");
       const provider = new WebsocketProvider(
         "ws://localhost:1234",
-        "test",
+        props.projectid + path,
         ydoc
       );
       fileInfos[fileInfos.length - 1].provider = provider;
       const awareness = provider.awareness;
       awareness.on("change", () => {
-        // console.log(awareness.getStates());
+        console.log(awareness.getStates());
         while (!block?.cssRules[0].selectorText.includes("monaco")) {
           block?.deleteRule(0);
         }

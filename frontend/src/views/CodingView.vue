@@ -81,6 +81,7 @@
               ref="editorPanel"
               :theme="editorTheme"
               :username="name"
+              :projectid="projectID"
               @save-file="saveFile"
               @start-debug="(path) => runDebugger(name + '/' + path)"
             >
