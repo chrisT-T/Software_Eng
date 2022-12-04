@@ -83,6 +83,7 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
+  getColorMap,
   disposePanel,
 });
 
@@ -94,6 +95,7 @@ watch(
 );
 
 const fileInfos = new Array<FileInfo>();
+const colorMap = new Map<string, string>();
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
@@ -266,10 +268,12 @@ function addFile(path: string, value: string) {
       fileInfos[fileInfos.length - 1].provider = provider;
       const awareness = provider.awareness;
       awareness.on("change", () => {
-        console.log(awareness.getStates());
+        // console.log(awareness.getStates());
         while (!block?.cssRules[0].selectorText.includes("monaco")) {
           block?.deleteRule(0);
         }
+        colorMap.clear();
+
         awareness.getStates().forEach((value, clientID) => {
           common.cssRule.forEach((item) => {
             block?.insertRule(
@@ -279,13 +283,15 @@ function addFile(path: string, value: string) {
               0
             );
           });
+          colorMap[value.user.name] = value.user.color;
         });
       });
       awareness.setLocalStateField("user", {
         name: props.username,
         color: randomColor({ luminosity: "bright" }),
       });
-      console.log(awareness.clientID);
+
+      // console.log(awareness.clientID);
       let editor = getEditorByIndex(tabIndex.toString()).getEditor();
       const monacoBinding = new MonacoBinding(
         type,
@@ -503,6 +509,10 @@ function clearFocusLine() {
     );
   });
   return;
+}
+
+function getColorMap() {
+  return colorMap;
 }
 
 function disposePanel() {

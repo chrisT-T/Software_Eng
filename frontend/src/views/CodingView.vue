@@ -70,6 +70,9 @@
             <el-button size="small" @click="getBreakpoints">
               getBreakpoints
             </el-button>
+            <el-button size="small" @click="getcolorMap">
+              getcolorMap
+            </el-button>
             <el-button size="small" @click="focusLine"> focusLine </el-button>
             <el-button size="small" @click="clearFocusLine">
               clearFocusLine
@@ -250,6 +253,10 @@ function deleteFile() {
 
 function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
+}
+
+function getcolorMap() {
+  console.log(editorPanel.value?.getColorMap());
 }
 
 function saveFile(path: string, value: string) {
