@@ -70,6 +70,9 @@
             <el-button size="small" @click="getBreakpoints">
               getBreakpoints
             </el-button>
+            <el-button size="small" @click="getcolorMap">
+              getcolorMap
+            </el-button>
             <el-button size="small" @click="focusLine"> focusLine </el-button>
             <el-button size="small" @click="clearFocusLine">
               clearFocusLine
@@ -77,12 +80,14 @@
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"
+              :username="name"
+              :projectid="projectID"
               @save-file="saveFile"
               @start-debug="(path) => runDebugger(name + '/' + path)"
             >
             </EditorPanel>
           </a-resize-box>
-          <TerminalPanel :containerId="containerId" :key="containerId" />
+          <!-- <TerminalPanel :containerId="containerId" :key="containerId" /> -->
         </el-container>
       </el-container>
     </el-container>
@@ -143,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref, onMounted } from "vue";
+import { reactive, getCurrentInstance, ref, onMounted, onUnmounted } from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -215,7 +220,10 @@ const changepr: PermissionTest[] = [
 ];
 
 const backmain = () => {
+  console.log("dispose panel");
+  editorPanel.value?.disposePanel();
   console.log(name);
+  console.log(typeof name);
   router.replace({ name: "main", params: { username: name } });
 };
 
@@ -246,6 +254,10 @@ function deleteFile() {
 
 function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
+}
+
+function getcolorMap() {
+  console.log(editorPanel.value?.getColorMap());
 }
 
 function saveFile(path: string, value: string) {

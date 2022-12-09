@@ -31,7 +31,11 @@
 import MonacoEditor from "@/components/MonacoEditorPanel/MonacoEditor.vue";
 import { ta } from "element-plus/es/locale";
 import { ElMessage, ElMessageBox } from "element-plus";
+import * as Y from "yjs";
+import { MonacoBinding } from "y-monaco";
+import { WebsocketProvider } from "y-websocket";
 import * as monaco from "monaco-editor";
+import { randomColor } from "randomcolor";
 import {
   ref,
   defineEmits,
@@ -42,12 +46,14 @@ import {
 } from "vue";
 import * as common from "./common";
 import { NullLogger } from "vscode-jsonrpc";
+import { forEach } from "lodash";
 
 export interface FileInfo {
   path: string;
   modified: boolean;
   index: number;
   show: boolean;
+  provider: WebsocketProvider | null;
   options: monaco.editor.IStandaloneEditorConstructionOptions;
 }
 
@@ -62,6 +68,8 @@ export interface TabInfo {
 
 const props = defineProps<{
   theme: string;
+  username: string;
+  projectid: string;
 }>();
 
 const emit = defineEmits<{
@@ -76,6 +84,8 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
+  getColorMap,
+  disposePanel,
 });
 
 watch(
@@ -86,6 +96,7 @@ watch(
 );
 
 const fileInfos = new Array<FileInfo>();
+const colorMap = new Map<string, string>();
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
@@ -211,11 +222,11 @@ function getLanguageByFileName(fileName: string) {
 }
 
 function addFile(path: string, value: string) {
+  console.log(props.projectid + path);
   console.log("addFile", path);
   let fileName = path.split("/").pop() as string;
   let language = getLanguageByFileName(fileName);
   let parentPath = path.substring(0, path.length - fileName.length) as string;
-  console.log(parentPath);
   let fileIndex = fileInfos.findIndex((fileInfo) => fileInfo.path === path);
 
   if (fileIndex === -1) {
@@ -224,6 +235,7 @@ function addFile(path: string, value: string) {
       modified: false,
       index: ++tabIndex,
       show: true,
+      provider: null,
       options: {
         theme: props.theme, // 'vs', 'vs-dark', 'hc-black', 'hc-light'
         glyphMargin: true,
@@ -241,6 +253,54 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
+    let block = [...document.styleSheets].reverse().find(({ cssRules }) => {
+      return [...cssRules].find((rule) => {
+        return rule.selectorText.includes("yRemoteSelection");
+      });
+    });
+    setTimeout(() => {
+      const ydoc = new Y.Doc();
+      const type = ydoc.getText("monaco");
+      const provider = new WebsocketProvider(
+        "ws://localhost:1234",
+        props.projectid + path,
+        ydoc
+      );
+      fileInfos[fileInfos.length - 1].provider = provider;
+      const awareness = provider.awareness;
+      awareness.on("change", () => {
+        console.log(awareness.getStates());
+        while (!block?.cssRules[0].selectorText.includes("monaco")) {
+          block?.deleteRule(0);
+        }
+        colorMap.clear();
+
+        awareness.getStates().forEach((value, clientID) => {
+          common.cssRule.forEach((item) => {
+            block?.insertRule(
+              item
+                .replaceAll("clientID", clientID.toString())
+                .replaceAll("randomcolor", value.user.color),
+              0
+            );
+          });
+          colorMap[value.user.name] = value.user.color;
+        });
+      });
+      awareness.setLocalStateField("user", {
+        name: props.username,
+        color: randomColor({ luminosity: "bright" }),
+      });
+
+      // console.log(awareness.clientID);
+      let editor = getEditorByIndex(tabIndex.toString()).getEditor();
+      const monacoBinding = new MonacoBinding(
+        type,
+        editor.getModel(),
+        new Set([editor]),
+        provider.awareness
+      );
+    }, 5);
   } else if (fileInfos[fileIndex].show === false) {
     fileInfos[fileIndex].show = true;
     let model = fileInfos[fileIndex].options.model;
@@ -279,6 +339,7 @@ function deleteFile(path: string) {
     return;
   }
   fileInfos[fileIndex].options.model?.dispose();
+  fileInfos[fileIndex].provider?.destroy();
   justRemoveTab(fileInfos[fileIndex].index.toString());
   fileInfos.splice(fileIndex, 1);
 }
@@ -449,6 +510,23 @@ function clearFocusLine() {
     );
   });
   return;
+}
+
+function getColorMap() {
+  return colorMap;
+}
+
+function disposePanel() {
+  fileInfos.forEach((item) => {
+    let model = item.options.model as monaco.editor.ITextModel;
+    model.dispose();
+    let provider = item.provider;
+    if (provider != null) {
+      provider.destroy();
+    }
+  });
+  fileInfos.splice(0);
+  editableTabs.value.splice(0);
 }
 </script>
 
