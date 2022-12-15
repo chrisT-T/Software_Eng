@@ -38,6 +38,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "tree",
     component: () => import("../components/fileTree.vue"),
   },
+  {
+    path: "/codingcheck",
+    name: "codingcheck",
+    component: () => import("../views/CodingView.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -45,37 +50,37 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const username = localStorage.getItem("username");
-  console.log(localStorage.getItem("username"));
-  if (username) {
-    const activeTime = Number(localStorage.getItem("active_time"));
-    const time = new Date().getTime();
-    if (time - activeTime > 1800000 && activeTime != 0) {
-      localStorage.removeItem("username");
-      localStorage.removeItem("active_time");
-      axios.get("/api/logout");
-      router.replace("/login");
-    } else {
-      if (to.name == "login") {
-        router.replace({ name: "main", params: { username: username } });
-      }
-      if (to.params.username == username) {
-        next();
-      } else {
-        router.replace({ name: "main", params: { username: username } });
-      }
-    }
-  } else {
-    if (to.name !== "login") {
-      next({
-        path: "/login",
-        query: { redirected: to.fullPath },
-      });
-    } else {
-      next();
-    }
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   const username = localStorage.getItem("username");
+//   console.log(localStorage.getItem("username"));
+//   if (username) {
+//     const activeTime = Number(localStorage.getItem("active_time"));
+//     const time = new Date().getTime();
+//     if (time - activeTime > 1800000 && activeTime != 0) {
+//       localStorage.removeItem("username");
+//       localStorage.removeItem("active_time");
+//       axios.get("/api/logout");
+//       router.replace("/login");
+//     } else {
+//       if (to.name == "login") {
+//         router.replace({ name: "main", params: { username: username } });
+//       }
+//       if (to.params.username == username) {
+//         next();
+//       } else {
+//         router.replace({ name: "main", params: { username: username } });
+//       }
+//     }
+//   } else {
+//     if (to.name !== "login") {
+//       next({
+//         path: "/login",
+//         query: { redirected: to.fullPath },
+//       });
+//     } else {
+//       next();
+//     }
+//   }
+// });
 
 export default router;
