@@ -2,7 +2,7 @@
   <div class="main">
     <el-header>
       <div class="header">TO-CODE</div>
-      <div class="mt-4">
+      <!-- <div class="mt-4">
         <el-input
           v-model="input3"
           placeholder="Please input"
@@ -24,11 +24,16 @@
             <el-button :icon="Search" />
           </template>
         </el-input>
-      </div>
+      </div> -->
       <div class="user-part">
-        <el-popover placement="bottom" :width="500" trigger="hover">
+        <el-popover
+          placement="bottom"
+          :width="500"
+          trigger="hover"
+          title="Notification"
+        >
           <template #reference>
-            <el-button style="margin-right: 16px">Alert</el-button>
+            <el-button :icon="Bell" circle style="margin-right: 10px" />
           </template>
           <ul class="infinite-list" style="overflow: auto">
             <li v-for="i in resMsg" :key="i" class="infinite-list-item">
@@ -80,7 +85,7 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
 import axios from "axios";
-import { Search, Check, Close } from "@element-plus/icons-vue";
+import { Search, Check, Close, Bell } from "@element-plus/icons-vue";
 import { tr } from "element-plus/es/locale";
 
 const count = ref(6);
