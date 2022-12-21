@@ -207,6 +207,7 @@ def accept_invitation(proj_id):
     else:
         return '', 204
 
+
 @bp.route('/api/user/deny/<int:proj_id>', methods=['GET'])
 @login_required
 def deny_invitation(proj_id):
@@ -220,13 +221,14 @@ def deny_invitation(proj_id):
     else:
         return '', 204
 
+
 @bp.route('/api/user/<string:username>', methods=['GET'])
 @login_required
 def detailed_data(username):
     err, flag = check_get_data_param(username)
     if not flag:
         return err, 400
-    
+
     user, flag = user_service.find_user_by_username(username)
     res = {'username': username,
            'email': user.email,

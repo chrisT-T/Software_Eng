@@ -67,17 +67,16 @@ def check_accept_invitation_param(args: dict, proj_id: int):
         return 'user is not invited', False
     return '', True
 
+
 def check_get_data_param(username: str):
     if not username:
         return 'missing param: username', False
-    
+
     user, flag = user_service.find_user_by_username(username)
     if not flag:
         return 'user not exist', False
-    
+
     if username != current_user.username:
         return 'invalid user', False
-    
+
     return '', True
-    
-    

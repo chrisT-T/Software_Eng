@@ -171,7 +171,10 @@
                     >
                   </template>
                 </a-dropdown>
-                <a-button type="text" shape="circle" @click="DownloadProject()"
+                <a-button
+                  type="text"
+                  shape="circle"
+                  @click="DownloadProject(record.projectID)"
                   ><icon-download
                 /></a-button>
               </div>
@@ -465,6 +468,7 @@ import { reactive, ref, onMounted, vue } from "vue";
 import { PaginationProps } from "@arco-design/web-vue/es/pagination";
 import { IconDownload, IconEdit } from "@arco-design/web-vue/es/icon";
 import { UploadFilled } from "@element-plus/icons-vue";
+import router from "@/router";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
 import { ElTable, ElMessage } from "element-plus";
@@ -484,8 +488,8 @@ onMounted(() => {
 });
 
 // 下载当前项目文件
-const DownloadProject = () => {
-  // TODO
+const DownloadProject = (proj_id: number) => {
+  router.push(`/api/project/${proj_id}/download/`);
 };
 // 添加新权限组
 const addNewUserPermission = () => {

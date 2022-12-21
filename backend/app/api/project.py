@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file, json, request
+from flask import Blueprint, json, request, send_file
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
@@ -217,6 +217,7 @@ def invite_user(proj_id):
     if not flag:
         return 'invite failed', 500
     return '', 204
+
 
 @bp.route('/api/project/<int:proj_id>/download/', methods=['GET'])
 @login_required
