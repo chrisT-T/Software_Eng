@@ -44,11 +44,11 @@ def check_project_permission(proj_id: int, perm: str = "admin"):
         for admin in admins:
             if admin.username == username:
                 return True
-    elif perm in ["read", "edit"]:
+    if perm in ["read", "edit"]:
         for edit in edits:
             if edit.username == username:
                 return True
-    elif perm == "read":
+    if perm == "read":
         for read in reads:
             if read.username == username:
                 return True

@@ -222,7 +222,7 @@ def invite_user(proj_id):
 @bp.route('/api/project/<int:proj_id>/download/', methods=['GET'])
 @login_required
 def download_project(proj_id):
-    if not check_project_permission(proj_id, "admin"):
+    if not check_project_permission(proj_id, "read"):
         return 'Permission denied', 401
     res, flag = proj_service.zip_project(proj_id)
     if not flag:
