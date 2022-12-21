@@ -110,7 +110,8 @@
                     @click="
                       printtable(record.permissionGp),
                         (dialogTableVisible = true),
-                        (currentPermissionID = record.projectID)
+                        (Userform.project_id = record.projectID),
+                        (PermissionChangeform.project_id = record.projectID)
                     "
                     >查看权限组</a-doption
                   >
@@ -162,7 +163,9 @@
                     <a-doption
                       @click="
                         printtable(record.permissionGp),
-                          (dialogTableVisible = true)
+                          (dialogTableVisible = true),
+                          (Userform.project_id = record.projectID),
+                          (PermissionChangeform.project_id = record.projectID)
                       "
                       >查看权限组</a-doption
                     >
@@ -243,26 +246,24 @@
         label="权限"
         prop="permission"
         :filters="[
-          { text: '只可读', value: 'readonly' },
+          { text: '只可读', value: 'read' },
           { text: '可编辑', value: 'edit' },
-          { text: '管理员', value: 'administrator' },
+          { text: '管理员', value: 'admin' },
+          { text: '邀请待接受', value: 'pending' },
         ]"
         filter-placement="bottom-end"
         :filter-method="filterTag"
       >
         <template #default="scope">
           <el-tag
-            :type="
-              scope.row.permission === 'administrator' ? 'warning' : 'info'
-            "
+            :type="scope.row.permission === 'admin' ? 'warning' : 'info'"
             disable-transitions
             effect="plain"
           >
-            <span v-if="scope.row.permission === 'administrator'">
-              管理员
-            </span>
-            <span v-if="scope.row.permission === 'readonly'"> 只可读 </span>
+            <span v-if="scope.row.permission === 'admin'"> 管理员 </span>
+            <span v-if="scope.row.permission === 'read'"> 只可读 </span>
             <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
+            <span v-if="scope.row.permission === 'pending'"> 邀请待接受 </span>
           </el-tag>
         </template>
       </el-table-column>
@@ -282,7 +283,9 @@
             link
             type="primary"
             size="small"
-            @click="removeCurrentPermission(scope.row.user)"
+            @click="
+              removeCurrentPermission(scope.row.user, scope.row.permission)
+            "
           >
             移除成员
           </el-button>
@@ -311,7 +314,7 @@
 
   <el-dialog
     v-model="dialogShareVisible"
-    title="共享项目"
+    title="邀请新成员"
     class="share-dialog"
     width="350px"
     align-center
@@ -319,13 +322,6 @@
     <el-form :model="Userform" ref="addForm">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="Userform.username" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="共享权限" prop="permission">
-        <el-select v-model="Userform.permission" placeholder="选择用户权限">
-          <el-option label="只可读" value="readonly" />
-          <el-option label="可编辑" value="edit" />
-          <el-option label="项目管理员" value="administrator" />
-        </el-select>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -423,6 +419,7 @@
       </span>
     </template>
   </el-dialog>
+
   <el-dialog
     v-model="dialogPermissionChangeVisible"
     title="修改用户权限"
@@ -437,14 +434,14 @@
       label-position="top"
       status-icon
     >
-      <el-form-item label="共享权限" prop="newPermission">
+      <el-form-item label="共享权限" prop="new_permission">
         <el-select
-          v-model="PermissionChangeform.newPermission"
+          v-model="PermissionChangeform.new_permission"
           placeholder="选择新用户权限"
         >
-          <el-option label="只可读" value="readonly" />
+          <el-option label="只可读" value="read" />
           <el-option label="可编辑" value="edit" />
-          <el-option label="项目管理员" value="administrator" />
+          <el-option label="项目管理员" value="admin" />
         </el-select>
       </el-form-item>
     </el-form>
@@ -478,7 +475,6 @@ const permissionGpRef = ref<InstanceType<typeof ElTable>>();
 const NameEditRef = ref<FormInstance>();
 const ProjDeleteRef = ref<FormInstance>();
 const PermissionChangeRef = ref<FormInstance>();
-const currentPermissionID = ref<string>();
 const data = ref<ProjectData[]>([]);
 
 const name = useRouter().currentRoute.value.params.username;
@@ -493,69 +489,82 @@ const DownloadProject = () => {
 };
 // 添加新权限组
 const addNewUserPermission = () => {
-  if (Userform.username === "" || Userform.permission === "") {
+  if (Userform.username === "") {
     console.log("error!");
   } else {
-    // 新增加的用户参数
-    const newPer = {
-      user: Userform.username,
-      permission: Userform.permission,
-      state: "pending",
-    };
-    console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
-    const ID = currentPermissionID.value;
-    // 直接在后端进行修改 下面的代码可以删除
-    const index = data.value.findIndex((d) => d.projectID === ID);
-    data[index].permissionGp?.push(newPer);
-    changepr.value = data[index].permissionGp;
+    axios
+      .post(
+        `/api/project/${Userform.project_id}/invite/`,
+        qs.stringify(Userform)
+      )
+      .then(function (response) {
+        const code = response.status;
+        if (code === 204) {
+          GetProjectList();
+        }
+      })
+      .catch(function (error) {
+        ElMessage({
+          message: "Add new user permission failed",
+          type: "warning",
+        });
+        console.log(error);
+      });
   }
   Userform.username = "";
-  Userform.permission = "";
-  console.log(changepr.value);
 };
 
 // 移除用户
-const removeCurrentPermission = (user: string) => {
+const removeCurrentPermission = (user: string, permission: string) => {
   console.log(user); // 删除的用户名
-  console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
-  // 直接在后端进行修改 下面的代码可以删除
-  const ID = currentPermissionID.value;
-  const index = data.value.findIndex((d) => d.projectID === ID);
-  const PRID = changepr.value?.findIndex((d) => d.user === user);
-  if (PRID) {
-    data[index].permissionGp?.splice(PRID, 1);
-    changepr.value = data[index].permissionGp;
-  } else {
-    console.log("error Remove!");
-  }
-  console.log(changepr.value);
+  PermissionChangeform.original_permission = permission;
+  PermissionChangeform.new_permission = "remove";
+  PermissionChangeform.username = user;
+  changeCurrentPermission();
 };
 
 // 拉取项目列表
 const GetProjectList = () => {
   axios.get(`/api/user/${name}/projects/`).then(function (response) {
-    console.log(response.data);
-    console.log(data);
     data.value = response.data;
   });
 };
 
 const PermissionChangeform = reactive({
-  name: "",
-  OriginPermission: "",
-  newPermission: "",
+  username: "",
+  original_permission: "",
+  new_permission: "",
+  project_id: "",
 });
 
 const OpenChangePermission = (user: string, permission: string) => {
-  console.log("OpenChangePermission");
-  PermissionChangeform.name = user;
-  PermissionChangeform.OriginPermission = permission;
+  PermissionChangeform.username = user;
+  PermissionChangeform.original_permission = permission;
 };
 
 // 修改权限
 const changeCurrentPermission = () => {
   console.log(PermissionChangeform); // 修改权限细节(包括修改权限的用户名，原来的权限和新权限)
-  console.log(currentPermissionID.value); // 当前正在进行修改的项目ID
+  axios
+    .post(
+      `/api/project/${PermissionChangeform.project_id}/perm/`,
+      qs.stringify(PermissionChangeform)
+    )
+    .then(function (response) {
+      const code = response.status;
+      console.log(response.data);
+      GetProjectList();
+    })
+    .catch(function (error) {
+      ElMessage({
+        message: "Change permission failed",
+        type: "warning",
+      });
+      console.log(error);
+    });
+  PermissionChangeform.username = "";
+  PermissionChangeform.original_permission = "";
+  PermissionChangeform.new_permission = "";
 };
 
 const clearFilter = () => {
@@ -668,7 +677,7 @@ const NewProjform = reactive({
 
 const Userform = reactive({
   username: "",
-  permission: "",
+  project_id: "",
 });
 
 const NameEditform = reactive({

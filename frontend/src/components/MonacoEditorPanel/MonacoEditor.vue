@@ -41,10 +41,15 @@ const emit = defineEmits<{
 
 defineExpose({
   locateLine,
+  getEditor,
 });
 
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 const monacoEditorContainer = ref<HTMLElement | null>(null);
+
+function getEditor() {
+  return editor.value;
+}
 
 function getAllDecorationByClass(className: string) {
   return editor.value
@@ -302,5 +307,25 @@ onUnmounted(() => {
 
 .monaco-editor-focus-line {
   background: rgba(255, 0, 0, 0.3);
+}
+
+.yRemoteSelection {
+  background-color: rgb(250, 129, 0, 0.5);
+}
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: orange solid 2px;
+  border-top: orange solid 2px;
+  border-bottom: orange solid 2px;
+  height: 100%;
+  box-sizing: border-box;
+}
+.yRemoteSelectionHead::after {
+  position: absolute;
+  content: " ";
+  border: 3px solid orange;
+  border-radius: 4px;
+  left: -4px;
+  top: -5px;
 }
 </style>

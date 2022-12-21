@@ -2,8 +2,10 @@ from flask import Blueprint, current_app, json, request
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
-from app.checker import (check_create_project_param,
-                         check_edit_project_password, check_project_permission)
+from app.checker import (check_change_user_permission_params,
+                         check_create_project_param,
+                         check_edit_project_password, check_invite_user_params,
+                         check_project_permission)
 from app.service import ProjectService, UserService
 
 bp = Blueprint(
@@ -21,6 +23,9 @@ parser.add_argument('project_name', type=str, location='form')
 parser.add_argument('language', type=str, location='form', choices=('Python', 'Cpp', 'Java', 'C'), help='Bad choice: {error_msg}')
 parser.add_argument('password', type=str, location='form')
 parser.add_argument('new_name', type=str, location='form')
+parser.add_argument('original_permission', type=str, location='form')
+parser.add_argument('new_permission', type=str, location='form')
+parser.add_argument('username', type=str, location='form')
 
 
 class Project(Resource):
@@ -59,7 +64,7 @@ class Project(Resource):
         """
         if not check_project_permission(proj_id, "read"):
             abort(400, message="Permission Denied")
-        res, flag = proj_service.get_project(proj_id)
+        res, flag = proj_service.find_project(proj_id)
         if flag:
             return res, 200
         else:
@@ -155,7 +160,7 @@ class Project(Resource):
             abort(400, message="Permission denied")
         if not check_edit_project_password(json.loads(request.data)['password']):
             abort(401, message="invalid password")
-        proj, flag = proj_service.get_project(proj_id)
+        proj, flag = proj_service.find_project(proj_id)
         if flag:
             res, flag = proj_service.remove_project(proj_id)
             if flag:
@@ -171,11 +176,53 @@ api.add_resource(Project, '/api/project/<int:proj_id>/', '/api/project/')
 
 @bp.route('/api/project/<int:proj_id>/tree/', methods=['GET'])
 @login_required
-def tree(proj_id):
+def file_tree(proj_id):
     if not check_project_permission(proj_id, "read"):
-        return 'Permission denied', 400
+        return 'Permission denied', 401
     res, flag = proj_service.get_file_tree(proj_id)
     if flag:
         return res, 200
     else:
         return res, 400
+
+
+@bp.route('/api/project/<int:proj_id>/perm/', methods=['POST'])
+@login_required
+def change_user_permission(proj_id):
+    if not check_project_permission(proj_id, "admin"):
+        return 'Permission denied', 401
+
+    args = parser.parse_args()
+    res, flag = check_change_user_permission_params(args, proj_id)
+
+    if not flag:
+        return res, 400
+
+    original_perm = args['original_permission']
+    new_perm = args['new_permission']
+    username = args['username']
+    flag = False
+    if new_perm == 'remove':
+        res, flag = proj_service.remove_user(proj_id, username, original_perm)
+    else:
+        res, flag = proj_service.change_user_permission(proj_id, username, original_perm, new_perm)
+    if flag:
+        return '', 204
+    else:
+        return res, 400
+
+
+@bp.route('/api/project/<int:proj_id>/invite/', methods=['POST'])
+@login_required
+def invite_user(proj_id):
+    if not check_project_permission(proj_id, "admin"):
+        return 'Permission denied', 401
+    args = parser.parse_args()
+    res, flag = check_invite_user_params(args, proj_id)
+    if not flag:
+        return res, 400
+    user = args['username']
+    res, flag = proj_service.invite_user(proj_id, user)
+    if not flag:
+        return 'invite failed', 500
+    return '', 204
