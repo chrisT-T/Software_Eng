@@ -38,11 +38,22 @@
           <ul class="infinite-list" style="overflow: auto">
             <li v-for="i in resMsg" :key="i" class="infinite-list-item">
               <span>
-                you are invited to join {{ i.srcProject }} created by {{ i.creator }}
+                you are invited to join {{ i.srcProject }} created by
+                {{ i.creator }}
               </span>
               <el-button-group v-if="!i.handled">
-                <el-button type="success" text :icon="Check" @click="accectInvitation(i.srcProjectId)"></el-button>
-                <el-button type="danger" text :icon="Close" @click="denyInvitation(i.srcProjectId)"></el-button>
+                <el-button
+                  type="success"
+                  text
+                  :icon="Check"
+                  @click="accectInvitation(i.srcProjectId)"
+                ></el-button>
+                <el-button
+                  type="danger"
+                  text
+                  :icon="Close"
+                  @click="denyInvitation(i.srcProjectId)"
+                ></el-button>
               </el-button-group>
             </li>
           </ul>
@@ -92,7 +103,7 @@ const count = ref(6);
 
 interface resMsgStr {
   srcProject: string;
-  srcProjectId: Int;
+  srcProjectId: number;
   handled: boolean;
   creator: string;
 }
@@ -103,7 +114,7 @@ onMounted(() => {
     localStorage.setItem("active_time", time);
   }, 5 * 60 * 1000);
 
-  setInterval(() => {
+  setTimeout(() => {
     checkPendingInvitations();
   }, 1000);
 });
@@ -126,37 +137,41 @@ const logout = () => {
 };
 
 const checkPendingInvitations = () => {
-  axios.get(`/api/user/${name}/invites/`)
-  .then((response) => {
-    resMsg.value = response.data
-  })
-  .catch((err) => {
-    console.log(err)
-  })
+  axios
+    .get(`/api/user/${name}/invites/`)
+    .then((response) => {
+      resMsg.value = response.data;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const accectInvitation = (projId) => {
-  axios.get(`/api/user/accept/${projId}`)
-  .then((response) => {
-    if (response.status_code === 204) {
-      console.log('invitation accepted');
-    }
-  })
-  .catch((err) => {
-    console.log(err)
-  })
+  axios
+    .get(`/api/user/accept/${projId}`)
+    .then((response) => {
+      if (response.status_code === 204) {
+        console.log("invitation accepted");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  router.go(0);
 };
 
 const denyInvitation = (projId) => {
-  axios.get(`/api/user/deny/${projId}`)
-  .then((response) => {
-    if (response.status_code === 204) {
-      console.log('invitation denyed');
-    }
-  })
-  .catch((err) => {
-    console.log(err)
-  })
+  axios
+    .get(`/api/user/deny/${projId}`)
+    .then((response) => {
+      if (response.status_code === 204) {
+        console.log("invitation denyed");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 </script>
 

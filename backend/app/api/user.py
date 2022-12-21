@@ -186,37 +186,10 @@ def pending_invitations(username):
     pendings = res.pending_projects
     response = []
     for proj in pendings:
-        perm_name = []
-        for user in proj.readonly_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'read',
-            })
-        for user in proj.editable_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'edit',
-            })
-        for user in proj.admin_users:
-            if user.username != proj.creator.username:
-                perm_name.append({
-                    'user': user.username,
-                    'permission': 'admin',
-                })
-        for user in proj.pending_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'pending',
-            })
         response.append({
-            'projectID': proj.id,
-            'projectName': proj.project_name,
-            'language': proj.project_language,
+            'srcProjectId': proj.id,
+            'srcProject': proj.project_name,
             'creator': proj.creator.username,
-            'permissionGp': perm_name,
-            'lastUpdateTime': proj.last_edit_time,
-            'createTime': proj.create_time,
-            'dockerId': proj.docker_id
         })
     return response, 200
 
@@ -236,7 +209,7 @@ def accept_invitation(proj_id):
 
 @bp.route('/api/user/deny/<int:proj_id>', methods=['GET'])
 @login_required
-def accept_invitation(proj_id):
+def deny_invitation(proj_id):
     err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
     if not flag:
         return err, 400
