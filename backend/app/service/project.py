@@ -2,7 +2,9 @@ import datetime
 import glob
 import os
 import time
+import zipfile
 from shutil import rmtree
+
 
 import docker
 from flask import current_app
@@ -248,3 +250,21 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in getting file tree', False
+        
+    def zip_project(self, proj_id: int):
+        try:
+            project = Project.query.filter_by(id=proj_id).first()
+            project_abs_path = os.path.relpath(project.path)
+            zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', project.project_name + '.zip')
+            print(zip_path)
+            zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
+            for path, dirnames, filenames in os.walk(project_abs_path):
+                
+                fpath = path.replace(project_abs_path, '')
+                for filename in filenames:
+                    zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
+            zip.close()
+            return '../' + zip_path, True
+        except Exception as e:
+            print(e)
+            return 'Exception in zipping files', False

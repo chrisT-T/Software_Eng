@@ -4,7 +4,7 @@ from flask_restful import Api, Resource, abort, reqparse
 
 from app.checker import (check_accept_invitation_param,
                          check_change_password_param, check_create_user_param,
-                         check_invite_user_params)
+                         check_get_data_param)
 from app.service import ProjectService, UserService
 
 user_service = UserService()
@@ -233,3 +233,16 @@ def accept_invitation(username, proj_id):
         return res, 400
     else:
         return '', 204
+
+@bp.route('/api/user/<string:username>', methods=['GET'])
+@login_required
+def detailed_data(username):
+    err, flag = check_get_data_param(username)
+    if not flag:
+        return err, 400
+    
+    user, flag = user_service.find_user_by_username(username)
+    res = {'username': username,
+           'email': user.email,
+           'userID': user.id}
+    return res, 200

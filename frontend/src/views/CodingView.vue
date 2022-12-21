@@ -235,9 +235,6 @@ function openFile(path: string) {
       editorPanel.value?.addFile(path, file);
     })
     .catch();
-  // editorPanel.value?.addFile("adfa/default.py", "");
-  // editorPanel.value?.addFile("adfadfa/df.py", "");
-  // editorPanel.value?.addFile("adfadsfa/default.py", "");
 }
 
 function changeTheme() {

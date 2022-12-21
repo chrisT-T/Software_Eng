@@ -16,7 +16,7 @@ def check_create_project_param(content: dict):
     :type content: dict
     :return: if success, return ('ok', True), else, return (absence key, False)
     '''
-    required_keys = ['creator_name', 'project_name', 'language']
+    required_keys = ['project_name', 'language']
     for req_key in required_keys:
         if req_key not in content.keys():
             return req_key, False
