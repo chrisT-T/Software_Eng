@@ -61,7 +61,7 @@
               min-height: 0;
             "
           >
-            <el-button size="small" @click="changeTheme"
+            <!-- <el-button size="small" @click="changeTheme"
               >change theme
             </el-button>
             <el-button size="small" @click="changeName">change name </el-button>
@@ -77,7 +77,7 @@
             <el-button size="small" @click="focusLine"> focusLine </el-button>
             <el-button size="small" @click="clearFocusLine">
               clearFocusLine
-            </el-button>
+            </el-button> -->
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"

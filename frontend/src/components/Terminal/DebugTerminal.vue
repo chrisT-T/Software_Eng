@@ -36,7 +36,6 @@ const stage = reactive({
 });
 // debugger functions
 let debugServiceURL = "";
-let socket = io();
 
 function getDebugStage() {
   if (props.containerSubdomain == "") {
@@ -70,12 +69,12 @@ onMounted(() => {
 
   if (props.containerSubdomain != "") {
     console.log(debugServiceURL);
-    socket = io(`ws://${debugServiceURL}`);
+    // socket = io(`ws://${debugServiceURL}`);
 
-    socket.on("connect", () => {
-      stage.flag = true;
-      stage.message = "test";
-    });
+    // socket.on("connect", () => {
+    //   stage.flag = true;
+    //   stage.message = "test";
+    // });
   }
 
   setTimeout(() => {
