@@ -489,7 +489,7 @@ onMounted(() => {
 
 // 下载当前项目文件
 const DownloadProject = (proj_id: number) => {
-  router.push(`/api/project/${proj_id}/download/`);
+  window.open(`/api/project/${proj_id}/download/`);
 };
 // 添加新权限组
 const addNewUserPermission = () => {
