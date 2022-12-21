@@ -9,11 +9,7 @@
         <icon-edit :size="30" />
       </template>
     </a-avatar>
-    <el-descriptions
-      class="margin-top"
-      title="Personal Information"
-      :column="1"
-    >
+    <el-descriptions class="margin-top" title="个人信息" :column="1">
       <el-descriptions-item label="Username">
         <el-input
           v-model="UserData.username"
@@ -74,7 +70,23 @@
 <script lang="ts" setup>
 import { IconEdit } from "@arco-design/web-vue/es/icon";
 import { Cpu, Edit, Message } from "@element-plus/icons-vue";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
+
+const name = useRouter().currentRoute.value.params.username;
+
+onMounted(() => {
+  GetUserData();
+});
+
+const GetUserData = () => {
+  axios.get(`/api/user/${name}`).then(function (response) {
+    UserData.username = response.data.username;
+    UserData.email = response.data.email;
+    UserData.userID = response.data.userID;
+  });
+};
 
 const ChangeName = ref(false);
 const ChangeEmail = ref(false);

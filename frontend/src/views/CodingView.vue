@@ -1,5 +1,6 @@
 <template>
   <div class="coding">
+    <DragBall />
     <el-container>
       <el-header>
         <div class="header">
@@ -23,6 +24,9 @@
           <a-button-group type="primary" size="small">
             <a-button>
               <template #icon><icon-play-arrow-fill /></template>
+            </a-button>
+            <a-button>
+              <template #icon><icon-double-right /></template>
             </a-button>
             <a-button>
               <template #icon><icon-bug /></template>
@@ -163,12 +167,14 @@ import {
   IconPlayArrowFill,
   IconBug,
   IconPause,
+  IconDoubleRight,
 } from "@arco-design/web-vue/es/icon";
 import LeftBar from "@/components/LeftBar/LeftBar.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
 import BottomPanel from "@/components/BottomPanel/BottomPanel.vue";
+import DragBall from "@/components/DragBall.vue";
 import axios from "axios";
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {
@@ -247,9 +253,6 @@ function openFile(path: string) {
       editorPanel.value?.addFile(path, file);
     })
     .catch();
-  // editorPanel.value?.addFile("adfa/default.py", "");
-  // editorPanel.value?.addFile("adfadfa/df.py", "");
-  // editorPanel.value?.addFile("adfadsfa/default.py", "");
 }
 
 function changeTheme() {
