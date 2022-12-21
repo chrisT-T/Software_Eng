@@ -221,14 +221,27 @@ def pending_invitations(username):
     return response, 200
 
 
-@bp.route('/api/user/<string:username>/accept/<int:proj_id>', methods=['GET'])
+@bp.route('/api/user/accept/<int:proj_id>', methods=['GET'])
 @login_required
-def accept_invitation(username, proj_id):
+def accept_invitation(proj_id):
     err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
     if not flag:
         return err, 400
 
     res, flag = proj_service.accept_invitation(current_user.username, proj_id)
+    if not flag:
+        return res, 400
+    else:
+        return '', 204
+
+@bp.route('/api/user/deny/<int:proj_id>', methods=['GET'])
+@login_required
+def accept_invitation(proj_id):
+    err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
+    if not flag:
+        return err, 400
+
+    res, flag = proj_service.deny_invitation(current_user.username, proj_id)
     if not flag:
         return res, 400
     else:

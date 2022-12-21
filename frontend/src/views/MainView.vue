@@ -38,11 +38,11 @@
           <ul class="infinite-list" style="overflow: auto">
             <li v-for="i in resMsg" :key="i" class="infinite-list-item">
               <span>
-                {{ i.srcUser }} invite you to join {{ i.srcProject }}
+                you are invited to join {{ i.srcProject }} created by {{ i.creator }}
               </span>
               <el-button-group v-if="!i.handled">
-                <el-button type="success" text :icon="Check"></el-button>
-                <el-button type="danger" text :icon="Close"></el-button>
+                <el-button type="success" text :icon="Check" @click="accectInvitation(i.srcProjectId)"></el-button>
+                <el-button type="danger" text :icon="Close" @click="denyInvitation(i.srcProjectId)"></el-button>
               </el-button-group>
             </li>
           </ul>
@@ -91,32 +91,21 @@ import { tr } from "element-plus/es/locale";
 const count = ref(6);
 
 interface resMsgStr {
-  srcUser: string;
   srcProject: string;
-  time: string;
+  srcProjectId: Int;
   handled: boolean;
+  creator: string;
 }
-
-const resMsg: resMsgStr[] = [
-  {
-    srcUser: "Dave",
-    srcProject: "test",
-    time: "123",
-    handled: true,
-  },
-  {
-    srcUser: "aas",
-    srcProject: "tsFDst",
-    time: "1S3",
-    handled: false,
-  },
-];
 
 onMounted(() => {
   setInterval(() => {
     const time = new Date().getTime();
     localStorage.setItem("active_time", time);
   }, 5 * 60 * 1000);
+
+  setInterval(() => {
+    checkPendingInvitations();
+  }, 1000);
 });
 
 const name = useRouter().currentRoute.value.params.username;
@@ -126,12 +115,48 @@ const dialogPDVisible = ref(false);
 const input3 = ref("");
 const select = ref("");
 
+const resMsg = ref<resMsgStr[]>([]);
+
 const logout = () => {
   console.log("logout");
   localStorage.removeItem("username");
   localStorage.removeItem("login_time");
   axios.get("/api/logout");
   router.replace("/login");
+};
+
+const checkPendingInvitations = () => {
+  axios.get(`/api/user/${name}/invites/`)
+  .then((response) => {
+    resMsg.value = response.data
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+};
+
+const accectInvitation = (projId) => {
+  axios.get(`/api/user/accept/${projId}`)
+  .then((response) => {
+    if (response.status_code === 204) {
+      console.log('invitation accepted');
+    }
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+};
+
+const denyInvitation = (projId) => {
+  axios.get(`/api/user/deny/${projId}`)
+  .then((response) => {
+    if (response.status_code === 204) {
+      console.log('invitation denyed');
+    }
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 };
 </script>
 
