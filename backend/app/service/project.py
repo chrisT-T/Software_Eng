@@ -46,7 +46,7 @@ class ProjectService():
             docker_client = docker.from_env()
             if project_language == 'Python':
                 container = docker_client.containers.run(
-                    image='python_lsp:latest',
+                    image='python:3.9',
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
                     labels={

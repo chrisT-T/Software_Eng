@@ -12,6 +12,8 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { AttachAddon } from "xterm-addon-attach";
 import axios from "axios";
+import { io } from "socket.io-client";
+
 const props = defineProps<{
   containerId: string;
   containerSubdomain: string;
@@ -34,21 +36,22 @@ const stage = reactive({
 });
 // debugger functions
 let debugServiceURL = "";
+let socket = io();
 
 function getDebugStage() {
   if (props.containerSubdomain == "") {
     return;
   }
-  axios
-    .get(`http://${debugServiceURL}/pdb/test`)
-    .then(() => {
-      stage.flag = true;
-      stage.message = "Debug service is running";
-    })
-    .catch(() => {
-      stage.flag = false;
-      stage.message = "Debug service is not running";
-    });
+  // axios
+  //   .get(`http://${debugServiceURL}/pdb/test`)
+  //   .then(() => {
+  //     stage.flag = true;
+  //     stage.message = "Debug service is running";
+  //   })
+  //   .catch(() => {
+  //     stage.flag = false;
+  //     stage.message = "Debug service is not running";
+  //   });
 }
 
 onMounted(() => {
@@ -64,6 +67,16 @@ onMounted(() => {
   }, 6);
 
   debugServiceURL = `${props.containerSubdomain}.debug.localhost:8088`;
+
+  if (props.containerSubdomain != "") {
+    console.log(debugServiceURL);
+    socket = io(`ws://${debugServiceURL}`);
+
+    socket.on("connect", () => {
+      stage.flag = true;
+      stage.message = "test";
+    });
+  }
 
   setTimeout(() => {
     getDebugStage();

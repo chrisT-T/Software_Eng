@@ -48,6 +48,7 @@ def create_service(token):
         port = random.randint(35000, 60000)
 
     run_command = shlex(f"python /python_debug_service/app.py runserver {port}")
+    socketio.emit("port_generated", {'token': token, 'port': port})
     subprocess.call(run_command, stdin=os.fdopen(debug_service_input_server[token], 'r'), stdout=os.fdopen(debug_service_output_server, 'w'))
     # service terminated, for any reason
     socketio.emit("service_exit", {'token': token})
