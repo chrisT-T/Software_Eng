@@ -1,5 +1,6 @@
 <template>
   <div class="coding">
+    <DragBall />
     <el-container>
       <el-header>
         <div class="header">
@@ -23,6 +24,9 @@
           <a-button-group type="primary" size="small">
             <a-button>
               <template #icon><icon-play-arrow-fill /></template>
+            </a-button>
+            <a-button>
+              <template #icon><icon-double-right /></template>
             </a-button>
             <a-button>
               <template #icon><icon-bug /></template>
@@ -156,6 +160,7 @@ import {
   IconPlayArrowFill,
   IconBug,
   IconPause,
+  IconDoubleRight,
 } from "@arco-design/web-vue/es/icon";
 import fileTree from "@/components/fileTree.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
@@ -163,6 +168,7 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
 import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
+import DragBall from "@/components/DragBall.vue";
 import axios from "axios";
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {

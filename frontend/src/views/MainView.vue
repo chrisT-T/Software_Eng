@@ -2,7 +2,7 @@
   <div class="main">
     <el-header>
       <div class="header">TO-CODE</div>
-      <div class="mt-4">
+      <!-- <div class="mt-4">
         <el-input
           v-model="input3"
           placeholder="Please input"
@@ -24,8 +24,29 @@
             <el-button :icon="Search" />
           </template>
         </el-input>
-      </div>
+      </div> -->
       <div class="user-part">
+        <el-popover
+          placement="bottom"
+          :width="500"
+          trigger="hover"
+          title="Notification"
+        >
+          <template #reference>
+            <el-button :icon="Bell" circle style="margin-right: 10px" />
+          </template>
+          <ul class="infinite-list" style="overflow: auto">
+            <li v-for="i in resMsg" :key="i" class="infinite-list-item">
+              <span>
+                {{ i.srcUser }} invite you to join {{ i.srcProject }}
+              </span>
+              <el-button-group v-if="!i.handled">
+                <el-button type="success" text :icon="Check"></el-button>
+                <el-button type="danger" text :icon="Close"></el-button>
+              </el-button-group>
+            </li>
+          </ul>
+        </el-popover>
         <a-dropdown position="br" trigger="hover">
           <a-avatar
             :trigger-icon-style="{ color: '#3491FA' }"
@@ -64,7 +85,32 @@ import router from "@/router";
 import { useRouter } from "vue-router";
 import { IconExport } from "@arco-design/web-vue/es/icon";
 import axios from "axios";
-import { Search } from "@element-plus/icons-vue";
+import { Search, Check, Close, Bell } from "@element-plus/icons-vue";
+import { tr } from "element-plus/es/locale";
+
+const count = ref(6);
+
+interface resMsgStr {
+  srcUser: string;
+  srcProject: string;
+  time: string;
+  handled: boolean;
+}
+
+const resMsg: resMsgStr[] = [
+  {
+    srcUser: "Dave",
+    srcProject: "test",
+    time: "123",
+    handled: true,
+  },
+  {
+    srcUser: "aas",
+    srcProject: "tsFDst",
+    time: "1S3",
+    handled: false,
+  },
+];
 
 onMounted(() => {
   setInterval(() => {
@@ -105,6 +151,27 @@ const logout = () => {
 }
 .el-container {
   height: 90%;
+}
+
+.infinite-list {
+  height: 300px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.infinite-list .infinite-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  margin: 5px;
+  border-radius: 5px;
+}
+.infinite-list .infinite-list-item:hover {
+  background-color: #f4f4f5;
+}
+.infinite-list .infinite-list-item + .list-item {
+  margin-top: 5px;
 }
 </style>
 
