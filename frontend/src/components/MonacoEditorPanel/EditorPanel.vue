@@ -87,6 +87,7 @@ defineExpose({
   clearFocusLine,
   getColorMap,
   disposePanel,
+  getFilePath,
 });
 
 watch(
@@ -457,6 +458,18 @@ function startDebug() {
   );
   let path = fileInfos[fileIndex].path as string;
   emit("startDebug", path);
+}
+
+function getFilePath() {
+  try {
+    let fileIndex = fileInfos.findIndex(
+      (item) => item.index.toString() === editableTabsValue.value
+    );
+    let path = fileInfos[fileIndex].path as string;
+    return path;
+  } catch {
+    return "";
+  }
 }
 
 function focusToFileByPath(path: string, value: string) {
