@@ -2,3 +2,4 @@ python-lsp-server[websockets]
 flask 
 flask_cors
 flask_socketio
+requests

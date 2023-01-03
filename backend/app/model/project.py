@@ -9,6 +9,7 @@ class Project(db.Model):
     __tablename__ = 'project'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     project_name = db.Column(db.String(32))
+    hash_id = db.Column(db.String(32))
     create_time = db.Column(db.DateTime, default=datetime.datetime.now())
     last_edit_time = db.Column(db.DateTime, default=datetime.datetime.now())
     project_language = db.Column(db.Enum('Python', 'Cpp', 'Java', 'C'))

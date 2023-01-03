@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import time
+import zipfile
 from shutil import rmtree
 
 import docker
@@ -30,8 +31,10 @@ class ProjectService():
                                   project_language=project_language)
             new_project.admin_users.append(creator)
 
+            hash_id = hash(new_project.create_time)
+
             # create project root_dir
-            project_root_dir = (f'{hash(new_project.create_time)}-{project_name}-{project_language}')
+            project_root_dir = (f'{hash_id}-{project_name}-{project_language}')
             rootdir = current_app.config['ROOT_DIR']
             project_root_path = os.path.join(rootdir, project_root_dir)
             project_root_path = os.path.abspath(project_root_path)
@@ -44,14 +47,23 @@ class ProjectService():
             if project_language == 'Python':
                 container = docker_client.containers.run(
                     image='python:3.9',
-                    command='sh -c "while true;do echo hello docker;sleep 1;done"',
                     volumes=[f'{project_root_path}:/{project_name}'],
                     detach=True,
+                    labels={
+                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)",
+                        f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
+                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
+                        f"traefik.http.routers.{hash_id}-debug.rule": f"Host(`{hash_id}.debug.localhost`)",
+                        f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
+                        f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
+                    },
+                    network="traefik_default"
                 )
                 docker_id = container.id
+
             print(docker_id)
             new_project.docker_id = docker_id
-
+            new_project.hash_id = hash_id
             db.session.add(new_project)
             db.session.commit()
             return new_project.id, True
@@ -248,3 +260,21 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in getting file tree', False
+
+    def zip_project(self, proj_id: int):
+        try:
+            project = Project.query.filter_by(id=proj_id).first()
+            project_abs_path = os.path.relpath(project.path)
+            zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', project.project_name + '.zip')
+            print(zip_path)
+            zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
+            for path, dirnames, filenames in os.walk(project_abs_path):
+
+                fpath = path.replace(project_abs_path, '')
+                for filename in filenames:
+                    zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
+            zip.close()
+            return '../' + zip_path, True
+        except Exception as e:
+            print(e)
+            return 'Exception in zipping files', False

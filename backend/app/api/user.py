@@ -4,7 +4,7 @@ from flask_restful import Api, Resource, abort, reqparse
 
 from app.checker import (check_accept_invitation_param,
                          check_change_password_param, check_create_user_param,
-                         check_invite_user_params)
+                         check_get_data_param)
 from app.service import ProjectService, UserService
 
 user_service = UserService()
@@ -186,44 +186,17 @@ def pending_invitations(username):
     pendings = res.pending_projects
     response = []
     for proj in pendings:
-        perm_name = []
-        for user in proj.readonly_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'read',
-            })
-        for user in proj.editable_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'edit',
-            })
-        for user in proj.admin_users:
-            if user.username != proj.creator.username:
-                perm_name.append({
-                    'user': user.username,
-                    'permission': 'admin',
-                })
-        for user in proj.pending_users:
-            perm_name.append({
-                'user': user.username,
-                'permission': 'pending',
-            })
         response.append({
-            'projectID': proj.id,
-            'projectName': proj.project_name,
-            'language': proj.project_language,
+            'srcProjectId': proj.id,
+            'srcProject': proj.project_name,
             'creator': proj.creator.username,
-            'permissionGp': perm_name,
-            'lastUpdateTime': proj.last_edit_time,
-            'createTime': proj.create_time,
-            'dockerId': proj.docker_id
         })
     return response, 200
 
 
-@bp.route('/api/user/<string:username>/accept/<int:proj_id>', methods=['GET'])
+@bp.route('/api/user/accept/<int:proj_id>', methods=['GET'])
 @login_required
-def accept_invitation(username, proj_id):
+def accept_invitation(proj_id):
     err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
     if not flag:
         return err, 400
@@ -233,3 +206,31 @@ def accept_invitation(username, proj_id):
         return res, 400
     else:
         return '', 204
+
+
+@bp.route('/api/user/deny/<int:proj_id>', methods=['GET'])
+@login_required
+def deny_invitation(proj_id):
+    err, flag = check_accept_invitation_param({'username': current_user.username}, proj_id)
+    if not flag:
+        return err, 400
+
+    res, flag = proj_service.deny_invitation(current_user.username, proj_id)
+    if not flag:
+        return res, 400
+    else:
+        return '', 204
+
+
+@bp.route('/api/user/<string:username>', methods=['GET'])
+@login_required
+def detailed_data(username):
+    err, flag = check_get_data_param(username)
+    if not flag:
+        return err, 400
+
+    user, flag = user_service.find_user_by_username(username)
+    res = {'username': username,
+           'email': user.email,
+           'userID': user.id}
+    return res, 200

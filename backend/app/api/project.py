@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, json, request
+from flask import Blueprint, json, request, send_file
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
@@ -36,7 +36,8 @@ class Project(Resource):
         "last_edit_time": fields.String,
         "project_language": fields.String,
         "creator_id": fields.Integer,
-        "docker_id": fields.String
+        "docker_id": fields.String,
+        "hash_id": fields.String
     }
 
     @login_required
@@ -77,10 +78,6 @@ class Project(Resource):
         tags:
             - Project
         parameters:
-            - name: creator_name
-              type: str
-              required: true
-              in: formData
             - name: project_name
               type: string
               required: true
@@ -97,17 +94,13 @@ class Project(Resource):
         key, flag = check_create_project_param(args)
         if not flag:
             abort(400, message="Invalid argument {}".format(key))
-        user, flag = user_service.find_user_by_username(args['creator_name'])
-        if not flag:
-            abort(400, message="User {} not exist".format(args['creator_name']))
-        if current_user.username == user.username:
-            response, flag = proj_service.create_project(args['creator_name'], args['project_name'], args['language'])
-            if flag:
-                return response, 201
-            else:
-                abort(400, message=response)
+        username = current_user.username
+        user, flag = user_service.find_user_by_username(username)
+        response, flag = proj_service.create_project(username, args['project_name'], args['language'])
+        if flag:
+            return response, 201
         else:
-            abort(400, message="Can't create project for other users")
+            abort(400, message=response)
 
     @login_required
     def put(self, proj_id):
@@ -225,3 +218,14 @@ def invite_user(proj_id):
     if not flag:
         return 'invite failed', 500
     return '', 204
+
+
+@bp.route('/api/project/<int:proj_id>/download/', methods=['GET'])
+@login_required
+def download_project(proj_id):
+    if not check_project_permission(proj_id, "admin"):
+        return 'Permission denied', 401
+    res, flag = proj_service.zip_project(proj_id)
+    if not flag:
+        return res, 500
+    return send_file(res, as_attachment=True), 200
