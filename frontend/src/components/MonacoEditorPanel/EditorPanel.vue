@@ -78,6 +78,8 @@ const emit = defineEmits<{
   (e: "startDebug", path: string): void;
 }>();
 
+const colorMap = new Map<string, string>();
+
 defineExpose({
   addFile,
   renameFile,
@@ -85,7 +87,7 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
-  getColorMap,
+  colorMap,
   disposePanel,
   getFilePath,
 });
@@ -98,7 +100,6 @@ watch(
 );
 
 const fileInfos = new Array<FileInfo>();
-const colorMap = new Map<string, string>();
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
@@ -255,11 +256,21 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
-    let block = [...document.styleSheets].reverse().find(({ cssRules }) => {
-      return [...cssRules].find((rule) => {
-        return rule.selectorText.includes("yRemoteSelection");
-      });
-    });
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      for (var j = 0; j < document.styleSheets[i].cssRules.length; j++) {
+        if (
+          typeof document.styleSheets[i].cssRules[j].selectorText == "string"
+        ) {
+          if (
+            document.styleSheets[i].cssRules[j].selectorText.includes(
+              "yRemoteSelection"
+            )
+          ) {
+            var block = document.styleSheets[i];
+          }
+        }
+      }
+    }
     setTimeout(() => {
       const ydoc = new Y.Doc();
       const type = ydoc.getText("monaco");
@@ -524,10 +535,6 @@ function clearFocusLine() {
     );
   });
   return;
-}
-
-function getColorMap() {
-  return colorMap;
 }
 
 function disposePanel() {

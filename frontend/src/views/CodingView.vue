@@ -19,8 +19,12 @@
           />
           <span class="header-span">TO-CODE</span>
           <a-avatar-group>
-            <a-avatar v-for="name in Editing.value" :key="name">
-              {{ name }}
+            <a-avatar
+              v-for="item in Editing.value"
+              :key="item.name"
+              :style="{ backgroundColor: item.color }"
+            >
+              {{ item.name }}
             </a-avatar>
           </a-avatar-group>
         </div>
@@ -69,7 +73,7 @@
               min-height: 0;
             "
           >
-            <!-- <el-button size="small" @click="changeTheme"
+            <el-button size="small" @click="changeTheme"
               >change theme
             </el-button>
             <el-button size="small" @click="changeName">change name </el-button>
@@ -85,7 +89,7 @@
             <el-button size="small" @click="focusLine"> focusLine </el-button>
             <el-button size="small" @click="clearFocusLine">
               clearFocusLine
-            </el-button> -->
+            </el-button>
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"
@@ -164,7 +168,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref, onMounted, onUnmounted } from "vue";
+import {
+  reactive,
+  getCurrentInstance,
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+} from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -191,7 +202,6 @@ onMounted(() => {
     projectName = response.data["project_name"];
     console.log(response.data);
   });
-  editorPanel.value?.getColorMap()
 
   setInterval(() => {
     const time = new Date().getTime();
@@ -283,9 +293,22 @@ function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
 }
 
+watch(
+  () => editorPanel.value?.colorMap,
+  (val: Map, oldval: Map) => {
+    console.log(val);
+    console.log(typeof val);
+    console.log("--------------");
+    Editing.value = [];
+    val.forEach((value: string, key: string, map: Map<string, string>) => {
+      console.log(key);
+    });
+  },
+  { deep: true }
+);
 function getcolorMap() {
-  console.log(editorPanel.value?.getColorMap().keys());
-  console.log(editorPanel.value?.getColorMap());
+  console.log(editorPanel.value?.colorMap);
+  console.log(Editing.value);
 }
 
 // run current code in terminal
