@@ -66,6 +66,11 @@ export interface TabInfo {
   index: string;
 }
 
+export interface UserColor {
+  username: string;
+  color: string;
+}
+
 const props = defineProps<{
   theme: string;
   containerSubdomain: string;
@@ -78,7 +83,7 @@ const emit = defineEmits<{
   (e: "startDebug", path: string): void;
 }>();
 
-const colorMap = new Map<string, string>();
+const userColor = ref<Array<UserColor>>(new Array<UserColor>());
 
 defineExpose({
   addFile,
@@ -87,7 +92,7 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
-  colorMap,
+  userColor,
   disposePanel,
   getFilePath,
 });
@@ -286,7 +291,7 @@ function addFile(path: string, value: string) {
         while (!block?.cssRules[0].selectorText.includes("monaco")) {
           block?.deleteRule(0);
         }
-        colorMap.clear();
+        userColor.value.splice(0);
 
         awareness.getStates().forEach((value, clientID) => {
           common.cssRule.forEach((item) => {
@@ -297,7 +302,10 @@ function addFile(path: string, value: string) {
               0
             );
           });
-          colorMap.set([value.user.name], value.user.color);
+          userColor.value.push({
+            username: value.user.name,
+            color: value.user.color,
+          });
         });
       });
       awareness.setLocalStateField("user", {

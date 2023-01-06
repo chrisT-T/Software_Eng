@@ -294,20 +294,15 @@ function getBreakpoints() {
 }
 
 watch(
-  () => editorPanel.value?.colorMap,
-  (val: Map, oldval: Map) => {
+  () => editorPanel.value?.userColor,
+  (val) => {
+    console.log("-----------");
     console.log(val);
-    console.log(typeof val);
-    console.log("--------------");
-    Editing.value = [];
-    val.forEach((value: string, key: string, map: Map<string, string>) => {
-      console.log(key);
-    });
   },
   { deep: true }
 );
 function getcolorMap() {
-  console.log(editorPanel.value?.colorMap);
+  console.log(editorPanel.value?.userColor);
   console.log(Editing.value);
 }
 
