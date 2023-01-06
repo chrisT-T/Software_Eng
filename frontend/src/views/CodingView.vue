@@ -26,7 +26,7 @@
         </div>
         <div class="user-part">
           <a-button-group type="primary" size="small">
-            <a-button>
+            <a-button @click="runCurrentCode()">
               <template #icon><icon-play-arrow-fill /></template>
             </a-button>
             <a-button>
@@ -56,7 +56,8 @@
             max-width: 50%;
             text-align: center;
           "
-          ><fileTree @open-file="openFile" />
+        >
+          <LeftBar @open-file="openFile" :language="projectLanguage" />
         </a-resize-box>
         <el-container direction="vertical">
           <a-resize-box
@@ -68,7 +69,7 @@
               min-height: 0;
             "
           >
-            <el-button size="small" @click="changeTheme"
+            <!-- <el-button size="small" @click="changeTheme"
               >change theme
             </el-button>
             <el-button size="small" @click="changeName">change name </el-button>
@@ -84,10 +85,11 @@
             <el-button size="small" @click="focusLine"> focusLine </el-button>
             <el-button size="small" @click="clearFocusLine">
               clearFocusLine
-            </el-button>
+            </el-button> -->
             <EditorPanel
               ref="editorPanel"
               :theme="editorTheme"
+              :container-subdomain="projectSubdomain"
               :username="name"
               :projectid="projectID"
               @save-file="saveFile"
@@ -95,7 +97,13 @@
             >
             </EditorPanel>
           </a-resize-box>
-          <!-- <TerminalPanel :containerId="containerId" :key="containerId" /> -->
+          <TerminalPanel :containerId="containerId" :key="containerId" />
+          <BottomPanel
+            ref="bottomPanel"
+            :container-id="containerId"
+            :container-subdomain="projectSubdomain"
+            :key="containerId"
+          ></BottomPanel>
         </el-container>
       </el-container>
     </el-container>
@@ -166,17 +174,21 @@ import {
   IconPause,
   IconDoubleRight,
 } from "@arco-design/web-vue/es/icon";
-import fileTree from "@/components/fileTree.vue";
+import LeftBar from "@/components/LeftBar/LeftBar.vue";
 import EditorPanel from "@/components/MonacoEditorPanel/EditorPanel.vue";
 import router from "@/router";
 import { useRouter } from "vue-router";
-import SimpleTerminal from "@/components/Terminal/SimpleTerminal.vue";
-import TerminalPanel from "@/components/Terminal/TerminalPanel.vue";
+import BottomPanel from "@/components/BottomPanel/BottomPanel.vue";
 import DragBall from "@/components/DragBall.vue";
 import axios from "axios";
+import { ElNotification } from "element-plus";
+
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {
     containerId.value = response.data["docker_id"];
+    projectSubdomain.value = response.data["hash_id"];
+    projectLanguage.value = response.data["project_language"];
+    projectName = response.data["project_name"];
     console.log(response.data);
   });
   editorPanel.value?.getColorMap()
@@ -192,9 +204,15 @@ const projectID = useRouter().currentRoute.value.params.projectid;
 const Editing = ref([]);
 const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
+const bottomPanel = ref<InstanceType<typeof BottomPanel> | null>(null);
 const dialogTableVisible = ref(false);
 const dialogShareVisible = ref(false);
+
 const containerId = ref("");
+const projectSubdomain = ref("");
+const projectLanguage = ref("");
+let projectName = "";
+
 const formLabelWidth = "140px";
 const form = reactive({
   name: "",
@@ -268,6 +286,30 @@ function getBreakpoints() {
 function getcolorMap() {
   console.log(editorPanel.value?.getColorMap().keys());
   console.log(editorPanel.value?.getColorMap());
+}
+
+// run current code in terminal
+function runCurrentCode() {
+  console.log("run code");
+
+  let path = "";
+  path = editorPanel.value?.getFilePath();
+  if (path === "") {
+    ElNotification({
+      title: "Warning",
+      message: "No opening file to run",
+      type: "warning",
+    });
+  } else {
+    if (path[0] == "/") {
+      path = path.substring(1, path.length);
+    }
+    path = `/${projectName}/${path}`;
+    console.log(path);
+    if (projectLanguage.value === "Python") {
+      bottomPanel.value?.outputRunCommand(`python ${path}`);
+    }
+  }
 }
 
 function saveFile(path: string, value: string) {
