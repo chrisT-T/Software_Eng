@@ -26,7 +26,15 @@
             size="small"
           >
             <span class="el-dropdown-link spanStyle">
-              {{ node.label }}
+              <span style="display: flex; flex-direction: row">
+                <el-icon style="margin: auto" v-show="data.type === 'folder'"
+                  ><Folder
+                /></el-icon>
+                <el-icon style="margin: auto" v-show="data.type === 'file'"
+                  ><Files
+                /></el-icon>
+                <p>&nbsp; {{ node.label }}</p>
+              </span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -142,6 +150,8 @@ import {
   EditPen,
   CaretRight,
   Download,
+  Folder,
+  Files,
   defineEmits,
 } from "@element-plus/icons-vue";
 import {
@@ -329,7 +339,6 @@ onMounted(() => {
 .spanStyle {
   white-space: nowrap; /*强制span不换行*/
   display: inline-block; /*将span当做块级元素对待*/
-  overflow: hidden; /*超出宽度部分隐藏*/
   text-overflow: ellipsis; /*超出部分以点号代替*/
   line-height: 0.9; /*数字与之前的文字对齐*/
 }
