@@ -284,7 +284,7 @@ function addFile(path: string, value: string) {
               0
             );
           });
-          colorMap[value.user.name] = value.user.color;
+          colorMap.set([value.user.name], value.user.color);
         });
       });
       awareness.setLocalStateField("user", {

@@ -18,7 +18,11 @@
             :stroke-width="3"
           />
           <span class="header-span">TO-CODE</span>
-          <a-avatar :size="20">Arco</a-avatar>
+          <a-avatar-group>
+            <a-avatar v-for="name in Editing.value" :key="name">
+              {{ name }}
+            </a-avatar>
+          </a-avatar-group>
         </div>
         <div class="user-part">
           <a-button-group type="primary" size="small">
@@ -175,6 +179,7 @@ onMounted(() => {
     containerId.value = response.data["docker_id"];
     console.log(response.data);
   });
+  editorPanel.value?.getColorMap()
 
   setInterval(() => {
     const time = new Date().getTime();
@@ -184,6 +189,7 @@ onMounted(() => {
 const name = useRouter().currentRoute.value.params.username;
 const projectID = useRouter().currentRoute.value.params.projectid;
 
+const Editing = ref([]);
 const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const dialogTableVisible = ref(false);
@@ -260,6 +266,7 @@ function getBreakpoints() {
 }
 
 function getcolorMap() {
+  console.log(editorPanel.value?.getColorMap().keys());
   console.log(editorPanel.value?.getColorMap());
 }
 
