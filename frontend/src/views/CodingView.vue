@@ -1,6 +1,5 @@
 <template>
   <div class="coding">
-    <DragBall />
     <el-container>
       <el-header>
         <div class="header">
@@ -44,63 +43,52 @@
         </div>
       </el-header>
       <el-container class="el2">
-        <a-resize-box
-          :directions="['right']"
-          style="
-            width: 200px;
-            min-width: 100px;
-            max-width: 50%;
-            text-align: center;
-          "
-        >
-          <LeftBar @open-file="openFile" :language="projectLanguage" />
-        </a-resize-box>
-        <el-container direction="vertical">
-          <a-resize-box
-            :directions="['bottom']"
-            style="
-              width: 100%;
-              text-align: center;
-              max-height: 90%;
-              min-height: 0;
-            "
-          >
+        <splitpanes class="default-theme">
+          <pane size="30">
+            <LeftBar @open-file="openFile" :language="projectLanguage" />
+          </pane>
+          <pane>
+            <splitpanes horizontal>
+              <pane>
+                <EditorPanel
+                  ref="editorPanel"
+                  :theme="editorTheme"
+                  :container-subdomain="projectSubdomain"
+                  :username="name"
+                  :projectid="projectID"
+                  @save-file="saveFile"
+                  @start-debug="(path) => runDebugger(name + '/' + path)"
+                >
+                </EditorPanel>
+              </pane>
+              <pane>
+                <BottomPanel
+                  ref="bottomPanel"
+                  :container-id="containerId"
+                  :container-subdomain="projectSubdomain"
+                  :key="containerId"
+                ></BottomPanel>
+              </pane>
+            </splitpanes>
             <!-- <el-button size="small" @click="changeTheme"
-              >change theme
-            </el-button>
-            <el-button size="small" @click="changeName">change name </el-button>
-            <el-button size="small" @click="deleteFile">
-              delete file
-            </el-button>
-            <el-button size="small" @click="getBreakpoints">
-              getBreakpoints
-            </el-button>
-            <el-button size="small" @click="getcolorMap">
-              getcolorMap
-            </el-button>
-            <el-button size="small" @click="focusLine"> focusLine </el-button>
-            <el-button size="small" @click="clearFocusLine">
-              clearFocusLine
-            </el-button> -->
-            <EditorPanel
-              ref="editorPanel"
-              :theme="editorTheme"
-              :container-subdomain="projectSubdomain"
-              :username="name"
-              :projectid="projectID"
-              @save-file="saveFile"
-              @start-debug="(path) => runDebugger(name + '/' + path)"
-            >
-            </EditorPanel>
-          </a-resize-box>
-          <TerminalPanel :containerId="containerId" :key="containerId" />
-          <BottomPanel
-            ref="bottomPanel"
-            :container-id="containerId"
-            :container-subdomain="projectSubdomain"
-            :key="containerId"
-          ></BottomPanel>
-        </el-container>
+                >change theme
+              </el-button>
+              <el-button size="small" @click="changeName">change name </el-button>
+              <el-button size="small" @click="deleteFile">
+                delete file
+              </el-button>
+              <el-button size="small" @click="getBreakpoints">
+                getBreakpoints
+              </el-button>
+              <el-button size="small" @click="getcolorMap">
+                getcolorMap
+              </el-button>
+              <el-button size="small" @click="focusLine"> focusLine </el-button>
+              <el-button size="small" @click="clearFocusLine">
+                clearFocusLine
+              </el-button> -->
+          </pane>
+        </splitpanes>
       </el-container>
     </el-container>
   </div>
@@ -178,6 +166,7 @@ import BottomPanel from "@/components/BottomPanel/BottomPanel.vue";
 import DragBall from "@/components/DragBall.vue";
 import axios from "axios";
 import { ElNotification } from "element-plus";
+import { Splitpanes, Pane } from "splitpanes";
 
 onMounted(() => {
   axios.get(`/api/project/${projectID}/`).then((response) => {
@@ -333,6 +322,7 @@ function clearFocusLine() {
 </script>
 
 <style scoped>
+@import "splitpanes/dist/splitpanes.css";
 .coding {
   height: 100%;
   background-color: var(--color-neutral-2);

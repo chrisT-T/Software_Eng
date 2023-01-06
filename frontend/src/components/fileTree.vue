@@ -3,6 +3,9 @@
     <div class="tree-main">
       <span class="spanStyle" style="margin-left: 10px">{{ projectName }}</span>
       <a-button-group type="text">
+        <a-button @click="getFileList()">
+          <template #icon><icon-loop /></template>
+        </a-button>
         <a-button @click="(dialogNewFVisible = true), (NewFform.path = '')">
           <template #icon><icon-plus /></template>
         </a-button>
@@ -23,7 +26,15 @@
             size="small"
           >
             <span class="el-dropdown-link spanStyle">
-              {{ node.label }}
+              <span style="display: flex; flex-direction: row">
+                <el-icon style="margin: auto" v-show="data.type === 'folder'"
+                  ><Folder
+                /></el-icon>
+                <el-icon style="margin: auto" v-show="data.type === 'file'"
+                  ><Files
+                /></el-icon>
+                <p>&nbsp; {{ node.label }}</p>
+              </span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -139,9 +150,15 @@ import {
   EditPen,
   CaretRight,
   Download,
+  Folder,
+  Files,
   defineEmits,
 } from "@element-plus/icons-vue";
-import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+import {
+  IconFolderAdd,
+  IconPlus,
+  IconLoop,
+} from "@arco-design/web-vue/es/icon";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
 import axios from "axios";
@@ -289,6 +306,9 @@ const remove = (node: Node, data: Tree) => {
 onMounted(() => {
   getFileList();
 
+  // update the file list per list
+  // setInterval(getFileList, 1000);
+
   axios.get(`/api/project/${projectID}/`).then((resp) => {
     console.log(resp);
     projectName.value = resp.data["project_name"];
@@ -319,7 +339,6 @@ onMounted(() => {
 .spanStyle {
   white-space: nowrap; /*强制span不换行*/
   display: inline-block; /*将span当做块级元素对待*/
-  overflow: hidden; /*超出宽度部分隐藏*/
   text-overflow: ellipsis; /*超出部分以点号代替*/
   line-height: 0.9; /*数字与之前的文字对齐*/
 }
