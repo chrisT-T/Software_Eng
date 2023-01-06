@@ -3,6 +3,9 @@
     <div class="tree-main">
       <span class="spanStyle" style="margin-left: 10px">{{ projectName }}</span>
       <a-button-group type="text">
+        <a-button @click="getFileList()">
+          <template #icon><icon-loop /></template>
+        </a-button>
         <a-button @click="(dialogNewFVisible = true), (NewFform.path = '')">
           <template #icon><icon-plus /></template>
         </a-button>
@@ -141,7 +144,11 @@ import {
   Download,
   defineEmits,
 } from "@element-plus/icons-vue";
-import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+import {
+  IconFolderAdd,
+  IconPlus,
+  IconLoop,
+} from "@arco-design/web-vue/es/icon";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
 import axios from "axios";
@@ -288,6 +295,9 @@ const remove = (node: Node, data: Tree) => {
 
 onMounted(() => {
   getFileList();
+
+  // update the file list per list
+  // setInterval(getFileList, 1000);
 
   axios.get(`/api/project/${projectID}/`).then((resp) => {
     console.log(resp);
