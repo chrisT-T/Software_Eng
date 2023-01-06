@@ -265,8 +265,10 @@ class ProjectService():
         try:
             project = Project.query.filter_by(id=proj_id).first()
             project_abs_path = os.path.relpath(project.path)
+            zip_folder_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip')
             zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', project.project_name + '.zip')
-            print(zip_path)
+            if not os.path.exists(zip_folder_path):
+                os.makedirs(zip_folder_path)
             zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
             for path, dirnames, filenames in os.walk(project_abs_path):
 
