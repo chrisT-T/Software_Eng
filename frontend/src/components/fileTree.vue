@@ -66,7 +66,18 @@
                 >
                 <el-dropdown-item :icon="EditPen">Change name</el-dropdown-item>
                 <el-dropdown-item :icon="CaretRight">Debug</el-dropdown-item>
-                <el-dropdown-item :icon="Download">Download</el-dropdown-item>
+                <el-dropdown-item
+                  :icon="Download"
+                  @click="downloadFile(data.path)"
+                  :disabled="data.type === 'folder'"
+                  >Download</el-dropdown-item
+                >
+                <el-dropdown-item
+                  :icon="Download"
+                  @click="downloadZip(data.path)"
+                  :disabled="data.type === 'file'"
+                  >Download Zip</el-dropdown-item
+                >
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -331,8 +342,16 @@ const remove = (node: Node, data: Tree) => {
   dataSource.value = [...dataSource.value];
 };
 
+function downloadZip(path: string) {
+  window.open(`/api/project/${projectID}/download/folder${path}`);
+}
+
+function downloadFile(path: string) {
+  window.open(`/api/project/${projectID}/download/single${path}`);
+}
+
 function getUploadUrl() {
-  let url = `/api/project/${projectID}/upload${uploadPath.value}`;
+  let url = `/api/project/${projectID}/upload/single${uploadPath.value}`;
   console.log(uploadPath.value);
   console.log(url);
   return url;
