@@ -9,6 +9,9 @@
         <a-button @click="(dialogNewFVisible = true), (NewFform.path = '')">
           <template #icon><icon-plus /></template>
         </a-button>
+        <a-button @click="(dialogUploadVisible = true), (uploadPath = '/')">
+          <template #icon><icon-upload /></template>
+        </a-button>
       </a-button-group>
     </div>
     <el-tree
@@ -47,6 +50,14 @@
                   "
                   :disabled="data.type === 'file'"
                   >Append</el-dropdown-item
+                >
+                <el-dropdown-item
+                  :icon="Upload"
+                  @click="
+                    (dialogUploadVisible = true), (uploadPath = data.path)
+                  "
+                  :disabled="data.type === 'file'"
+                  >Upload</el-dropdown-item
                 >
                 <el-dropdown-item
                   :icon="DeleteFilled"
@@ -139,10 +150,21 @@
       </span>
     </template>
   </el-dialog>
+  <el-dialog v-model="dialogUploadVisible" title="Upload">
+    <el-upload class="upload-demo" drag :action="getUploadUrl()" multiple>
+      <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+      <div class="el-upload__text">
+        Drop file here or <em>click to upload</em>
+      </div>
+      <template #tip>
+        <div class="el-upload__tip">Upload file to {{ uploadPath }}</div>
+      </template>
+    </el-upload>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, defineEmits } from "vue";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import {
   Plus,
@@ -152,8 +174,10 @@ import {
   Download,
   Folder,
   Files,
-  defineEmits,
+  Upload,
+  UploadFilled,
 } from "@element-plus/icons-vue";
+
 import {
   IconFolderAdd,
   IconPlus,
@@ -166,6 +190,10 @@ import axios from "axios";
 const NewFRef = ref<FormInstance>();
 let dialogNewFVisible = ref(false);
 let dialogNewFNodeVisible = ref(false);
+
+let dialogUploadVisible = ref(false);
+let uploadPath = ref("");
+
 const nodeappend = ref<Tree>();
 const projectName = ref("");
 const dataSource = ref<Tree[]>([]);
@@ -302,6 +330,13 @@ const remove = (node: Node, data: Tree) => {
   children.splice(index, 1);
   dataSource.value = [...dataSource.value];
 };
+
+function getUploadUrl() {
+  let url = `/api/project/${projectID}/upload${uploadPath.value}`;
+  console.log(uploadPath.value);
+  console.log(url);
+  return url;
+}
 
 onMounted(() => {
   getFileList();

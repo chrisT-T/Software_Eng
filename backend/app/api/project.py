@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, json, request, send_file
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
@@ -229,3 +231,14 @@ def download_project(proj_id):
     if not flag:
         return res, 500
     return send_file(res, as_attachment=True), 200
+
+
+@bp.route('/api/project/<int:proj_id>/upload/<path:path>', methods=['POST'])
+@login_required
+def upload_single(proj_id, path):
+    fileObj = request.files['file']
+    project = proj_service.find_project(proj_id)[0]
+    targetPath = os.path.join(project.path, path, fileObj.filename)
+    fileObj.save(targetPath)
+    return "upload success", 200 
+
