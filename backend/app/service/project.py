@@ -286,7 +286,7 @@ class ProjectService():
             project = Project.query.filter_by(id=proj_id).first()
             project_abs_path = os.path.relpath(os.path.join(project.path, path))
 
-            path_string= os.path.join(project.project_name, path).replace('/', '-')         
+            path_string = os.path.join(project.project_name, path).replace('/', '-')
 
             zip_folder_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip')
             zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', path_string + '.zip')

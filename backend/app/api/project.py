@@ -232,6 +232,7 @@ def download_project(proj_id):
         return res, 500
     return send_file(res, as_attachment=True), 200
 
+
 @bp.route('/api/project/<int:proj_id>/download/folder/<path:path>', methods=['GET'])
 @login_required
 def download_folder(proj_id, path):
@@ -242,6 +243,7 @@ def download_folder(proj_id, path):
         return res, 500
     return send_file(res, as_attachment=True), 200
 
+
 @bp.route('/api/project/<int:proj_id>/download/single/<path:path>', methods=['GET'])
 @login_required
 def download_single(proj_id, path):
@@ -249,7 +251,7 @@ def download_single(proj_id, path):
         return 'Permission denied', 401
     project = proj_service.find_project(proj_id)[0]
     targetPath = os.path.join(project.path, path)
-    return send_file(targetPath, as_attachment=True), 200 
+    return send_file(targetPath, as_attachment=True), 200
 
 
 @bp.route('/api/project/<int:proj_id>/upload/single/<path:path>', methods=['POST'])
@@ -261,5 +263,4 @@ def upload_single(proj_id, path):
     project = proj_service.find_project(proj_id)[0]
     targetPath = os.path.join(project.path, path, fileObj.filename)
     fileObj.save(targetPath)
-    return "upload success", 200 
-
+    return "upload success", 200
