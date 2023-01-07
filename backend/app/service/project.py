@@ -267,6 +267,7 @@ class ProjectService():
             project_abs_path = os.path.relpath(project.path)
             zip_folder_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip')
             zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', project.project_name + '.zip')
+            print(zip_folder_path)
             if not os.path.exists(zip_folder_path):
                 os.makedirs(zip_folder_path)
             zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
@@ -285,16 +286,16 @@ class ProjectService():
         try:
             project = Project.query.filter_by(id=proj_id).first()
             project_abs_path = os.path.relpath(os.path.join(project.path, path))
-
             path_string = os.path.join(project.project_name, path).replace('/', '-')
 
-            zip_folder_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip')
-            zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', path_string + '.zip')
-            if not os.path.exists(zip_folder_path):
-                os.makedirs(zip_folder_path)
-            zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
-            for path, dirnames, filenames in os.walk(project_abs_path):
+            tmp_path = os.path.join(os.path.dirname(os.path.relpath(project.path)), 'tmpZip')
 
+            zip_path = os.path.join(tmp_path, path_string + '.zip')
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path)
+            zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
+
+            for path, dirnames, filenames in os.walk(project_abs_path):
                 fpath = path.replace(project_abs_path, '')
                 for filename in filenames:
                     zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
