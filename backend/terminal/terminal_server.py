@@ -32,8 +32,7 @@ class TerminalForwardingThread(threading.Thread):
                     self.ws.close()
             except Exception as e:
                 print("docker daemon socket err: %s" % e)
-                self.ws.close()
-                break
+
 
 
 class TerminalSocketHandler(tornado.websocket.WebSocketHandler):
