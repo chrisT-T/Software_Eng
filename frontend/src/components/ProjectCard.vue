@@ -62,7 +62,10 @@
               >
                 <div class="type-box">
                   <img
-                    v-if="record.language === 'Python'"
+                    v-if="
+                      record.language.includes('python') ||
+                      record.language.includes('Python')
+                    "
                     alt="avater"
                     src="https://api.iconify.design/logos:python.svg"
                   />

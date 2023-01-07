@@ -288,8 +288,14 @@ function runCurrentCode() {
     }
     path = `/${projectName}/${path}`;
     console.log(path);
-    if (projectLanguage.value === "Python") {
+    if (projectLanguage.value.includes("python")) {
       bottomPanel.value?.outputRunCommand(`python ${path}`);
+    } else {
+      ElNotification({
+        title: "Warning",
+        message: "Running current language is not supported",
+        type: "warning",
+      });
     }
   }
 }
