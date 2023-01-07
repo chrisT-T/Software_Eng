@@ -23,13 +23,12 @@
         </li>
       </ul>
       <div style="width: 100%">
-        <textarea
-          style="width: 100%; resize: none"
-          id="send_chat_msg_box"
-          rows="3"
-          placeholder="请输入消息"
-        >
-        </textarea>
+        <el-input
+          v-model="input"
+          placeholder="Please input"
+          clearable
+          @keyup.enter="chatNewMsg"
+        />
       </div>
     </div>
   </div>
@@ -55,9 +54,15 @@ import { ref } from "vue";
 import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
 import { Search } from "@element-plus/icons-vue";
 
+const input = ref("");
+
 const chatboxVisible = ref(false);
 
-const textarea = ref("");
+const chatNewMsg = () => {
+  console.log(input);
+  input.value = "";
+  // 可以提交当前用户，发送的消息input，以及发送时间
+};
 
 const startclientX = ref(0); //记录开始的横坐标位置
 const startclientY = ref(0); //记录开始的纵坐标位置
