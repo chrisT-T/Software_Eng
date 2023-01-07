@@ -1,5 +1,6 @@
 <template>
   <div class="coding">
+    <DragBall />
     <el-container>
       <el-header>
         <div class="header">

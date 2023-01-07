@@ -28,6 +28,8 @@ import {
 } from "vscode-ws-jsonrpc";
 import * as common from "./common";
 
+import normalizeUrl from "normalize-url";
+
 const props = defineProps<{
   editorOption: monaco.editor.IStandaloneEditorConstructionOptions;
   containerSubdomain: string;
@@ -252,7 +254,8 @@ onMounted(() => {
   // python language server
   let lspUrl = "/lsp";
   if (props.editorOption.language === "python") {
-    lspUrl = `ws://${props.containerSubdomain}.lsp.localhost:8088`;
+    lspUrl = `ws://${props.containerSubdomain}.lsp.localhost:8088/`;
+    console.log(normalizeUrl(lspUrl) + "test");
     console.log(lspUrl);
     // create websocket
     const webSocket = new WebSocket(lspUrl);

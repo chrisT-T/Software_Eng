@@ -27,7 +27,7 @@ const term = new Terminal({
 });
 const fitAddon = new FitAddon();
 const terminalWs = new WebSocket(
-  `ws://localhost:5005/websocket/${props.containerId}`
+  `ws://${location.host}/terminal/websocket/${props.containerId}`
 );
 const attachAddon = new AttachAddon(terminalWs);
 const stage = reactive({
@@ -54,7 +54,7 @@ function getDebugStage() {
 }
 
 onMounted(() => {
-  console.log(`ws://localhost:5005/websocket/${props.containerId}`);
+  console.log(`ws://${location.host}/terminal/websocket/${props.containerId}`);
   term.open(termDiv?.value as HTMLElement);
   term.loadAddon(fitAddon);
   term.loadAddon(attachAddon);
