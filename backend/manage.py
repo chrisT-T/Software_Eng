@@ -13,7 +13,9 @@ from app.utils import config
 app = create_app(os.getenv('TYPE', 'default'))
 host = config.get_yaml('app.HOST')
 port = config.get_yaml('app.PORT')
+app.config['docker_config'] = config.get_yaml('docker')
 
+print(app.config['docker_config'])
 migrate = Migrate(app, db)
 
 

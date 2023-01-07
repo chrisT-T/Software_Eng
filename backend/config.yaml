@@ -4,3 +4,9 @@ app:
   SECRET_KEY: 5974670705028e6efc33d95d35a0ce264d7f4283cee7106b48188b4bcea96d13
 db:
   URI: sqlite:///dev.db
+docker:
+  python3.8: coding-python38
+  python3.9: coding-python39
+  python3.10: coding-python310
+  python3.10-datasci: coding-python310-datasci
+  python3.10-ml: coding-python310-ml

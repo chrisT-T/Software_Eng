@@ -34,7 +34,6 @@ class TerminalForwardingThread(threading.Thread):
                 print("docker daemon socket err: %s" % e)
 
 
-
 class TerminalSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self, container_id):
         exec_cmd = [

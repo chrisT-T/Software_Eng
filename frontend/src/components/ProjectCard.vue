@@ -764,15 +764,38 @@ const Deleterules = reactive({
 });
 
 interface lang_opt {
-  value: "C" | "Python" | "Java" | "Cpp";
+  value:
+    | "python3.8"
+    | "python3.9"
+    | "python3.10"
+    | "python3.10-datasci"
+    | "python3.10-ml"
+    | "C"
+    | "Java"
+    | "Cpp";
   label: string;
 }
 
 const options: lang_opt[] = [
   {
-    value: "Python",
-    label: "python",
-    // 根据拓展语言添加
+    value: "python3.8",
+    label: "Python3.8",
+  },
+  {
+    value: "python3.9",
+    label: "Python3.9",
+  },
+  {
+    value: "python3.10",
+    label: "Python3.10",
+  },
+  {
+    value: "python3.10-datasci",
+    label: "Python3.10-DataSci",
+  },
+  {
+    value: "python3.10-ml",
+    label: "Python3.10-ML",
   },
   {
     value: "C",
