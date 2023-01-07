@@ -42,6 +42,9 @@ const routes: Array<RouteRecordRaw> = [
     path: "/codingcheck",
     name: "codingcheck",
     component: () => import("../views/CodingView.vue"),
+    meta: {
+      LoginRequired: false,
+    },
   },
 ];
 
