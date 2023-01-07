@@ -1,5 +1,5 @@
 import os
-
+import zipfile
 from flask import Blueprint, json, request, send_file
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
@@ -263,4 +263,19 @@ def upload_single(proj_id, path):
     project = proj_service.find_project(proj_id)[0]
     targetPath = os.path.join(project.path, path, fileObj.filename)
     fileObj.save(targetPath)
+    return "upload success", 200
+
+@bp.route('/api/project/upload/<string:username>/<string:name>/<string:language>', methods=['POST'])
+@login_required
+def upload_project(username, name, language):
+    fileObj = request.files['file']
+    print(username, name, language)
+    new_proj_id, flag = proj_service.create_project(username, name, language)
+    project = proj_service.find_project(new_proj_id)[0]
+    targetPath = os.path.join(project.path, fileObj.filename)
+    fileObj.save(targetPath)
+    f = zipfile.ZipFile(targetPath,'r')
+    for file in f.namelist():
+        f.extract(file, project.path)
+    os.remove(targetPath)
     return "upload success", 200

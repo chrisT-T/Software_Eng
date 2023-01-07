@@ -218,15 +218,26 @@
     <el-upload
       class="upload-demo"
       drag
-      action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+      :action="getUploadPath()"
       multiple
+      :beforeUpload="beforeProjectUpload"
     >
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
       <div class="el-upload__text">
         Drop file here or <em>click to upload</em>
       </div>
     </el-upload>
-    <el-select v-model="NewProjform.language" placeholder="选择项目语言">
+    <el-input
+      label="项目名称"
+      v-model="NewProjform.project_name"
+      autocomplete="off"
+    />
+    <el-select
+      label="项目名称"
+      v-model="NewProjform.language"
+      :label-width="formLabelWidth"
+      placeholder="选择项目语言"
+    >
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -813,6 +824,39 @@ const printtable = (data: PermissionTest[] | undefined) => {
 const filterTag = (value: string, row: PermissionTest) => {
   return row.permission === value;
 };
+
+function beforeProjectUpload(file) {
+  let extension = file.name.replace(/.+\./, "");
+  if (extension !== "zip") {
+    ElMessage({
+      message: "上传文件必须为 zip 格式",
+      type: "warning",
+    });
+    return false;
+  }
+
+  if (NewProjform.project_name === "") {
+    ElMessage({
+      message: "请填写项目名称",
+      type: "warning",
+    });
+    return false;
+  }
+  if (NewProjform.language === "") {
+    ElMessage({
+      message: "请填写项目名称",
+      type: "warning",
+    });
+    return false;
+  }
+  return true;
+}
+
+function getUploadPath() {
+  let url = `/api/project/upload/${NewProjform.creator_name}/${NewProjform.project_name}/${NewProjform.language}`;
+  console.log(NewProjform);
+  return url;
+}
 </script>
 
 <style scoped>
