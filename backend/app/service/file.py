@@ -79,3 +79,15 @@ class FileService():
             return "Folder already exists", False
         os.mkdir(path)
         return '', True
+    
+    def rename_file(self, relative_path, project_id, new_name):
+        project = Project.query.filter_by(id=project_id).first()
+        if not project:
+            return 'Project does not exist', False
+        proj_path = project.path
+        path = os.path.join(proj_path, relative_path)
+        if not (os.path.isfile(path) or os.path.isdir(path)):
+            return "File or folder do not exist", False
+        folder = os.path.dirname(path)
+        os.rename(path, os.path.join(folder, new_name))
+        return '', True

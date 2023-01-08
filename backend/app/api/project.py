@@ -109,7 +109,6 @@ class Project(Resource):
         args = parser.parse_args()
         password = args['password']
         new_name = args['new_name']
-        print(args)
         if check_edit_project_password(password):
             res, flag = proj_service.change_name(proj_id, new_name)
             if flag:
