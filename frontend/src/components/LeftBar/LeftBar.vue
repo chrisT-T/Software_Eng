@@ -4,9 +4,6 @@
       <el-tab-pane label="File">
         <fileTree @open-file="openFile" />
       </el-tab-pane>
-      <el-tab-pane label="Debug">
-        <DebugLeftBar :language="props.language"></DebugLeftBar>
-      </el-tab-pane>
     </el-tabs>
   </div>
 </template>

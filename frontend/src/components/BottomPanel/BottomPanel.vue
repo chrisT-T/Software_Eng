@@ -8,13 +8,6 @@
       <el-tab-pane label="Terminal" name="Terminal">
         <TerminalPanel :containerId="containerId" :key="containerId" />
       </el-tab-pane>
-      <el-tab-pane label="Debug" name="Debug">
-        <DebugTerminal
-          :containerId="$props.containerId"
-          :container-subdomain="$props.containerSubdomain"
-          :key="containerId"
-        />
-      </el-tab-pane>
       <el-tab-pane label="Output" name="Output">
         <OutputTerminal
           ref="outputTerm"
