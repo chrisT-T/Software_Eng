@@ -20,6 +20,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
 parser.add_argument('new_name', type=str, location='form')
 
+
 class File(Resource):
     @login_required
     def get(self, project_id, path):
@@ -165,6 +166,7 @@ class File(Resource):
 
 
 file_api.add_resource(File, "/api/file/<int:project_id>/<path:path>")
+
 
 @bp.route('/api/file/<int:proj_id>/rename/<path:path>', methods=["POST"])
 @login_required

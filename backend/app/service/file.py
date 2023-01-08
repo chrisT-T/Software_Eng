@@ -79,7 +79,7 @@ class FileService():
             return "Folder already exists", False
         os.mkdir(path)
         return '', True
-    
+
     def rename_file(self, relative_path, project_id, new_name):
         project = Project.query.filter_by(id=project_id).first()
         if not project:

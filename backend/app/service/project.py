@@ -211,7 +211,7 @@ class ProjectService():
         except Exception as e:
             print(e)
             return 'Exception in accepting invitation', False
-        
+
     def deny_invitation(self, username, proj_id):
         try:
             target = Project.query.filter_by(id=proj_id).first()
