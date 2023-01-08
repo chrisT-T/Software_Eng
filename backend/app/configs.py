@@ -15,10 +15,10 @@ class DevConfig(Config):
     DEBUG = True
     ROOT_DIR = './DevFileSystem'
 
-
 class ProdConfig(Config):
     TYPE = 'prod'
     DEBUG = False
+    ROOT_DIR = './ProdFileSystem'
 
 
 class TestConfig(Config):

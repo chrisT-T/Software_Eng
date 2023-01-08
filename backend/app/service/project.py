@@ -30,7 +30,7 @@ class ProjectService():
                                   project_name=project_name,
                                   project_language=project_language)
             new_project.admin_users.append(creator)
-
+            new_project.create_time = datetime.datetime.now()
             hash_id = hash(new_project.create_time)
 
             # create project root_dir
