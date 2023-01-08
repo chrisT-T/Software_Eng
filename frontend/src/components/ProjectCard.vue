@@ -912,9 +912,6 @@ a {
   text-decoration: none;
   color: black;
 }
-</style>
-
-<style>
 .card .list-card .arco-card-header-title {
   display: flex;
   padding-left: 20px;

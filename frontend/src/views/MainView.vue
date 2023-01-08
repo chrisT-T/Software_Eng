@@ -213,9 +213,6 @@ const denyInvitation = (projId) => {
 .infinite-list .infinite-list-item + .list-item {
   margin-top: 5px;
 }
-</style>
-
-<style>
 .input-with-select .el-input-group__prepend {
   background-color: var(--el-fill-color-blank);
 }

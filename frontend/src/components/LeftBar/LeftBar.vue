@@ -39,15 +39,15 @@ function openFile(path: string) {
   width: 100%;
 }
 
-::v-deep .left-bar-tabs > .el-tabs__header {
+:deep(.left-bar-tabs > .el-tabs__header) {
   margin: 0px;
 }
 
-::v-deep .left-bar-tabs > .el-tabs__content {
+:deep(.left-bar-tabs > .el-tabs__content) {
   height: 100%;
 }
 
-::v-deep .left-bar-tabs > .el-tabs__content > .el-tab-pane {
+:deep(.left-bar-tabs > .el-tabs__content > .el-tab-pane) {
   height: 100%;
   width: 100%;
 }

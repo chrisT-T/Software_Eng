@@ -276,7 +276,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 .monaco-editor-container {
   height: 100%;
   width: 100%;

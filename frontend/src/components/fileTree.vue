@@ -429,7 +429,7 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 .custom-tree-container {
   width: 100%;
   height: 100%;
