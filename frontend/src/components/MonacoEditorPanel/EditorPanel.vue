@@ -84,6 +84,7 @@ const emit = defineEmits<{
 }>();
 
 const userColor = ref<Array<UserColor>>(new Array<UserColor>());
+const myColor = randomColor({ luminosity: "bright" });
 
 defineExpose({
   addFile,
@@ -310,7 +311,7 @@ function addFile(path: string, value: string) {
       });
       awareness.setLocalStateField("user", {
         name: props.username,
-        color: randomColor({ luminosity: "bright" }),
+        color: myColor,
       });
 
       // console.log(awareness.clientID);
