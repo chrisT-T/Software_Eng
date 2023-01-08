@@ -64,7 +64,9 @@ const input = ref("");
 
 const chatboxVisible = ref(false);
 
-const ws = new WebSocket(`ws://localhost:6006/websocket/${projectID}/${name}`);
+const ws = new WebSocket(
+  `ws://${location.host}/communication/websocket/${projectID}/${name}`
+);
 
 ws.onopen = function () {
   console.log("open");

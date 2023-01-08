@@ -39,6 +39,14 @@ module.exports = defineConfig({
           "^/yjs": "/",
         },
       },
+      "/communication": {
+        target: "ws://localhost:6006",
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          "^/communication": "/",
+        },
+      },
       "/lsp": {
         target: "ws://localhost:8088",
         changeOrigin: true,
