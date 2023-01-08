@@ -40,11 +40,11 @@
     :style="`right:${elRight}px;bottom:${elBottom}px;`"
     v-if="chatboxVisible === false"
   >
-    <span>ChatBox</span>
+    <el-badge is-dot class="item" :hidden="newMsg">ChatBox</el-badge>
     <el-button
       :icon="ArrowUpBold"
       circle
-      @click="chatboxVisible = true"
+      @click="(chatboxVisible = true), (newMsg = true)"
       type="text"
     />
   </div>
@@ -57,6 +57,8 @@ import { Search } from "@element-plus/icons-vue";
 
 const name = useRouter().currentRoute.value.params.username;
 const projectID = useRouter().currentRoute.value.params.projectid;
+
+const newMsg = ref(true);
 
 const input = ref("");
 
@@ -73,6 +75,7 @@ ws.onmessage = function (e) {
   let r = JSON.parse(e.data);
   console.log(r, typeof r);
   msgList.value.push(r);
+  newMsg.value = false;
 };
 
 ws.onclose = function () {
