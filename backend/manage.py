@@ -88,7 +88,7 @@ def init_db():
 
 @app.cli.command("runserver")
 def runserver():
-    app.run(host=host,port=port)
+    app.run(host=host, port=port)
 
 
 if __name__ == '__main__':
