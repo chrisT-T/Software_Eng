@@ -6,6 +6,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     redirect: "/login",
     meta: {
+      title: "TOCODE | Login",
       LoginRequired: false,
     },
   },
@@ -14,6 +15,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "login",
     component: () => import("../views/LoginView.vue"),
     meta: {
+      title: "TOCODE | Login",
       LoginRequired: false,
     },
   },
@@ -22,6 +24,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "main",
     component: () => import("../views/MainView.vue"),
     meta: {
+      title: "TOCODE | Project Management",
       LoginRequired: true,
     },
   },
@@ -30,20 +33,8 @@ const routes: Array<RouteRecordRaw> = [
     name: "coding",
     component: () => import("../views/CodingView.vue"),
     meta: {
+      title: "TOCODE | Coding",
       LoginRequired: true,
-    },
-  },
-  {
-    path: "/tree",
-    name: "tree",
-    component: () => import("../components/fileTree.vue"),
-  },
-  {
-    path: "/codingcheck",
-    name: "codingcheck",
-    component: () => import("../views/CodingView.vue"),
-    meta: {
-      LoginRequired: false,
     },
   },
 ];
