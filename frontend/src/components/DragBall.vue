@@ -54,6 +54,7 @@ import { ref } from "vue";
 import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { Search } from "@element-plus/icons-vue";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 const name = useRouter().currentRoute.value.params.username;
 const projectID = useRouter().currentRoute.value.params.projectid;
@@ -64,7 +65,7 @@ const input = ref("");
 
 const chatboxVisible = ref(false);
 
-const ws = new WebSocket(
+const ws = new ReconnectingWebSocket(
   `ws://${location.host}/communication/websocket/${projectID}/${name}`
 );
 
