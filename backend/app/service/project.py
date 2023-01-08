@@ -56,10 +56,10 @@ class ProjectService():
                 volumes=[f'{project_root_path}:/{project_name}'],
                 detach=True,
                 labels={
-                    f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)",
+                    f"traefik.http.routers.{hash_id}-lsp.rule": f"Path(`/lsp/{hash_id}`)",
                     f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
                     f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
-                    f"traefik.http.routers.{hash_id}-debug.rule": f"Host(`{hash_id}.debug.localhost`)",
+                    f"traefik.http.routers.{hash_id}-debug.rule": f"Path(`localhost/debug/{hash_id}`)",
                     f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
                     f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
                 },
