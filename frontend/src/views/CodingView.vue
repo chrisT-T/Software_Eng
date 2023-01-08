@@ -33,15 +33,6 @@
             <a-button @click="runCurrentCode()">
               <template #icon><icon-play-arrow-fill /></template>
             </a-button>
-            <a-button>
-              <template #icon><icon-double-right /></template>
-            </a-button>
-            <a-button>
-              <template #icon><icon-bug /></template>
-            </a-button>
-            <a-button>
-              <template #icon><icon-pause /></template>
-            </a-button>
           </a-button-group>
           <a-divider direction="vertical" />
         </div>
@@ -325,9 +316,20 @@ function saveFile(path: string, value: string) {
   const param = new FormData();
   const export_blob = new Blob([value]);
   param.append("file", export_blob);
-  axios.put(`/api/file/${projectID}/${path}`, param).then((res) => {
-    console.log(res);
-  });
+  axios
+    .put(`/api/file/${projectID}/${path}`, param)
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      if (err.response.status === 404) {
+        ElNotification({
+          title: "Warning",
+          message: "Permission denied",
+          type: "warning",
+        });
+      }
+    });
 
   return;
 }

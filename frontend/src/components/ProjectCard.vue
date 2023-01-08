@@ -273,11 +273,15 @@
       >
         <template #default="scope">
           <el-tag
-            :type="scope.row.permission === 'admin' ? 'warning' : 'info'"
+            :type="
+              scope.row.permission === 'administrator' ? 'warning' : 'info'
+            "
             disable-transitions
             effect="plain"
           >
-            <span v-if="scope.row.permission === 'admin'"> 管理员 </span>
+            <span v-if="scope.row.permission === 'administrator'">
+              管理员
+            </span>
             <span v-if="scope.row.permission === 'read'"> 只可读 </span>
             <span v-if="scope.row.permission === 'edit'"> 可编辑 </span>
             <span v-if="scope.row.permission === 'pending'"> 邀请待接受 </span>
