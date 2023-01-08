@@ -89,5 +89,8 @@ class FileService():
         if not (os.path.isfile(path) or os.path.isdir(path)):
             return "File or folder do not exist", False
         folder = os.path.dirname(path)
-        os.rename(path, os.path.join(folder, new_name))
+        newPath = os.path.join(folder, new_name)
+        if os.path.exists(newPath):
+            return "newName already used", False
+        os.rename(path, newPath)
         return '', True
