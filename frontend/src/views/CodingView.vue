@@ -20,11 +20,11 @@
           <span class="header-span">TO-CODE</span>
           <a-avatar-group>
             <a-avatar
-              v-for="item in Editing.value"
-              :key="item.name"
+              v-for="item in Editing"
+              :key="item.username"
               :style="{ backgroundColor: item.color }"
             >
-              {{ item.name }}
+              {{ item.username }}
             </a-avatar>
           </a-avatar-group>
         </div>
@@ -296,13 +296,13 @@ function getBreakpoints() {
 watch(
   () => editorPanel.value?.userColor,
   (val) => {
-    console.log("-----------");
-    console.log(val);
+    console.log("watch updated");
+    Editing.value = val;
   },
   { deep: true }
 );
 function getcolorMap() {
-  console.log(editorPanel.value?.userColor);
+  console.log(editorPanel.value?.userColor[0]);
   console.log(Editing.value);
 }
 
