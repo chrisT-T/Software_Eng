@@ -3,7 +3,14 @@
     <el-container>
       <el-header> <div class="header">TO-CODE</div> </el-header>
       <el-main>
-        <div class="rollbox">ROLLING</div>
+        <div class="rollbox">
+          <div class="block text-center">
+            <el-carousel height="400px" interval="7000">
+              <el-carousel-item v-for="item in 3" :key="item">
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+        </div>
         <div class="loginbox">
           <el-tabs
             v-model="activeName"
@@ -37,6 +44,26 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 </script>
 
 <style scoped>
+.demonstration {
+  color: var(--el-text-color-secondary);
+}
+
+.el-carousel__item:nth-child(3n) {
+  background-color: #99a9bf;
+  background-size: 600px 400px;
+  background-image: url(../assets/RollingImg/cm2.png);
+}
+
+.el-carousel__item:nth-child(3n + 1) {
+  background-color: #d3dce6;
+  background-size: 600px 400px;
+  background-image: url(../assets/RollingImg/terminal.png);
+}
+.el-carousel__item:nth-child(3n + 2) {
+  background-color: #d3dce6;
+  background-size: 600px 400px;
+  background-image: url(../assets/RollingImg/communication.png);
+}
 .login {
   height: 100%;
   width: 100%;
@@ -67,8 +94,8 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 
 .rollbox {
-  height: 300px;
-  width: 200px;
+  height: 400px;
+  width: 600px;
   /*background-color: var(--el-color-warning-light-5);*/
 }
 
