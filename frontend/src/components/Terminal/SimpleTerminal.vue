@@ -9,6 +9,7 @@ import { ref, onMounted, defineProps } from "vue";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { AttachAddon } from "xterm-addon-attach";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 const props = defineProps<{
   containerId: string;
@@ -20,7 +21,7 @@ const term = new Terminal({
   macOptionIsMeta: true,
 });
 const fitAddon = new FitAddon();
-const terminalWs = new WebSocket(
+const terminalWs = new ReconnectingWebSocket(
   `ws://${location.host}/terminal/websocket/${props.containerId}`
 );
 const attachAddon = new AttachAddon(terminalWs);
