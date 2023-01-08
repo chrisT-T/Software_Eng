@@ -44,22 +44,28 @@ class ProjectService():
 
             # create docker process
             docker_client = docker.from_env()
-            if project_language == 'Python':
-                container = docker_client.containers.run(
-                    image='python:3.9',
-                    volumes=[f'{project_root_path}:/{project_name}'],
-                    detach=True,
-                    labels={
-                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)",
-                        f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
-                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
-                        f"traefik.http.routers.{hash_id}-debug.rule": f"Host(`{hash_id}.debug.localhost`)",
-                        f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
-                        f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
-                    },
-                    network="traefik_default"
-                )
-                docker_id = container.id
+
+            if project_language not in current_app.config['docker_config'].keys():
+                print(f"wrong project language {project_language}")
+                return f"wrong project language {project_language}", False
+
+            image_tag = current_app.config['docker_config'][project_language]
+
+            container = docker_client.containers.run(
+                image=image_tag,
+                volumes=[f'{project_root_path}:/{project_name}'],
+                detach=True,
+                labels={
+                    f"traefik.http.routers.{hash_id}-lsp.rule": f"Path(`/lsp/{hash_id}`)",
+                    f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
+                    f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
+                    f"traefik.http.routers.{hash_id}-debug.rule": f"Path(`localhost/debug/{hash_id}`)",
+                    f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
+                    f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
+                },
+                network="traefik_default"
+            )
+            docker_id = container.id
 
             print(docker_id)
             new_project.docker_id = docker_id
@@ -279,11 +285,37 @@ class ProjectService():
         try:
             project = Project.query.filter_by(id=proj_id).first()
             project_abs_path = os.path.relpath(project.path)
+            zip_folder_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip')
             zip_path = os.path.join(os.path.dirname(project_abs_path), 'tmpZip', project.project_name + '.zip')
-            print(zip_path)
+            print(zip_folder_path)
+            if not os.path.exists(zip_folder_path):
+                os.makedirs(zip_folder_path)
             zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
             for path, dirnames, filenames in os.walk(project_abs_path):
 
+                fpath = path.replace(project_abs_path, '')
+                for filename in filenames:
+                    zip.write(os.path.join(path, filename), os.path.join(fpath, filename))
+            zip.close()
+            return '../' + zip_path, True
+        except Exception as e:
+            print(e)
+            return 'Exception in zipping files', False
+
+    def zip_folder(self, proj_id: int, path: str):
+        try:
+            project = Project.query.filter_by(id=proj_id).first()
+            project_abs_path = os.path.relpath(os.path.join(project.path, path))
+            path_string = os.path.join(project.project_name, path).replace('/', '-')
+
+            tmp_path = os.path.join(os.path.dirname(os.path.relpath(project.path)), 'tmpZip')
+
+            zip_path = os.path.join(tmp_path, path_string + '.zip')
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path)
+            zip = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
+
+            for path, dirnames, filenames in os.walk(project_abs_path):
                 fpath = path.replace(project_abs_path, '')
                 for filename in filenames:
                     zip.write(os.path.join(path, filename), os.path.join(fpath, filename))

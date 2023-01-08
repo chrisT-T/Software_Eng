@@ -3,8 +3,14 @@
     <div class="tree-main">
       <span class="spanStyle" style="margin-left: 10px">{{ projectName }}</span>
       <a-button-group type="text">
+        <a-button @click="getFileList()">
+          <template #icon><icon-loop /></template>
+        </a-button>
         <a-button @click="(dialogNewFVisible = true), (NewFform.path = '')">
           <template #icon><icon-plus /></template>
+        </a-button>
+        <a-button @click="(dialogUploadVisible = true), (uploadPath = '/')">
+          <template #icon><icon-upload /></template>
         </a-button>
       </a-button-group>
     </div>
@@ -23,7 +29,15 @@
             size="small"
           >
             <span class="el-dropdown-link spanStyle">
-              {{ node.label }}
+              <span style="display: flex; flex-direction: row">
+                <el-icon style="margin: auto" v-show="data.type === 'folder'"
+                  ><Folder
+                /></el-icon>
+                <el-icon style="margin: auto" v-show="data.type === 'file'"
+                  ><Files
+                /></el-icon>
+                <p>&nbsp; {{ node.label }}</p>
+              </span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -36,6 +50,14 @@
                   "
                   :disabled="data.type === 'file'"
                   >Append</el-dropdown-item
+                >
+                <el-dropdown-item
+                  :icon="Upload"
+                  @click="
+                    (dialogUploadVisible = true), (uploadPath = data.path)
+                  "
+                  :disabled="data.type === 'file'"
+                  >Upload</el-dropdown-item
                 >
                 <el-dropdown-item
                   :icon="DeleteFilled"
@@ -51,7 +73,18 @@
                   >Change name</el-dropdown-item
                 >
                 <el-dropdown-item :icon="CaretRight">Debug</el-dropdown-item>
-                <el-dropdown-item :icon="Download">Download</el-dropdown-item>
+                <el-dropdown-item
+                  :icon="Download"
+                  @click="downloadFile(data.path)"
+                  :disabled="data.type === 'folder'"
+                  >Download</el-dropdown-item
+                >
+                <el-dropdown-item
+                  :icon="Download"
+                  @click="downloadZip(data.path)"
+                  :disabled="data.type === 'file'"
+                  >Download Zip</el-dropdown-item
+                >
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -135,7 +168,6 @@
       </span>
     </template>
   </el-dialog>
-
   <el-dialog
     v-model="dialogChangeNameVisible"
     title="修改文件名"
@@ -167,10 +199,21 @@
       </span>
     </template>
   </el-dialog>
+  <el-dialog v-model="dialogUploadVisible" title="Upload">
+    <el-upload class="upload-demo" drag :action="getUploadUrl()" multiple>
+      <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+      <div class="el-upload__text">
+        Drop file here or <em>click to upload</em>
+      </div>
+      <template #tip>
+        <div class="el-upload__tip">Upload file to {{ uploadPath }}</div>
+      </template>
+    </el-upload>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, defineEmits } from "vue";
 import type Node from "element-plus/es/components/tree/src/model/node";
 import {
   Plus,
@@ -178,9 +221,17 @@ import {
   EditPen,
   CaretRight,
   Download,
-  defineEmits,
+  Folder,
+  Files,
+  Upload,
+  UploadFilled,
 } from "@element-plus/icons-vue";
-import { IconFolderAdd, IconPlus } from "@arco-design/web-vue/es/icon";
+
+import {
+  IconFolderAdd,
+  IconPlus,
+  IconLoop,
+} from "@arco-design/web-vue/es/icon";
 import { useRouter } from "vue-router";
 import type { FormInstance } from "element-plus";
 import axios from "axios";
@@ -190,6 +241,10 @@ const ChgNRef = ref<FormInstance>(); // Change file Name
 let dialogNewFVisible = ref(false);
 let dialogNewFNodeVisible = ref(false);
 let dialogChangeNameVisible = ref(false);
+
+let dialogUploadVisible = ref(false);
+let uploadPath = ref("");
+
 const nodeappend = ref<Tree>();
 const projectName = ref("");
 const dataSource = ref<Tree[]>([]);
@@ -346,10 +401,28 @@ const changeName = () => {
   getFileList();
 };
 
+function downloadZip(path: string) {
+  window.open(`/api/project/${projectID}/download/folder${path}`);
+}
+
+function downloadFile(path: string) {
+  window.open(`/api/project/${projectID}/download/single${path}`);
+}
+
+function getUploadUrl() {
+  let url = `/api/project/${projectID}/upload/single${uploadPath.value}`;
+  console.log(uploadPath.value);
+  console.log(url);
+  return url;
+}
+
 onMounted(() => {
   getFileList();
 
-  axios.get(`api/project/${projectID}/`).then((resp) => {
+  // update the file list per list
+  // setInterval(getFileList, 1000);
+
+  axios.get(`/api/project/${projectID}/`).then((resp) => {
     console.log(resp);
     projectName.value = resp.data["project_name"];
   });
@@ -379,7 +452,6 @@ onMounted(() => {
 .spanStyle {
   white-space: nowrap; /*强制span不换行*/
   display: inline-block; /*将span当做块级元素对待*/
-  overflow: hidden; /*超出宽度部分隐藏*/
   text-overflow: ellipsis; /*超出部分以点号代替*/
   line-height: 0.9; /*数字与之前的文字对齐*/
 }

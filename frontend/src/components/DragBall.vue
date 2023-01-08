@@ -23,13 +23,12 @@
         </li>
       </ul>
       <div style="width: 100%">
-        <textarea
-          style="width: 100%; resize: none"
-          id="send_chat_msg_box"
-          rows="3"
-          placeholder="请输入消息"
-        >
-        </textarea>
+        <el-input
+          v-model="input"
+          placeholder="Please input"
+          clearable
+          @keyup.enter="chatNewMsg"
+        />
       </div>
     </div>
   </div>
@@ -53,11 +52,43 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { ArrowUpBold, ArrowDownBold } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 import { Search } from "@element-plus/icons-vue";
+
+const name = useRouter().currentRoute.value.params.username;
+const projectID = useRouter().currentRoute.value.params.projectid;
+
+const input = ref("");
 
 const chatboxVisible = ref(false);
 
-const textarea = ref("");
+const ws = new WebSocket(`ws://localhost:6006/websocket/${projectID}/${name}`);
+
+ws.onopen = function () {
+  console.log("open");
+};
+
+ws.onmessage = function (e) {
+  console.log(e.data);
+  let r = JSON.parse(e.data);
+  console.log(r, typeof r);
+  msgList.value.push(r);
+};
+
+ws.onclose = function () {
+  console.log("close");
+};
+
+ws.onerror = function () {
+  console.log("error");
+};
+
+const chatNewMsg = () => {
+  console.log(input);
+  ws.send(input.value);
+  input.value = "";
+  // 可以提交当前用户，发送的消息input，以及发送时间
+};
 
 const startclientX = ref(0); //记录开始的横坐标位置
 const startclientY = ref(0); //记录开始的纵坐标位置
@@ -85,18 +116,7 @@ interface codingChat {
   time: string;
 }
 
-const msgList: codingChat[] = [
-  {
-    sender: "Dave",
-    msg: "hello",
-    time: "2022-10-2 02:12:12",
-  },
-  {
-    sender: "Sandy",
-    msg: "hello",
-    time: "2022-10-2 02:12:14",
-  },
-];
+const msgList = ref([]);
 </script>
 <style scoped>
 .msgbox {

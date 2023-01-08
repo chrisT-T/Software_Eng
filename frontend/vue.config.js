@@ -23,13 +23,26 @@ module.exports = defineConfig({
         target: "http://localhost:5000",
         changeOrigin: true,
       },
-      "/pylsp": {
-        target: "ws://localhost:30000",
-        ws: true,
+      "/terminal": {
+        target: "ws://localhost:5005",
         changeOrigin: true,
-        pathRewrite: function (path, req) {
-          return path.replace("/pylsp", "");
+        ws: true,
+        pathRewrite: {
+          "^/terminal": "/",
         },
+      },
+      "/yjs": {
+        target: "ws://localhost:1234",
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          "^/yjs": "/",
+        },
+      },
+      "/lsp": {
+        target: "ws://localhost:8088",
+        changeOrigin: true,
+        ws: true,
       },
     },
   },
