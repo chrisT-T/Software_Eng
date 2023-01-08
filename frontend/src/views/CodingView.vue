@@ -18,7 +18,15 @@
             :stroke-width="3"
           />
           <span class="header-span">TO-CODE</span>
-          <a-avatar :size="20">Arco</a-avatar>
+          <a-avatar-group>
+            <a-avatar
+              v-for="item in Editing"
+              :key="item.username"
+              :style="{ backgroundColor: item.color }"
+            >
+              {{ item.username }}
+            </a-avatar>
+          </a-avatar-group>
         </div>
         <div class="user-part">
           <a-button-group type="primary" size="small">
@@ -149,7 +157,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, getCurrentInstance, ref, onMounted, onUnmounted } from "vue";
+import {
+  reactive,
+  getCurrentInstance,
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+} from "vue";
 import {
   IconHome,
   IconUserAdd,
@@ -186,6 +201,7 @@ onMounted(() => {
 const name = useRouter().currentRoute.value.params.username;
 const projectID = useRouter().currentRoute.value.params.projectid;
 
+const Editing = ref([]);
 const editorTheme = ref("vs");
 const editorPanel = ref<InstanceType<typeof EditorPanel> | null>(null);
 const bottomPanel = ref<InstanceType<typeof BottomPanel> | null>(null);
@@ -267,8 +283,17 @@ function getBreakpoints() {
   console.log(editorPanel.value?.getBreakpoints());
 }
 
+watch(
+  () => editorPanel.value?.userColor,
+  (val) => {
+    console.log("watch updated");
+    Editing.value = val;
+  },
+  { deep: true }
+);
 function getcolorMap() {
-  console.log(editorPanel.value?.getColorMap());
+  console.log(editorPanel.value?.userColor[0]);
+  console.log(Editing.value);
 }
 
 // run current code in terminal

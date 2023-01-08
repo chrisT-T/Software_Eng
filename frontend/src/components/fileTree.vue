@@ -64,7 +64,14 @@
                   @click="remove(node, data)"
                   >Delete</el-dropdown-item
                 >
-                <el-dropdown-item :icon="EditPen">Change name</el-dropdown-item>
+                <el-dropdown-item
+                  :icon="EditPen"
+                  @click="
+                    (dialogChangeNameVisible = true),
+                      (ChgNform.path = data.path)
+                  "
+                  >Change name</el-dropdown-item
+                >
                 <el-dropdown-item :icon="CaretRight">Debug</el-dropdown-item>
                 <el-dropdown-item
                   :icon="Download"
@@ -161,6 +168,37 @@
       </span>
     </template>
   </el-dialog>
+  <el-dialog
+    v-model="dialogChangeNameVisible"
+    title="修改文件名"
+    class="new-dialog"
+    align-center
+    width="350px"
+  >
+    <el-form ref="ChgNRef" :model="ChgNform" label-position="top" status-icon>
+      <el-form-item label="Name" prop="name">
+        <el-input v-model="ChgNform.newName" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button
+          @click="resetForm(ChgNRef), (dialogChangeNameVisible = false)"
+          >Cancel</el-button
+        >
+        <el-button
+          type="primary"
+          @click="
+            changeName(ChgNRef),
+              resetForm(ChgNRef),
+              (dialogChangeNameVisible = false)
+          "
+        >
+          Confirm
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
   <el-dialog v-model="dialogUploadVisible" title="Upload">
     <el-upload class="upload-demo" drag :action="getUploadUrl()" multiple>
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
@@ -199,8 +237,10 @@ import type { FormInstance } from "element-plus";
 import axios from "axios";
 
 const NewFRef = ref<FormInstance>();
+const ChgNRef = ref<FormInstance>(); // Change file Name
 let dialogNewFVisible = ref(false);
 let dialogNewFNodeVisible = ref(false);
+let dialogChangeNameVisible = ref(false);
 
 let dialogUploadVisible = ref(false);
 let uploadPath = ref("");
@@ -212,6 +252,10 @@ const projectID = useRouter().currentRoute.value.params.projectid;
 const NewFform = reactive({
   name: "",
   type: "",
+  path: "",
+});
+const ChgNform = reactive({
+  newName: "",
   path: "",
 });
 
@@ -262,8 +306,6 @@ const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate((valid) => {
     if (valid) {
-      console.log("submit!");
-      console.log(NewFform);
       axios
         .post(`/api/file/${projectID}/${NewFform.name}`, {
           type: NewFform.type,
@@ -335,11 +377,28 @@ const addNew2Proj = () => {
 };
 
 const remove = (node: Node, data: Tree) => {
+  console.log(node);
+  console.log(data);
   const parent = node.parent;
   const children: Tree[] = parent.data.children || parent.data;
   const index = children.findIndex((d) => d.id === data.id);
   children.splice(index, 1);
   dataSource.value = [...dataSource.value];
+
+  axios.delete(`/api/file/${projectID}${data.path}`).catch((err) => {
+    console.log(err);
+  });
+};
+
+const changeName = () => {
+  axios
+    .post(`/api/file/${projectID}/rename/${ChgNform.path}`, {
+      new_name: ChgNform.newName,
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  getFileList();
 };
 
 function downloadZip(path: string) {

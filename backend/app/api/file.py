@@ -18,6 +18,7 @@ file_service = FileService()
 
 parser = reqparse.RequestParser()
 parser.add_argument('file', type=FileStorage, location='files')
+parser.add_argument('new_name', type=str, location='form')
 
 
 class File(Resource):
@@ -165,3 +166,17 @@ class File(Resource):
 
 
 file_api.add_resource(File, "/api/file/<int:project_id>/<path:path>")
+
+
+@bp.route('/api/file/<int:proj_id>/rename/<path:path>', methods=["POST"])
+@login_required
+def rename_file(proj_id, path):
+    if not check_project_permission(proj_id, "edit"):
+        abort(400, message="permission denied")
+    new_name = json.loads(request.data)['new_name']
+    print(path, proj_id, new_name)
+    res, flag = file_service.rename_file(path, proj_id, new_name)
+    if flag:
+        return '', 204
+    else:
+        abort(400, message=res)

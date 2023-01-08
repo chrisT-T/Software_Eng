@@ -66,6 +66,11 @@ export interface TabInfo {
   index: string;
 }
 
+export interface UserColor {
+  username: string;
+  color: string;
+}
+
 const props = defineProps<{
   theme: string;
   containerSubdomain: string;
@@ -78,6 +83,8 @@ const emit = defineEmits<{
   (e: "startDebug", path: string): void;
 }>();
 
+const userColor = ref<Array<UserColor>>(new Array<UserColor>());
+
 defineExpose({
   addFile,
   renameFile,
@@ -85,7 +92,7 @@ defineExpose({
   getBreakpoints,
   focusLine,
   clearFocusLine,
-  getColorMap,
+  userColor,
   disposePanel,
   getFilePath,
 });
@@ -98,7 +105,6 @@ watch(
 );
 
 const fileInfos = new Array<FileInfo>();
-const colorMap = new Map<string, string>();
 
 let tabIndex = 0;
 const editableTabsValue = ref("0");
@@ -255,11 +261,21 @@ function addFile(path: string, value: string) {
       },
     });
     addTab(fileName, parentPath, tabIndex.toString());
-    let block = [...document.styleSheets].reverse().find(({ cssRules }) => {
-      return [...cssRules].find((rule) => {
-        return rule.selectorText.includes("yRemoteSelection");
-      });
-    });
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      for (var j = 0; j < document.styleSheets[i].cssRules.length; j++) {
+        if (
+          typeof document.styleSheets[i].cssRules[j].selectorText == "string"
+        ) {
+          if (
+            document.styleSheets[i].cssRules[j].selectorText.includes(
+              "yRemoteSelection"
+            )
+          ) {
+            var block = document.styleSheets[i];
+          }
+        }
+      }
+    }
     setTimeout(() => {
       const ydoc = new Y.Doc();
       const type = ydoc.getText("monaco");
@@ -275,7 +291,7 @@ function addFile(path: string, value: string) {
         while (!block?.cssRules[0].selectorText.includes("monaco")) {
           block?.deleteRule(0);
         }
-        colorMap.clear();
+        userColor.value.splice(0);
 
         awareness.getStates().forEach((value, clientID) => {
           common.cssRule.forEach((item) => {
@@ -286,7 +302,10 @@ function addFile(path: string, value: string) {
               0
             );
           });
-          colorMap[value.user.name] = value.user.color;
+          userColor.value.push({
+            username: value.user.name,
+            color: value.user.color,
+          });
         });
       });
       awareness.setLocalStateField("user", {
@@ -524,10 +543,6 @@ function clearFocusLine() {
     );
   });
   return;
-}
-
-function getColorMap() {
-  return colorMap;
 }
 
 function disposePanel() {

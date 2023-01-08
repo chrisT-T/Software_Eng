@@ -218,6 +218,20 @@ class ProjectService():
             print(e)
             return 'Exception in accepting invitation', False
 
+    def deny_invitation(self, username, proj_id):
+        try:
+            target = Project.query.filter_by(id=proj_id).first()
+            user = User.query.filter_by(username=username).first()
+
+            target.pending_users.remove(user)
+            db.session.commit()
+
+            return "invitation denied", True
+
+        except Exception as e:
+            print(e)
+            return 'Exception in denying invitation', False
+
     def change_name(self, project_id: int, name: str):
         '''
         change project name
