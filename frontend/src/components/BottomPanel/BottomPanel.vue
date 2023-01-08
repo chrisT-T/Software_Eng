@@ -65,15 +65,15 @@ onMounted(() => {
   width: 100%;
 }
 
-::v-deep .bottom-panel-tabs > .el-tabs__header {
+:deep(.bottom-panel-tabs > .el-tabs__header) {
   margin: 0px;
 }
 
-::v-deep .bottom-panel-tabs > .el-tabs__content {
+:deep(.bottom-panel-tabs > .el-tabs__content) {
   height: 100%;
 }
 
-::v-deep .bottom-panel-tabs > .el-tabs__content > .el-tab-pane {
+:deep(.bottom-panel-tabs > .el-tabs__content > .el-tab-pane) {
   height: 100%;
   width: 100%;
 }

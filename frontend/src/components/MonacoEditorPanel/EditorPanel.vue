@@ -570,11 +570,11 @@ function disposePanel() {
   width: 100%;
 }
 
-::v-deep .demo-tabs > .el-tabs__header {
+:deep(.demo-tabs > .el-tabs__header) {
   margin: 0px;
 }
 
-::v-deep .demo-tabs > .el-tabs__content {
+:deep(.demo-tabs > .el-tabs__content) {
   padding: 0px;
   color: #6b778c;
   font-size: 32px;
@@ -583,7 +583,7 @@ function disposePanel() {
   width: 100%;
 }
 
-::v-deep .demo-tabs > .el-tabs__content > .el-tab-pane {
+:deep(.demo-tabs > .el-tabs__content > .el-tab-pane) {
   height: 100%;
   width: 100%;
 }

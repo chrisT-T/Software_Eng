@@ -384,4 +384,15 @@ function clearFocusLine() {
 .el2 {
   flex-grow: 1;
 }
+.splitpanes {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.splitpanes--horizontal {
+  flex-direction: column;
+}
+.splitpanes--vertical {
+  flex-direction: row;
+}
 </style>
