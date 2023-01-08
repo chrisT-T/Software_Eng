@@ -1,0 +1,10 @@
+FROM python:3.10
+
+COPY requirements.txt requirements.txt
+ADD start.sh /
+
+RUN pip3 install -r requirements.txt
+
+EXPOSE 30000
+
+CMD [ "/bin/bash", "/start.sh"]

@@ -1,7 +1,7 @@
 import os
 import zipfile
 
-from flask import Blueprint, json, request, send_file
+from flask import Blueprint, current_app, json, request, send_file
 from flask_login import current_user, login_required
 from flask_restful import Api, Resource, abort, fields, marshal_with, reqparse
 
@@ -23,7 +23,7 @@ user_service = UserService()
 parser = reqparse.RequestParser()
 parser.add_argument('creator_name', type=str, location='form')
 parser.add_argument('project_name', type=str, location='form')
-parser.add_argument('language', type=str, location='form', choices=('Python', 'Cpp', 'Java', 'C'), help='Bad choice: {error_msg}')
+parser.add_argument('language', type=str, location='form', help='Bad choice: {error_msg}')
 parser.add_argument('password', type=str, location='form')
 parser.add_argument('new_name', type=str, location='form')
 parser.add_argument('original_permission', type=str, location='form')

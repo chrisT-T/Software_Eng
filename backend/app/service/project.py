@@ -44,22 +44,28 @@ class ProjectService():
 
             # create docker process
             docker_client = docker.from_env()
-            if project_language == 'Python':
-                container = docker_client.containers.run(
-                    image='python:3.9',
-                    volumes=[f'{project_root_path}:/{project_name}'],
-                    detach=True,
-                    labels={
-                        f"traefik.http.routers.{hash_id}-lsp.rule": f"Host(`{hash_id}.lsp.localhost`)",
-                        f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
-                        f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
-                        f"traefik.http.routers.{hash_id}-debug.rule": f"Host(`{hash_id}.debug.localhost`)",
-                        f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
-                        f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
-                    },
-                    network="traefik_default"
-                )
-                docker_id = container.id
+
+            if project_language not in current_app.config['docker_config'].keys():
+                print(f"wrong project language {project_language}")
+                return f"wrong project language {project_language}", False
+
+            image_tag = current_app.config['docker_config'][project_language]
+
+            container = docker_client.containers.run(
+                image=image_tag,
+                volumes=[f'{project_root_path}:/{project_name}'],
+                detach=True,
+                labels={
+                    f"traefik.http.routers.{hash_id}-lsp.rule": f"Path(`/lsp/{hash_id}`)",
+                    f"traefik.http.routers.{hash_id}-lsp.service": f"{hash_id}-lsp-service",
+                    f"traefik.http.services.{hash_id}-lsp-service.loadbalancer.server.port": "30000",
+                    f"traefik.http.routers.{hash_id}-debug.rule": f"Path(`localhost/debug/{hash_id}`)",
+                    f"traefik.http.routers.{hash_id}-debug.service": f"{hash_id}-debug-service",
+                    f"traefik.http.services.{hash_id}-debug-service.loadbalancer.server.port": "30005",
+                },
+                network="traefik_default"
+            )
+            docker_id = container.id
 
             print(docker_id)
             new_project.docker_id = docker_id

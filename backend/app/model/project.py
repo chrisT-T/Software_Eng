@@ -12,7 +12,7 @@ class Project(db.Model):
     hash_id = db.Column(db.String(32))
     create_time = db.Column(db.DateTime, default=datetime.datetime.now())
     last_edit_time = db.Column(db.DateTime, default=datetime.datetime.now())
-    project_language = db.Column(db.Enum('Python', 'Cpp', 'Java', 'C'))
+    project_language = db.Column(db.String(32))
     docker_id = db.Column(db.Text)
     path = db.Column(db.Text)
 

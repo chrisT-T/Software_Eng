@@ -21,18 +21,25 @@ const term = new Terminal({
 });
 const fitAddon = new FitAddon();
 const terminalWs = new WebSocket(
-  `ws://localhost:5005/websocket/${props.containerId}`
+  `ws://${location.host}/terminal/websocket/${props.containerId}`
 );
 const attachAddon = new AttachAddon(terminalWs);
 
 onMounted(() => {
-  console.log(`ws://localhost:5005/websocket/${props.containerId}`);
+  console.log(`ws://${location.host}/terminal/websocket/${props.containerId}`);
   term.open(termDiv?.value as HTMLElement);
   term.loadAddon(fitAddon);
   term.loadAddon(attachAddon);
 
-  term.writeln("welcome to use docker web terminal!");
-
+  window.addEventListener("resize", resizeScreen);
+  function resizeScreen() {
+    try {
+      // 窗口大小改变时，触发xterm的resize方法使自适应
+      fitAddon.fit();
+    } catch (e) {
+      console.log("e", e.message);
+    }
+  }
   setTimeout(() => {
     fitAddon.fit();
   }, 6);

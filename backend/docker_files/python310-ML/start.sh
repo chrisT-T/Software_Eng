@@ -1,0 +1,1 @@
+pylsp --ws --port 30000 -v

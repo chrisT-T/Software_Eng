@@ -264,7 +264,7 @@ function addFile(path: string, value: string) {
       const ydoc = new Y.Doc();
       const type = ydoc.getText("monaco");
       const provider = new WebsocketProvider(
-        "ws://localhost:1234",
+        `ws://${location.host}/yjs/`,
         props.projectid + path,
         ydoc
       );
