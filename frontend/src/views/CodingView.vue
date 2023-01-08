@@ -44,11 +44,6 @@
             </a-button>
           </a-button-group>
           <a-divider direction="vertical" />
-          <icon-user-add
-            :style="{ fontSize: '20px', margin: '0 5px' }"
-            :stroke-width="3"
-            @click="dialogTableVisible = true"
-          />
         </div>
       </el-header>
       <el-container class="el2">
